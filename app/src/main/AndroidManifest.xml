@@ -29,6 +29,11 @@
             android:value="@string/google_maps_key"/>
 
         <activity
+            android:name=".InfoEditActivity">
+        </activity>
+
+
+        <activity
             android:name=".MarkerDemoActivity"
             android:label="@string/title_activity_marker_demo">
             <intent-filter>
