@@ -33,11 +33,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.maps.android.SphericalUtil.interpolate;
+
 public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private static final int MAX_MARKERS=3;
-    private GoogleMap mMap;
+    private static GoogleMap mMap;
     private static List<MarkerObject> markerList = new ArrayList<>();
+    private static List<Marker> midpointList = new ArrayList<>();
     private static Polyline polyline;
     public static String currentMarkerId = null;
 
@@ -168,12 +171,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         LatLng EKRK = new LatLng(55.59,	12.13);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(EKRK,12));
 
-        // Add a marker at EKRK with an midpoint marker ... testing
-        Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(EKRK)
-                .title("Roskilde Lufthavn")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_mid_circle)));
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
     }
 
     /*
@@ -196,6 +193,34 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         marker.setSnippet(adr.getCountryName());
     }
 
+    private static void updateMidpoints() {
+        if (markerList.size()<1) return;
+
+        // remove old markers from map and clear the storage
+        for (int i=0;i<midpointList.size();i++){
+            midpointList.get(i).remove();
+        }
+        midpointList.clear();
+
+        // Go through all markers and add new midpoints
+        for (int i=0; i<markerList.size()-1;i++) {
+            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(midPt)
+                            .anchor((float)0.5, (float)0.5)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_mid_circle)));
+
+            midpointList.add(marker);
+        }
+    }
+
+    private static boolean isMidpoint(Marker marker) {
+        for (int i=0;i<midpointList.size();i++){
+            if (midpointList.get(i).getPosition().equals(marker.getPosition()))
+                return true;
+        }
+        return false;
+    }
 
     public static void updatePolyline() {
         List<LatLng> points= new ArrayList<>();
@@ -203,6 +228,8 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             points.add(mo.getMarker().getPosition());
         }
         polyline.setPoints(points);
+
+        updateMidpoints();
     }
 
     @Override
@@ -282,9 +309,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
      * from long pressing the map
      */
     private void addMarker(Address adr, double lat, double lng) {
-        if (markerList.size()==MAX_MARKERS) {
-            removeAllMarkers();
-        }
 
         String text = adr.getLocality();
         MarkerOptions options = new MarkerOptions()
@@ -304,6 +328,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         dumpMarkerList();
 
         updateLine(lat, lng);
+        updateMidpoints();
     }
 
     public void dumpMarkerList() {
@@ -327,26 +352,12 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     }
 
 
-    private void removeAllMarkers() {
-        for (MarkerObject mo : markerList) {
-            mo.getMarker().remove();
-        }
-        markerList.clear();
-
-        if (polyline!=null){
-            polyline.remove();
-            polyline=null;
-        }
-    }
-
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.d("TB","Info window clicked");
 
         Intent intent = new Intent(this, InfoEditActivity.class);
         startActivity(intent);
         marker.hideInfoWindow();
-
     }
 
     public static void DeleteMarker(String mId) {
