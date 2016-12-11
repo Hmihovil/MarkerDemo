@@ -20,6 +20,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -166,6 +167,13 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
 
         LatLng EKRK = new LatLng(55.59,	12.13);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(EKRK,12));
+
+        // Add a marker at EKRK with an midpoint marker ... testing
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(EKRK)
+                .title("Roskilde Lufthavn")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_mid_circle)));
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
     }
 
     /*
