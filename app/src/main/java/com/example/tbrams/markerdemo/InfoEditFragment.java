@@ -12,11 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.Marker;
 
 public class InfoEditFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "MARKER_ID";
+    private String markerId;
 
     public static InfoEditFragment newInstance(String markerId) {
 
@@ -31,11 +35,11 @@ public class InfoEditFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.info_window_edit, container, false);
+        final View v = inflater.inflate(R.layout.info_window_edit, container, false);
 
         // Get marker id from argument bundle
-        String MarkerId= (String) getArguments().getSerializable(ARG_CRIME_ID);
-        Log.d("TBR:","MarkerId: "+MarkerId);
+        markerId= (String) getArguments().getSerializable(ARG_CRIME_ID);
+        Log.d("TBR:","Now in InfoEditFragment - MarkerId: "+markerId);
 
 
 
@@ -43,8 +47,12 @@ public class InfoEditFragment extends Fragment {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialogCreate();
-                Log.d("TBR", "Update Btn clicked");
+                EditText eTit = (EditText) v.findViewById(R.id.placeText);
+                EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
+                String tit = String.valueOf(eTit.getText());
+                String snp = String.valueOf(eSnp.getText());
+                Log.d("TBR", "Update Btn clicked, tit ="+tit+", snp="+snp);
+                MarkerDemoActivity.updateMarker(markerId, tit, snp);
 
             }
         });
@@ -53,8 +61,8 @@ public class InfoEditFragment extends Fragment {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialogCreate();
                 Log.d("TBR", "Delete Btn clicked");
+                AlertDialogCreate();
 
             }
         });
@@ -64,8 +72,8 @@ public class InfoEditFragment extends Fragment {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialogCreate();
                 Log.d("TBR", "Cancel Btn clicked");
+                getActivity().onBackPressed();
 
             }
         });
@@ -86,7 +94,10 @@ public class InfoEditFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        Toast.makeText(getActivity(), "You Clicked on OK", Toast.LENGTH_SHORT).show();
+                        Log.d("TBR","Dialog Request accepted with OK");
+                        MarkerDemoActivity.DeleteMarker(markerId);
+                        getActivity().onBackPressed();
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -94,7 +105,7 @@ public class InfoEditFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        Toast.makeText(getActivity(), "You Clicked on Cancel", Toast.LENGTH_SHORT).show();
+                        Log.d("TBR","Dialog Requet declined with Cancel");
                     }
                 }).show();
     }
