@@ -41,6 +41,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     private static GoogleMap mMap;
     private static List<MarkerObject> markerList = new ArrayList<>();
     private static List<Marker> midpointList = new ArrayList<>();
+    private static List<Integer> previousList = new ArrayList<>();
     private static Polyline polyline;
     public static String currentMarkerId = null;
 
@@ -113,30 +114,37 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (isMidpoint(marker)) {
-                    Log.d("TBR", "Midpoint marker clicked");
-                    // do not show anything for this one...
+
+                // Get markerID as a global variable - we need this for the edit intent
+                currentMarkerId=marker.getId();
+                Log.d("TBR","Marker "+currentMarkerId+" clicked.");
+
+                if (isMidpoint(marker)>=0) {
+                    Log.d("TBR", "This is a midpoint");
+                    // do not show anything for this one... but add a new marker here
+
                     return true;
-
                 } else {
-                    // Get markerID as a global variable - we need this for the edit intent
-                    currentMarkerId=marker.getId();
-                    Log.d("TBR","Marker "+currentMarkerId+" clicked.");
-
                     // returning false here will show the info window automatically - default behavior
                     return false;
                 }
+
             }
         });
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
-                if (isMidpoint(marker)) {
-                    Log.d("TBR", "Midpoint marker drag attempted");
-                } else {
-                    currentMarkerId=marker.getId();
-                    Log.d("TBR","Marker "+currentMarkerId+" drag started ");
+
+               currentMarkerId=marker.getId();
+                Log.d("TBR","Marker "+currentMarkerId+" drag started ");
+                int pp =isMidpoint(marker);
+                if (pp>=0) {
+                    Log.d("TBR", "This is a midpoint marker - we should insert new between "+pp+" and "+(pp+1));
+
+                    addMarker(marker.getPosition(), pp);
+
+
                 }
 
             }
@@ -206,6 +214,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             midpointList.get(i).remove();
         }
         midpointList.clear();
+        previousList.clear();
 
         // Go through all markers and add new midpoints
         for (int i=0; i<markerList.size()-1;i++) {
@@ -213,18 +222,20 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(midPt)
                             .anchor((float)0.5, (float)0.5)
+                            .draggable(true)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_mid_circle)));
 
             midpointList.add(marker);
+            previousList.add(i);
         }
     }
 
-    private static boolean isMidpoint(Marker marker) {
+    private static int isMidpoint(Marker marker) {
         for (int i=0;i<midpointList.size();i++){
             if (midpointList.get(i).getPosition().equals(marker.getPosition()))
-                return true;
+                return i;
         }
-        return false;
+        return -1;
     }
 
     public static void updatePolyline() {
@@ -331,6 +342,44 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         markerList.add(new MarkerObject(marker, text, country));
 
         updateLine(lat, lng);
+        updateMidpoints();
+    }
+
+ /*
+ * This one is used when adding a marker from midpoint dragging
+ *
+ */
+    private void addMarker(LatLng loc, int afterThis) {
+
+        Geocoder gc = new Geocoder(MarkerDemoActivity.this);
+        List<Address> list = null;
+
+        try {
+            list = gc.getFromLocation(loc.latitude, loc.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Address adr = list.get(0);
+
+
+        String text = adr.getLocality();
+        MarkerOptions options = new MarkerOptions()
+                .title(text)
+                .draggable(true)
+                .position(loc);
+
+        String country = adr.getCountryName();
+        if (country.length() > 0) {
+            options.snippet(country);
+        }
+
+        Marker marker = mMap.addMarker(options);
+        Log.d("TBR", "Marker with id: "+marker.getId()+" added");
+        markerList.add(afterThis, new MarkerObject(marker, text, country));
+
+        updateLine(loc.latitude, loc.longitude);
         updateMidpoints();
     }
 
