@@ -404,7 +404,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             if (markerList.get(i).getMarker().getId().equals(mId)) {
                 markerList.get(i).getMarker().remove();
                 markerList.remove(i);
-                Log.d("TBR", "Marker index "+i+ " removed");
 
                 updatePolyline();
 
@@ -421,7 +420,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
                 markerList.get(i).setSnippet(snp);
                 markerList.get(i).getMarker().setTitle(tit);
                 markerList.get(i).getMarker().setSnippet(snp);
-                Log.d("TBR", "Marker index "+i+ " updated");
 
                 return;
             }
