@@ -114,18 +114,19 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-
-                // Get markerID as a global variable - we need this for the edit intent
                 currentMarkerId=marker.getId();
                 Log.d("TBR","Marker "+currentMarkerId+" clicked.");
 
-                if (isMidpoint(marker)>=0) {
+                if (isMidPoint(marker)) {
                     Log.d("TBR", "This is a midpoint");
-                    // do not show anything for this one... but add a new marker here
+                    int pp=getMidpointIndex(marker);
+                    // Add new marker here ( in a special color?)
+                    addMarker(marker.getPosition(), pp);
 
+                    // do not show info window
                     return true;
                 } else {
-                    // returning false here will show the info window automatically - default behavior
+                    // returning false - show the info window
                     return false;
                 }
 
@@ -135,23 +136,10 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
-
-               currentMarkerId=marker.getId();
-                Log.d("TBR","Marker "+currentMarkerId+" drag started ");
-                int pp =isMidpoint(marker);
-                if (pp>=0) {
-                    Log.d("TBR", "This is a midpoint marker - we should insert new between "+pp+" and "+(pp+1));
-
-                    addMarker(marker.getPosition(), pp);
-
-
-                }
-
             }
 
             @Override
             public void onMarkerDrag(Marker marker) {
-
                 updatePolyline();
             }
 
@@ -216,21 +204,24 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         midpointList.clear();
         previousList.clear();
 
-        // Go through all markers and add new midpoints
+        // Go through all markers and add new non draggable midpoint markers
         for (int i=0; i<markerList.size()-1;i++) {
             LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
             Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(midPt)
                             .anchor((float)0.5, (float)0.5)
-                            .draggable(true)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_mid_circle)));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
 
             midpointList.add(marker);
             previousList.add(i);
         }
     }
 
-    private static int isMidpoint(Marker marker) {
+    private boolean isMidPoint(Marker marker) {
+        return (getMidpointIndex(marker)>=0);
+    }
+
+    private static int getMidpointIndex(Marker marker) {
         for (int i=0;i<midpointList.size();i++){
             if (midpointList.get(i).getPosition().equals(marker.getPosition()))
                 return i;
@@ -377,7 +368,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
 
         Marker marker = mMap.addMarker(options);
         Log.d("TBR", "Marker with id: "+marker.getId()+" added");
-        markerList.add(afterThis, new MarkerObject(marker, text, country));
+        markerList.add(afterThis+1, new MarkerObject(marker, text, country));
 
         updateLine(loc.latitude, loc.longitude);
         updateMidpoints();
@@ -392,8 +383,10 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             polyline = mMap.addPolyline(lineOptions);
         }
 
-        List<LatLng> points = polyline.getPoints();
-        points.add(new LatLng(lat, lng));
+        List<LatLng> points = new ArrayList<>();
+        for (int i=0;i<markerList.size();i++){
+            points.add(markerList.get(i).getMarker().getPosition());
+        }
         polyline.setPoints(points);
     }
 
