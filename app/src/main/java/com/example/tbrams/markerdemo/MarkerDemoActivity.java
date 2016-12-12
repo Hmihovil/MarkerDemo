@@ -113,24 +113,31 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                String msg = marker.getTitle() + " (" +
-                        marker.getPosition().latitude + ", " +
-                        marker.getPosition().longitude + ")";
+                if (isMidpoint(marker)) {
+                    Log.d("TBR", "Midpoint marker clicked");
+                    // do not show anything for this one...
+                    return true;
 
-                // Get markerID as a global variable - we need this for the edit intent
-                currentMarkerId=marker.getId();
-                Log.d("TBR","Marker "+currentMarkerId+" clicked at "+msg);
+                } else {
+                    // Get markerID as a global variable - we need this for the edit intent
+                    currentMarkerId=marker.getId();
+                    Log.d("TBR","Marker "+currentMarkerId+" clicked.");
 
-                // returning false here will show the info window automatically - default behavior
-                return false;
+                    // returning false here will show the info window automatically - default behavior
+                    return false;
+                }
             }
         });
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
-                currentMarkerId=marker.getId();
-                Log.d("TBR","Marker "+currentMarkerId+" drag started ");
+                if (isMidpoint(marker)) {
+                    Log.d("TBR", "Midpoint marker drag attempted");
+                } else {
+                    currentMarkerId=marker.getId();
+                    Log.d("TBR","Marker "+currentMarkerId+" drag started ");
+                }
 
             }
 
@@ -145,8 +152,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
                 Log.d("TBR","Marker "+currentMarkerId+" drag ended");
                 updateMarkerInfo(marker);
                 updatePolyline();
-
-                dumpMarkerList();
 
                 // marker.showInfoWindow();
 /*
@@ -325,18 +330,10 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         Log.d("TBR", "Marker with id: "+marker.getId()+" added");
         markerList.add(new MarkerObject(marker, text, country));
 
-        dumpMarkerList();
-
         updateLine(lat, lng);
         updateMidpoints();
     }
 
-    public void dumpMarkerList() {
-        Log.d("TBR","markerList dump:");
-        for (int i=0;i<markerList.size();i++) {
-            Log.d("TBR","markerList["+i+"]: "+markerList.get(i).getText());
-        }
-    }
 
 
     private void updateLine(double lat, double lng) {
