@@ -37,13 +37,20 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 
 public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
-    private static final int MAX_MARKERS=3;
     private static GoogleMap mMap;
-    private static List<MarkerObject> markerList = new ArrayList<>();
+    MarkerLab markerLab = MarkerLab.getMarkerLab(this);
+    List<MarkerObject> markerList = markerLab.getMarkers();
+
     private static List<Marker> midpointList = new ArrayList<>();
     private static List<Integer> previousList = new ArrayList<>();
     private static Polyline polyline;
     public static String currentMarkerId = null;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updatePolyline();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,7 +201,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         marker.setSnippet(adr.getCountryName());
     }
 
-    private static void updateMidpoints() {
+    private void updateMidpoints() {
         if (markerList.size()<1) return;
 
         // remove old markers from map and clear the storage
@@ -229,7 +236,9 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         return -1;
     }
 
-    public static void updatePolyline() {
+    public void updatePolyline() {
+        if (polyline==null) return;
+
         List<LatLng> points= new ArrayList<>();
         for (MarkerObject mo: markerList) {
             points.add(mo.getMarker().getPosition());
@@ -399,32 +408,5 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         marker.hideInfoWindow();
     }
 
-    public static void DeleteMarker(String mId) {
-        for (int i=0;i<markerList.size();i++) {
-            if (markerList.get(i).getMarker().getId().equals(mId)) {
-                markerList.get(i).getMarker().remove();
-                markerList.remove(i);
-
-                updatePolyline();
-
-                return;
-            }
-        }
-
-    }
-
-    public static void updateMarker(String mId, String tit, String snp) {
-        for (int i=0;i<markerList.size();i++) {
-            if (markerList.get(i).getMarker().getId().equals(mId)) {
-                markerList.get(i).setText(tit);
-                markerList.get(i).setSnippet(snp);
-                markerList.get(i).getMarker().setTitle(tit);
-                markerList.get(i).getMarker().setSnippet(snp);
-
-                return;
-            }
-        }
-
-    }
 
 }
