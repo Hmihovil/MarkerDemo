@@ -41,6 +41,11 @@ public class InfoEditFragment extends Fragment {
         markerId= (String) getArguments().getSerializable(ARG_CRIME_ID);
         Log.d("TBR:","Now in InfoEditFragment - MarkerId: "+markerId);
 
+        // Update Edit Text fields with marker provided info
+        EditText eTit = (EditText) v.findViewById(R.id.placeText);
+        EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
+
+///     Not sure how to get access to these values
 
 
         Button btnUpdate = (Button) v.findViewById(R.id.buttonUpdate);
