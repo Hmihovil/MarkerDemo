@@ -136,17 +136,16 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public boolean onMarkerClick(Marker marker) {
                 currentMarkerId=marker.getId();
-                Log.d("TBR","Marker "+currentMarkerId+" clicked.");
 
                 if (isMidPoint(marker)) {
-                    Log.d("TBR", "This is a midpoint");
                     int pp=getMidpointIndex(marker);
-                    // Add new marker here ( in a special color?)
                     addMarker(marker.getPosition(), pp);
 
-                    // do not show info window
+                    // exit without showing info window
                     return true;
+
                 } else {
+
                     // returning false - show the info window
                     return false;
                 }
@@ -166,27 +165,8 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
-                Log.d("TBR","Marker "+currentMarkerId+" drag ended");
                 updateMarkerInfo(marker);
                 updatePolyline();
-
-                // marker.showInfoWindow();
-/*
-                double distance = SphericalUtil.computeDistanceBetween(marker1.getPosition(), marker2.getPosition());
-                double bearing = SphericalUtil.computeHeading(marker1.getPosition(), marker2.getPosition());
-
-                String unit = "m";
-                if (distance < 1) {
-                    distance *= 1000;
-                    unit = "mm";
-                } else if (distance > 1000) {
-                    distance /= 1000;
-                    unit = "km";
-                }
-                String msg =String.format("%4.3f%s", distance, unit)+" "+String.format("%4.0f%s", bearing, "°");
-
-                Toast.makeText(MarkerDemoActivity.this, msg, Toast.LENGTH_SHORT).show();
- */
             }
         });
 
@@ -390,7 +370,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         }
 
         Marker marker = mMap.addMarker(options);
-        Log.d("TBR", "Marker with id: "+marker.getId()+" added");
         markerList.add(afterThis+1, new MarkerObject(marker, text, country));
 
         updateLine(loc.latitude, loc.longitude);
@@ -417,7 +396,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onInfoWindowClick(Marker marker) {
 
-        Intent intent = NavPagerActivity.newIntent(getApplicationContext(), currentMarkerId);
+        Intent intent = NavPagerActivity.newIntent(MarkerDemoActivity.this, currentMarkerId);
         startActivity(intent);
         marker.hideInfoWindow();
     }

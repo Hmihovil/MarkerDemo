@@ -21,7 +21,8 @@ import java.util.List;
 
 public class InfoEditFragment extends Fragment {
 
-    private static final String ARG_CRIME_ID = "MARKER_ID";
+    private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
+
     private String markerId;
     private int markerIndex=-1;
 
@@ -31,10 +32,11 @@ public class InfoEditFragment extends Fragment {
     public static InfoEditFragment newInstance(String markerId) {
 
         Bundle args = new Bundle();
-        args.putSerializable(ARG_CRIME_ID, markerId);
+        args.putSerializable(EXTRA_MARKER_ID, markerId);
 
         InfoEditFragment fragment=new InfoEditFragment();
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -44,14 +46,13 @@ public class InfoEditFragment extends Fragment {
         final View v = inflater.inflate(R.layout.info_window_edit, container, false);
 
         // Get marker id from argument bundle and find the index on the MarkerLab
-        markerId= (String) getArguments().getSerializable(ARG_CRIME_ID);
+        markerId= (String) getArguments().getSerializable(EXTRA_MARKER_ID);
         for (int i=0;i<markerList.size();i++) {
             if (markerList.get(i).getMarker().getId().equals(markerId)) {
                 markerIndex = i;
                 break;
             }
         }
-
 
         // Update Edit Text fields with marker provided info
         EditText eTit = (EditText) v.findViewById(R.id.placeText);
