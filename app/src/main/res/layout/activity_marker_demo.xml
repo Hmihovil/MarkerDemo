@@ -11,16 +11,13 @@
 
     <TextView
         android:id="@+id/SearchLabel"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/location_label"
         android:textSize="20sp"
-        tools:layout_constraintTop_creator="1"
+        tools:layout_editor_absoluteY="16dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <EditText
         android:id="@+id/editText1"
@@ -55,7 +52,7 @@
         tools:layout_conversion_absoluteY="11dp"
         tools:layout_conversion_absoluteWidth="88dp"
         tools:layout_conversion_absoluteHeight="48dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBaseline_toBaselineOf="@+id/editText1"/>
 
@@ -80,5 +77,16 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintVertical_bias="1.0"
         android:layout_marginTop="8dp"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@android:drawable/ic_dialog_email"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintRight_toRightOf="@+id/map"/>
+
 
 </android.support.constraint.ConstraintLayout>
