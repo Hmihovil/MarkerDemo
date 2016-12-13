@@ -54,5 +54,13 @@ public class NavPagerActivity extends FragmentActivity {
                 return markerList.size();
             }
         });
+
+        // Set current ID in ViewPAger
+        for (int i = 0; i < markerList.size(); i++) {
+            if (markerList.get(i).getMarker().getId().equals(markerID)) {
+                mViewPager.setCurrentItem(i);
+                break;
+            }
+        }
     }
 }

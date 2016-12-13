@@ -396,7 +396,7 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onInfoWindowClick(Marker marker) {
 
-        Intent intent = NavPagerActivity.newIntent(MarkerDemoActivity.this, currentMarkerId);
+        Intent intent = NavPagerActivity.newIntent(this, currentMarkerId);
         startActivity(intent);
         marker.hideInfoWindow();
     }
