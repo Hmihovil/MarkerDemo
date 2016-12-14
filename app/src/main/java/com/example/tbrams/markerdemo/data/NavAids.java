@@ -1,4 +1,4 @@
-package com.example.tbrams.markerdemo;
+package com.example.tbrams.markerdemo.data;
 
 import android.content.Context;
 

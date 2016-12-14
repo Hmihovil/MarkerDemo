@@ -1,4 +1,4 @@
-package com.example.tbrams.markerdemo;
+package com.example.tbrams.markerdemo.data;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -48,3 +48,6 @@ public class NavAid {
         return dd+mm/60+ss/3600;
     }
 }
+
+
+

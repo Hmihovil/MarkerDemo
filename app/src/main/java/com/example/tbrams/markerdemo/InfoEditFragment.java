@@ -5,7 +5,6 @@ import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,10 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.model.Marker;
+import com.example.tbrams.markerdemo.data.MarkerLab;
+import com.example.tbrams.markerdemo.data.MarkerObject;
+import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.NavAids;
+import com.example.tbrams.markerdemo.data.Pejling;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InfoEditFragment extends Fragment {
@@ -61,6 +65,34 @@ public class InfoEditFragment extends Fragment {
         eTit.setText(markerList.get(markerIndex).getText());
         EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
         eSnp.setText(markerList.get(markerIndex).getSnippet());
+
+
+        // update VOR fields for marker
+        ArrayList<Pejling> pejlinger = markerList.get(markerIndex).getPejlinger();
+        TextView VORtext1 = (TextView) v.findViewById(R.id.VORname1);
+        TextView VORrad1  = (TextView) v.findViewById(R.id.VORrad1);
+        TextView VORdist1 = (TextView) v.findViewById(R.id.VORdist1);
+
+        TextView VORtext2 = (TextView) v.findViewById(R.id.VORname2);
+        TextView VORrad2  = (TextView) v.findViewById(R.id.VORrad2);
+        TextView VORdist2 = (TextView) v.findViewById(R.id.VORdist2);
+
+        TextView VORtext3 = (TextView) v.findViewById(R.id.VORname3);
+        TextView VORrad3  = (TextView) v.findViewById(R.id.VORrad3);
+        TextView VORdist3 = (TextView) v.findViewById(R.id.VORdist3);
+
+        VORtext1.setText(vorList.get((pejlinger.get(0).getMarkerIndex())).getName());
+        VORtext2.setText(vorList.get((pejlinger.get(1).getMarkerIndex())).getName());
+        VORtext3.setText(vorList.get((pejlinger.get(2).getMarkerIndex())).getName());
+
+        VORrad1.setText(String.format ("%.1f ˚", (pejlinger.get(0).getHeading()+360)%360));
+        VORrad2.setText(String.format ("%.1f ˚", (pejlinger.get(1).getHeading()+360)%360));
+        VORrad3.setText(String.format ("%.1f ˚", (pejlinger.get(2).getHeading()+360)%360));
+
+        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance()/1852.));
+        VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance()/1852.));
+        VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance()/1852.));
+
 
 //      Set click handlers for updating marker data
         Button btnUpdate = (Button) v.findViewById(R.id.buttonUpdate);

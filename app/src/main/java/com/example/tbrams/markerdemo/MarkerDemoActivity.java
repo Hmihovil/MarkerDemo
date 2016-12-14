@@ -6,17 +6,19 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
+import com.example.tbrams.markerdemo.data.MarkerObject;
+import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.NavAids;
+import com.example.tbrams.markerdemo.data.Pejling;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,14 +32,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
-import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
+import static com.google.maps.android.SphericalUtil.computeHeading;
 import static com.google.maps.android.SphericalUtil.interpolate;
 
 public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -232,10 +234,18 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
+    /*
+     * Determine if the marker argument is a midpoint marker
+     */
     private boolean isMidPoint(Marker marker) {
         return (getMidpointIndex(marker)>=0);
     }
 
+
+    /*
+     * Look up the marker in the midpointList and return the index. If not found return
+     * minus one.
+     */
     private static int getMidpointIndex(Marker marker) {
         for (int i=0;i<midpointList.size();i++){
             if (midpointList.get(i).getPosition().equals(marker.getPosition()))
@@ -268,10 +278,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
     /*
-     *
+     *  Clear all physical traces of midpoints from the map, then go through all established
+     *  markers again and calculate new locations for midpoints. Then add them to the map and
+     *  to our midPointList
      */
     private void updateMidpoints() {
-        if (markerList.size()<1) return;
+        if (markerList.size()<2) return;
 
         // remove old markers from map and clear the storage
         for (int i=0;i<midpointList.size();i++){
@@ -290,6 +302,36 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             midpointList.add(marker);
         }
     }
+
+
+    /*
+     * Find the three nearest VORs for the marker in question and return a list
+     * with the sorted results
+     */
+    private ArrayList<Pejling> nearestVORs(Marker m) {
+
+        ArrayList<Pejling> plist= new ArrayList<>();
+        for (int i=0;i<vorList.size();i++) {
+            LatLng position = vorList.get(i).getPosition();
+            double dist=computeDistanceBetween(position, m.getPosition());
+            double heading = computeHeading(position, m.getPosition());
+            plist.add(new Pejling(i, dist, heading));
+        }
+
+        Collections.sort(plist);
+
+        ArrayList<Pejling> result = new ArrayList<>();
+        for (int i=0; i<3;i++) {
+            result.add(plist.get(i));
+  //          String vorName=vorList.get((plist.get(i).markerIndex)).getName();
+  //          double dist = plist.get(i).distance;
+  //          double head = (plist.get(i).heading+360)%360;
+  //          Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
+        }
+
+        return result;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -375,7 +417,19 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
 
-        markerList.add(new MarkerObject(marker, marker.getTitle(), marker.getSnippet()));
+        ArrayList<Pejling> pejlinger = nearestVORs(marker);
+        MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
+        markerList.add(mo);
+
+/* testing
+        pejlinger = mo.getPejlinger();
+        for (int i=0; i<pejlinger.size();i++) {
+            String vorName=vorList.get((pejlinger.get(i).getMarkerIndex())).getName();
+            double dist = pejlinger.get(i).getDistance();
+            double head = (pejlinger.get(i).getHeading()+360)%360;
+            Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
+        }
+*/
 
         updatePolyline();
     }
@@ -391,7 +445,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
 
-        markerList.add(afterThis+1, new MarkerObject(marker, marker.getTitle(), marker.getSnippet()));
+        ArrayList<Pejling> pejlinger = nearestVORs(marker);
+        markerList.add(afterThis+1, new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger));
 
         updatePolyline();
     }
