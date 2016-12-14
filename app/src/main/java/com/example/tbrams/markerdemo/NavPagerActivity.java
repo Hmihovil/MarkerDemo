@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.Marker;
@@ -17,7 +18,7 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.List;
 
 
-public class NavPagerActivity extends FragmentActivity {
+public class NavPagerActivity extends AppCompatActivity {
 
     private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     private ViewPager mViewPager;

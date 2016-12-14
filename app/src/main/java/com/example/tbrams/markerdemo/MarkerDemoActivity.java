@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
 import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ import java.util.List;
 
 import static com.google.maps.android.SphericalUtil.interpolate;
 
-public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private static GoogleMap mMap;
     MarkerLab markerLab = MarkerLab.getMarkerLab(this);
@@ -55,13 +56,15 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     protected void onResume() {
         super.onResume();
-        updatePolyline();
+        if (polyline!=null)
+           updatePolyline();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_demo);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -73,14 +76,16 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "This is where we go to the flight plan", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
 
     }
 
-    // Called by getMapAsync when ready
+    /*
+     * Called by getMapAsync when ready
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -96,13 +101,14 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             mMap.addGroundOverlay(newarkMap);
         }
 
-        // consider making the nav aids icons visible at all zooms here, for now just change to
+
+
+        // TODO: consider making the nav aids icons visible at all zooms here, for now just change to
         // hybrid above zoom level 16
         googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
                 CameraPosition cameraPosition = mMap.getCameraPosition();
-//                Log.d("TBR","Zoom level: "+cameraPosition.zoom);
                 if(cameraPosition.zoom > 16.0) {
                     mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 } else {
@@ -111,9 +117,11 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             }
         });
 
-        mMap.setOnInfoWindowClickListener(this);
 
         if (mMap!=null) {
+
+            // This is where the Way Point data is shown and can be edited if clicked
+            mMap.setOnInfoWindowClickListener(this);
             mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                 @Override
                 public View getInfoWindow(Marker marker) {
@@ -142,22 +150,11 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         }
 
 
-
+        // Long clicking on the map adds a way point
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
             @Override
             public void onMapLongClick(LatLng latLng) {
-                Geocoder gc = new Geocoder(MarkerDemoActivity.this);
-                List<Address> list = null;
-
-                try {
-                    list = gc.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-
-                Address adr = list.get(0);
-                MarkerDemoActivity.this.addMarker(adr, latLng.latitude, latLng.longitude);
+                MarkerDemoActivity.this.addMarker(latLng);
             }
 
         });
@@ -209,21 +206,31 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
      * find new location text for existing marker - used when dragged
      */
     private void updateMarkerInfo(Marker marker) {
-        Geocoder gc = new Geocoder(MarkerDemoActivity.this);
-        List<Address> list = null;
-        LatLng latLng = marker.getPosition();
 
-        try {
-            list = gc.getFromLocation(latLng.latitude, latLng.longitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        Address adr = list.get(0);
+        Address adr = findAddress(marker.getPosition());
         marker.setTitle(adr.getLocality());
         marker.setSnippet(adr.getCountryName());
     }
+
+
+    /*
+     * This function is looking up a location and doing the geocoding.
+     * Returning an address
+     */
+    private Address findAddress(LatLng location) {
+        Geocoder gc = new Geocoder(MarkerDemoActivity.this);
+        List<Address> list = null;
+
+        try {
+            list = gc.getFromLocation(location.latitude, location.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Address adr = list.get(0);
+        return adr;
+    }
+
 
     private void updateMidpoints() {
         if (markerList.size()<1) return;
@@ -260,17 +267,28 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         return -1;
     }
 
-    public void updatePolyline() {
-        if (polyline==null) return;
+    /*
+     * Refresh polyline from marker coordinates
+     *
+     * This one is called after a new marker has been added, when a marker is dragged and
+     * when the activity resumes
+     */
 
-        List<LatLng> points= new ArrayList<>();
-        for (MarkerObject mo: markerList) {
-            points.add(mo.getMarker().getPosition());
+    public void updatePolyline() {
+        if (polyline==null) {
+            PolylineOptions lineOptions = new PolylineOptions();
+            polyline = mMap.addPolyline(lineOptions);
+        }
+
+        List<LatLng> points = new ArrayList<>();
+        for (int i=0;i<markerList.size();i++){
+            points.add(markerList.get(i).getMarker().getPosition());
         }
         polyline.setPoints(points);
 
         updateMidpoints();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -285,9 +303,6 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
 
         //Add menu handling code
         switch (id) {
-            case R.id.mapTypeNone:
-                mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-                break;
             case R.id.mapTypeNormal:
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
@@ -302,14 +317,12 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
                 break;
         }
 
-
         return super.onOptionsItemSelected(item);
     }
 
 
-    private void gotoLocation(double lat, double lng, float zoom) {
-        LatLng latLng = new LatLng(lat, lng);
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+    private void gotoLocation(LatLng loc, float zoom) {
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(loc, zoom);
         mMap.moveCamera(update);
     }
 
@@ -320,6 +333,12 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     }
 
 
+    /*
+     * Search button is pressed
+     *
+     * Look up a place name and find the coordinates, then pass the coordinates to
+     * the normal appending addMarker
+     */
     public void geoLocate(View v) throws IOException {
 
         hideSoftKeyboard(v);
@@ -333,13 +352,13 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
         if (list.size() > 0) {
             Address adr = list.get(0);
             String locality = adr.getLocality();
-            Toast.makeText(this, "Found: " + locality, Toast.LENGTH_SHORT).show();
 
             double lat = adr.getLatitude();
             double lng = adr.getLongitude();
-            gotoLocation(lat, lng, 15);
+            LatLng location = new LatLng(lat, lng);
 
-            addMarker(adr, lat, lng);
+            gotoLocation(location, 15);
+            addMarker(location);
         }
     }
 
@@ -347,46 +366,42 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     /*
      * This one is used when adding a marker from text geocoding and
      * from long pressing the map
+     *
+     * Creates the physical marker on the map and appends a MarkerObject on the markerList
      */
-    private void addMarker(Address adr, double lat, double lng) {
+    private void addMarker(LatLng loc) {
 
-        String text = adr.getLocality();
-        MarkerOptions options = new MarkerOptions()
-                .title(text)
-                .draggable(true)
-                .position(new LatLng(lat, lng));
-
-        String country = adr.getCountryName();
-        if (country.length() > 0) {
-            options.snippet(country);
-        }
-
+        MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
-        Log.d("TBR", "Marker with id: "+marker.getId()+" added");
-        markerList.add(new MarkerObject(marker, text, country));
 
-        updateLine(lat, lng);
-        updateMidpoints();
+        markerList.add(new MarkerObject(marker, marker.getTitle(), marker.getSnippet()));
+
+        updatePolyline();
     }
 
- /*
- * This one is used when adding a marker from midpoint dragging
- *
- */
+
+    /*
+     * This one is used when adding a marker from midpoint dragging where we need to
+     * insert a point in between other points instead of just appending
+     *
+     */
     private void addMarker(LatLng loc, int afterThis) {
 
-        Geocoder gc = new Geocoder(MarkerDemoActivity.this);
-        List<Address> list = null;
+        MarkerOptions options = createMarkerOptions(loc);
+        Marker marker = mMap.addMarker(options);
 
-        try {
-            list = gc.getFromLocation(loc.latitude, loc.longitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        markerList.add(afterThis+1, new MarkerObject(marker, marker.getTitle(), marker.getSnippet()));
 
-        Address adr = list.get(0);
+        updatePolyline();
+    }
 
+
+
+    /*
+     * Create the options needed for a new marker with address and location build in
+     */
+    private MarkerOptions createMarkerOptions(LatLng loc) {
+        Address adr = findAddress(loc);
 
         String text = adr.getLocality();
         MarkerOptions options = new MarkerOptions()
@@ -399,29 +414,15 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
             options.snippet(country);
         }
 
-        Marker marker = mMap.addMarker(options);
-        markerList.add(afterThis+1, new MarkerObject(marker, text, country));
+        return options;
 
-        updateLine(loc.latitude, loc.longitude);
-        updateMidpoints();
     }
 
 
-
-    private void updateLine(double lat, double lng) {
-
-        if (polyline==null) {
-            PolylineOptions lineOptions = new PolylineOptions();
-            polyline = mMap.addPolyline(lineOptions);
-        }
-
-        List<LatLng> points = new ArrayList<>();
-        for (int i=0;i<markerList.size();i++){
-            points.add(markerList.get(i).getMarker().getPosition());
-        }
-        polyline.setPoints(points);
-    }
-
+    /*
+     * When the info window is clicked, we will launch the NavPagerActivity
+     * allowing us to edit texts or delete a marker
+     */
 
     @Override
     public void onInfoWindowClick(Marker marker) {
