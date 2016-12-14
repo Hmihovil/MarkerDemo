@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class NavAid {
     private String name;
+    private LatLng position;
 
     public LatLng getPosition() {
         return position;
@@ -13,7 +14,6 @@ public class NavAid {
         return name;
     }
 
-    private LatLng position;
 
     public NavAid(String n, String lat, String lng) {
         // Convert the Lat and Lng strings to double values and use them to establish a position

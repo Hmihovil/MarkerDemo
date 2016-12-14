@@ -28,6 +28,8 @@ public class InfoEditFragment extends Fragment {
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
+    NavAids navaids = NavAids.get(getActivity());
+    List<NavAid> vorList = navaids.getList();
 
     public static InfoEditFragment newInstance(String markerId) {
 

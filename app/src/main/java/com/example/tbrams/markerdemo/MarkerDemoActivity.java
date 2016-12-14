@@ -23,6 +23,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -42,6 +44,8 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     private static GoogleMap mMap;
     MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     List<MarkerObject> markerList = markerLab.getMarkers();
+    NavAids navaids = NavAids.get(this);
+    List<NavAid> vorList = navaids.getList();
 
     private static List<Marker> midpointList = new ArrayList<>();
     private static List<Integer> previousList = new ArrayList<>();
@@ -81,6 +85,32 @@ public class MarkerDemoActivity extends FragmentActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+
+        // Plot VOR navigation aids on the map
+        for (int i=0;i<vorList.size();i++) {
+            LatLng position = vorList.get(i).getPosition();
+            GroundOverlayOptions newarkMap = new GroundOverlayOptions()
+                    .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue))
+                    .position(position,240f,240f);
+
+            mMap.addGroundOverlay(newarkMap);
+        }
+
+        // consider making the nav aids icons visible at all zooms here, for now just change to
+        // hybrid above zoom level 16
+        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                CameraPosition cameraPosition = mMap.getCameraPosition();
+//                Log.d("TBR","Zoom level: "+cameraPosition.zoom);
+                if(cameraPosition.zoom > 16.0) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                } else {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+            }
+        });
+
         mMap.setOnInfoWindowClickListener(this);
 
         if (mMap!=null) {
