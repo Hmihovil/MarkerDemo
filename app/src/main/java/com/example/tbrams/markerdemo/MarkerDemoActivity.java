@@ -49,15 +49,15 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     List<NavAid> vorList = navaids.getList();
 
     private static List<Marker> midpointList = new ArrayList<>();
-    private static List<Integer> previousList = new ArrayList<>();
     private static Polyline polyline;
     public static String currentMarkerId = null;
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (polyline!=null)
-           updatePolyline();
+        if (polyline!=null) {
+            updatePolyline();
+        }
     }
 
     @Override
@@ -232,29 +232,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
-    private void updateMidpoints() {
-        if (markerList.size()<1) return;
-
-        // remove old markers from map and clear the storage
-        for (int i=0;i<midpointList.size();i++){
-            midpointList.get(i).remove();
-        }
-        midpointList.clear();
-        previousList.clear();
-
-        // Go through all markers and add new non draggable midpoint markers
-        for (int i=0; i<markerList.size()-1;i++) {
-            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(midPt)
-                            .anchor((float)0.5, (float)0.5)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
-
-            midpointList.add(marker);
-            previousList.add(i);
-        }
-    }
-
     private boolean isMidPoint(Marker marker) {
         return (getMidpointIndex(marker)>=0);
     }
@@ -289,6 +266,30 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         updateMidpoints();
     }
 
+
+    /*
+     *
+     */
+    private void updateMidpoints() {
+        if (markerList.size()<1) return;
+
+        // remove old markers from map and clear the storage
+        for (int i=0;i<midpointList.size();i++){
+            midpointList.get(i).remove();
+        }
+        midpointList.clear();
+
+        // Go through all markers and add new non draggable midpoint markers
+        for (int i=0; i<markerList.size()-1;i++) {
+            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .position(midPt)
+                    .anchor((float)0.5, (float)0.5)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
+
+            midpointList.add(marker);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -398,6 +399,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
     /*
+     * Used for all add marker functions
      * Create the options needed for a new marker with address and location build in
      */
     private MarkerOptions createMarkerOptions(LatLng loc) {
