@@ -421,16 +421,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
         markerList.add(mo);
 
-/* testing
-        pejlinger = mo.getPejlinger();
-        for (int i=0; i<pejlinger.size();i++) {
-            String vorName=vorList.get((pejlinger.get(i).getMarkerIndex())).getName();
-            double dist = pejlinger.get(i).getDistance();
-            double head = (pejlinger.get(i).getHeading()+360)%360;
-            Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
-        }
-*/
-
         updatePolyline();
     }
 
@@ -446,8 +436,18 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         Marker marker = mMap.addMarker(options);
 
         ArrayList<Pejling> pejlinger = nearestVORs(marker);
-        markerList.add(afterThis+1, new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger));
 
+        MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
+        markerList.add(afterThis+1, mo);
+/* TESTING
+        pejlinger = mo.getPejlinger();
+        for (int i=0; i<pejlinger.size();i++) {
+            String vorName=vorList.get((pejlinger.get(i).getMarkerIndex())).getName();
+            double dist = pejlinger.get(i).getDistance();
+            double head = (pejlinger.get(i).getHeading()+360)%360;
+            Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
+        }
+*/
         updatePolyline();
     }
 
