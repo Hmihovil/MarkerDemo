@@ -58,7 +58,8 @@ public class MarkerObject {
         myText = text;
         mySnippet = snippet;
         myMarker = marker;
-        mPejlinger = pejlinger;
+        mPejlinger = new ArrayList<>();
+        mPejlinger=pejlinger;
     }
 
 

@@ -6,14 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NavAids {
-    private List<NavAid> mNavAids;
+    private static List<NavAid> mNavAids;
     private static NavAids sNavAids;
 
     private NavAids(Context context) {
         mNavAids = new ArrayList<>();
-    }
-
-    public List<NavAid> getList() {
         mNavAids.add(new NavAid("KORSA", "552622N","0113754E"));
         mNavAids.add(new NavAid("TRANO", "554627N","0112621E"));
         mNavAids.add(new NavAid("ODIN", "553452N", "0103911E"));
@@ -23,7 +20,9 @@ public class NavAids {
         mNavAids.add(new NavAid("CODAN","550005N","0122245E"));
         mNavAids.add(new NavAid("RAMME", "562842N", "0081115E"));
         mNavAids.add((new NavAid("RØNNE","550356N","0144531E")));
+    }
 
+    public List<NavAid> getList() {
         return mNavAids;
     }
 

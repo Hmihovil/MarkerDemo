@@ -92,6 +92,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        // Disable the navigation toolbar that will otherwise pop up after setting a marker
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // Plot VOR navigation aids on the map
         for (int i=0;i<vorList.size();i++) {
@@ -141,8 +143,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
                     LatLng latLng = marker.getPosition();
                     tvLocality.setText(marker.getTitle());
-                    tvLat.setText("Latitude: " +latLng.latitude);
-                    tvLng.setText("Longitude: " +latLng.longitude);
+                    //        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance()/1852.));
+
+                    tvLat.setText("Lat: " +String.format("%.4f", latLng.latitude));
+                    tvLng.setText("Lon: " +String.format("%.4f", latLng.longitude));
                     tvSnippet.setText(marker.getSnippet());
 
                     return v;
@@ -311,6 +315,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     private ArrayList<Pejling> nearestVORs(Marker m) {
 
         ArrayList<Pejling> plist= new ArrayList<>();
+
         for (int i=0;i<vorList.size();i++) {
             LatLng position = vorList.get(i).getPosition();
             double dist=computeDistanceBetween(position, m.getPosition());
@@ -318,15 +323,16 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             plist.add(new Pejling(i, dist, heading));
         }
 
+
         Collections.sort(plist);
 
         ArrayList<Pejling> result = new ArrayList<>();
         for (int i=0; i<3;i++) {
             result.add(plist.get(i));
-  //          String vorName=vorList.get((plist.get(i).markerIndex)).getName();
-  //          double dist = plist.get(i).distance;
-  //          double head = (plist.get(i).heading+360)%360;
-  //          Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
+//            String vorName=vorList.get((plist.get(i).getMarkerIndex())).getName();
+//            double dist = plist.get(i).getDistance();
+//            double head = (plist.get(i).getHeading()+360)%360;
+//            Log.d("TBR", "sorted #"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
         }
 
         return result;
@@ -375,7 +381,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-
     /*
      * Search button is pressed
      *
@@ -396,11 +401,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             Address adr = list.get(0);
             String locality = adr.getLocality();
 
+
             double lat = adr.getLatitude();
             double lng = adr.getLongitude();
             LatLng location = new LatLng(lat, lng);
 
-            gotoLocation(location, 15);
             addMarker(location);
         }
     }
@@ -416,8 +421,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
+        gotoLocation(loc, 10);
 
-        ArrayList<Pejling> pejlinger = nearestVORs(marker);
+
+        ArrayList<Pejling> pejlinger = new ArrayList<>();
+        pejlinger = nearestVORs(marker);
+
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
         markerList.add(mo);
 
@@ -435,28 +444,20 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
 
-        ArrayList<Pejling> pejlinger = nearestVORs(marker);
+        ArrayList<Pejling> pejlinger = new ArrayList<>();
+        pejlinger=nearestVORs(marker);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
+
         markerList.add(afterThis+1, mo);
-/* TESTING
-        pejlinger = mo.getPejlinger();
-        for (int i=0; i<pejlinger.size();i++) {
-            String vorName=vorList.get((pejlinger.get(i).getMarkerIndex())).getName();
-            double dist = pejlinger.get(i).getDistance();
-            double head = (pejlinger.get(i).getHeading()+360)%360;
-            Log.d("TBR", "#"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
-        }
-*/
         updatePolyline();
     }
 
 
-
     /*
-     * Used for all add marker functions
-     * Create the options needed for a new marker with address and location build in
-     */
+    * Used for all add marker functions
+    * Create the options needed for a new marker with address and location build in
+    */
     private MarkerOptions createMarkerOptions(LatLng loc) {
         Address adr = findAddress(loc);
 
@@ -477,10 +478,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
     /*
-     * When the info window is clicked, we will launch the NavPagerActivity
-     * allowing us to edit texts or delete a marker
-     */
-
+    * When the info window is clicked, we will launch the NavPagerActivity
+    * allowing us to edit texts or delete a marker
+    */
     @Override
     public void onInfoWindowClick(Marker marker) {
 
