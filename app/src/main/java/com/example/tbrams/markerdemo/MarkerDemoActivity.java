@@ -61,7 +61,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     private static List<Marker> midpointList = new ArrayList<>();
     private static Polyline polyline;
-    public static String currentMarkerId = null;
+    private static int currentMarkerIndex=-1;
 
     @Override
     protected void onResume() {
@@ -177,7 +177,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                currentMarkerId=marker.getId();
+                currentMarkerIndex=getIndexById(marker.getId());
 
                 if (isMidPoint(marker)) {
                     int pp=getMidpointIndex(marker);
@@ -268,21 +268,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
-    /*
-     * find and return the marker object with the marker_id as specified
-     * otherwise return null
-     */
-    public MarkerObject getMarkerById(String mid) {
-        for (int i=0; i<markerList.size();i++) {
-            if (markerList.get(i).getMarker().getId().equals(mid)) {
-                return markerList.get(i);
-            }
-        }
-        return null;
-    }
+
     /*
      * Find and return the marker index with the marker_id as specified
-     * otherwise return -1
+     * otherwise return minus one
      */
     public int getIndexById(String mid) {
         for (int i=0; i<markerList.size();i++) {
@@ -378,59 +367,53 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
+    /*
+     * This is where we will get to when another activity is terminated. We shou;ld be able
+     * to process a markerIndex along with a code indicating how we are supposed to act on it
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_M_ID) {
-            String markerId = (String) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
-            Log.d("TBR:", "onActivityResult: Received markerId:"+markerId);
+            int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
+            Log.d("TBR:", "onActivityResult: Received markerIndex:"+markerIndex);
 
             if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
-                // find the last viewed marker and zoom to that point
-                Marker m= getMarkerById(markerId).getMarker();
+                Marker m=markerList.get(markerIndex).getMarker();
                 gotoLocation(m.getPosition(),ZOOM_NORMAL);
 
             } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
-                Log.d("TBR:", "onActivityResult: delete markerId: "+markerId);
-                int mIndex = getIndexById(markerId);
-                if (mIndex>=0) {
+                Log.d("TBR:", "onActivityResult: delete markerIndex: "+markerIndex);
 
-                    // Prepare for undoing later by storing both marker and position in track
-                    mUndoDeleteIndex = mIndex;
-                    mUndoDeleteMarker = new MarkerObject();
-                    mUndoDeleteMarker = markerList.get(mIndex);
+                // Prepare for undoing later by storing both marker and position in track
+                mUndoDeleteIndex = markerIndex;
+                mUndoDeleteMarker = new MarkerObject();
+                mUndoDeleteMarker = markerList.get(markerIndex);
 
-                    // Delete physical marker and then the MarkerObject
-                    markerList.get(mIndex).getMarker().remove();
-                    markerList.remove(mIndex);
-                    updatePolyline();
+                // Delete physical marker and then the MarkerObject
+                markerList.get(markerIndex).getMarker().remove();
+                markerList.remove(markerIndex);
+                updatePolyline();
 
-                    // Make a snackbar message offering undo
-                    Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
-                            .setAction("Undo", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    int previousIndex = mUndoDeleteIndex-1;
-                                    if (previousIndex>=0) {
-                                        addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
-                                    } else {
-                                        addMarker(mUndoDeleteMarker.getMarker().getPosition());
-                                    }
-                                    // reset undo variables
-                                    mUndoDeleteMarker=null;
-                                    mUndoDeleteIndex=-1;
+                // Make a snackbar message offering undo
+                Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                int previousIndex = mUndoDeleteIndex-1;
+                                if (previousIndex>=0) {
+                                    addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
+                                } else {
+                                    addMarker(mUndoDeleteMarker.getMarker().getPosition());
                                 }
-                            })
-                            .setActionTextColor(Color.RED)
-                            .show();
-
-                } else {
-                    Log.d("TBR:", "Something went wrong finding the marker index from markerId. Deletion cancelled");
-                }
-
-
-
+                                // reset undo variables
+                                mUndoDeleteMarker=null;
+                                mUndoDeleteIndex=-1;
+                            }
+                        })
+                        .setActionTextColor(Color.RED)
+                        .show();
             }
         }
 
@@ -547,7 +530,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     /*
     * Used for all add marker functions
-    * Create the options needed for a new marker with address and location build in
+    * Create the options needed for a new marker
     */
     private MarkerOptions createMarkerOptions(LatLng loc) {
         Address adr = findAddress(loc);
@@ -570,12 +553,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     /*
     * When the info window is clicked, we will launch the NavPagerActivity
-    * allowing us to edit texts or delete a marker
+    * allowing us to edit texts or delete a marker. To achieve that we pass
+    * along the currentMarkerIndex (index of the last clicked marker)
     */
     @Override
     public void onInfoWindowClick(Marker marker) {
-
-        Intent intent = NavPagerActivity.newIntent(this, currentMarkerId);
+        Intent intent = NavPagerActivity.newIntent(this, currentMarkerIndex);
         startActivityForResult(intent, REQUEST_M_ID);
         marker.hideInfoWindow();
     }

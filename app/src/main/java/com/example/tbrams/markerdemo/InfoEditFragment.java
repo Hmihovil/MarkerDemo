@@ -33,7 +33,6 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     public static final int ACTION_DELETE = 2;
     public static final int ACTION_CANCEL = 3;
 
-    private String markerId;
     private int markerIndex = -1;
     private Button btnUpdate, btnDelete, btnCancel;
 
@@ -43,10 +42,11 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     NavAids navaids = NavAids.get(getActivity());
     List<NavAid> vorList = navaids.getList();
 
-    public static InfoEditFragment newInstance(String markerId) {
+
+    public static InfoEditFragment newInstance(int markerIndex) {
 
         Bundle args = new Bundle();
-        args.putSerializable(EXTRA_MARKER_ID, markerId);
+        args.putSerializable(EXTRA_MARKER_ID, markerIndex);
 
         InfoEditFragment fragment = new InfoEditFragment();
         fragment.setArguments(args);
@@ -54,19 +54,14 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         return fragment;
     }
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.info_window_edit, container, false);
 
-        // Get marker id from argument bundle and find the index on the MarkerLab
-        markerId = (String) getArguments().getSerializable(EXTRA_MARKER_ID);
-        for (int i = 0; i < markerList.size(); i++) {
-            if (markerList.get(i).getMarker().getId().equals(markerId)) {
-                markerIndex = i;
-                break;
-            }
-        }
+        // Get marker id from argument bundle
+        markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
 
         // Update Edit Text fields with marker provided info
         EditText eTit = (EditText) v.findViewById(R.id.placeText);
@@ -112,37 +107,25 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         return v;
     }
 
-    public void AlertDialogCreate() {
 
-        new AlertDialog.Builder(getActivity())
-                .setIcon(R.mipmap.ic_launcher)
-                .setTitle("Alert Dialog Box Title")
-                .setMessage("Are you sure( Alert Dialog Message )")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        markerList.get(markerIndex).getMarker().remove();
-                        markerList.remove(markerIndex);
-
-                        getActivity().onBackPressed();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d("TBR", "Dialog Request declined with Cancel");
-                    }
-                }).show();
-    }
-
-    private void sendResult(int resultCode, String markerID) {
+    /*
+     * Helper function used to send results back to the main activity where it can
+     * be processed in the onActivityResult method
+     */
+    private void sendResult(int resultCode, int markerIndex) {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_MARKER_ID, markerID);
+        intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         getActivity().setResult(resultCode, intent);
         getActivity().onBackPressed();
-
     }
 
+
+    /*
+     * Click Handler for this screen
+     * Will take care of update, delete and cancel. Both delete and cancel will
+     * end the activity, but update will merely update the data values with the
+     * text provided by the user.
+     */
     @Override
     public void onClick(View view) {
         if (view == btnUpdate) {
@@ -160,11 +143,11 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             markerList.get(markerIndex).getMarker().setSnippet(snippetString);
 
         } else if (view == btnDelete) {
-            sendResult(ACTION_DELETE, markerId);
+            sendResult(ACTION_DELETE, markerIndex);
 
 
         } else if (view == btnCancel) {
-            sendResult(ACTION_CANCEL, markerId);
+            sendResult(ACTION_CANCEL, markerIndex);
 
 
         }

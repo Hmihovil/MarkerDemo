@@ -25,19 +25,21 @@ public class NavPagerActivity extends AppCompatActivity {
     private List<MarkerObject> markerList;
 
 
-    public static Intent newIntent(Context packageContext, String markerID) {
+    public static Intent newIntent(Context packageContext, int markerIndex) {
         Intent intent = new Intent(packageContext, NavPagerActivity.class);
-        intent.putExtra(EXTRA_MARKER_ID, markerID);
+        intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         return intent;
     }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_info_pager);
 
-        String markerID = (String) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
-        Log.d("TBR:","NavPagerActivity/onCreate - intent/markerID: "+markerID);
+        // Get markerIndex from arguments
+        int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
+        Log.d("TBR:","NavPagerActivity/onCreate - intent/markerIndex: "+markerIndex);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_nav_info_pager);
         markerList = MarkerLab.getMarkerLab(this).getMarkers();
@@ -47,7 +49,7 @@ public class NavPagerActivity extends AppCompatActivity {
             @Override
             public Fragment getItem(int position) {
                 Marker m=markerList.get(position).getMarker();
-                return InfoEditFragment.newInstance(m.getId());
+                return InfoEditFragment.newInstance(position);
             }
 
             @Override
@@ -56,12 +58,9 @@ public class NavPagerActivity extends AppCompatActivity {
             }
         });
 
-        // Set current ID in ViewPAger
-        for (int i = 0; i < markerList.size(); i++) {
-            if (markerList.get(i).getMarker().getId().equals(markerID)) {
-                mViewPager.setCurrentItem(i);
-                break;
-            }
-        }
+
+        // Set current markerIndex in ViewPAger
+        mViewPager.setCurrentItem(markerIndex);
+
     }
 }
