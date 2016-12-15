@@ -1,6 +1,7 @@
 package com.example.tbrams.markerdemo;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -43,6 +44,14 @@ import static com.google.maps.android.SphericalUtil.computeHeading;
 import static com.google.maps.android.SphericalUtil.interpolate;
 
 public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+
+    private static final int REQUEST_M_ID=1;
+    private static final float ZOOM_DETAIL = 14.5f;
+    private static final float ZOOM_OVERVIEW = 10.0f;
+    private static final float ZOOM_NORMAL = 12.5f;
+
+    private  MarkerObject mUndoDeleteMarker = null;
+    private  int mUndoDeleteIndex= -1;
 
     private static GoogleMap mMap;
     MarkerLab markerLab = MarkerLab.getMarkerLab(this);
@@ -258,6 +267,32 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         return -1;
     }
 
+
+    /*
+     * find and return the marker object with the marker_id as specified
+     * otherwise return null
+     */
+    public MarkerObject getMarkerById(String mid) {
+        for (int i=0; i<markerList.size();i++) {
+            if (markerList.get(i).getMarker().getId().equals(mid)) {
+                return markerList.get(i);
+            }
+        }
+        return null;
+    }
+    /*
+     * Find and return the marker index with the marker_id as specified
+     * otherwise return -1
+     */
+    public int getIndexById(String mid) {
+        for (int i=0; i<markerList.size();i++) {
+            if (markerList.get(i).getMarker().getId().equals(mid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /*
      * Refresh polyline from marker coordinates
      *
@@ -329,10 +364,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         ArrayList<Pejling> result = new ArrayList<>();
         for (int i=0; i<3;i++) {
             result.add(plist.get(i));
-//            String vorName=vorList.get((plist.get(i).getMarkerIndex())).getName();
-//            double dist = plist.get(i).getDistance();
-//            double head = (plist.get(i).getHeading()+360)%360;
-//            Log.d("TBR", "sorted #"+i+" marker: "+vorName+", dist: "+dist+", radial: "+head);
         }
 
         return result;
@@ -345,6 +376,66 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_M_ID) {
+            String markerId = (String) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
+            Log.d("TBR:", "onActivityResult: Received markerId:"+markerId);
+
+            if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
+                // find the last viewed marker and zoom to that point
+                Marker m= getMarkerById(markerId).getMarker();
+                gotoLocation(m.getPosition(),ZOOM_NORMAL);
+
+            } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
+                Log.d("TBR:", "onActivityResult: delete markerId: "+markerId);
+                int mIndex = getIndexById(markerId);
+                if (mIndex>=0) {
+
+                    // Prepare for undoing later by storing both marker and position in track
+                    mUndoDeleteIndex = mIndex;
+                    mUndoDeleteMarker = new MarkerObject();
+                    mUndoDeleteMarker = markerList.get(mIndex);
+
+                    // Delete physical marker and then the MarkerObject
+                    markerList.get(mIndex).getMarker().remove();
+                    markerList.remove(mIndex);
+                    updatePolyline();
+
+                    // Make a snackbar message offering undo
+                    Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    int previousIndex = mUndoDeleteIndex-1;
+                                    if (previousIndex>=0) {
+                                        addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
+                                    } else {
+                                        addMarker(mUndoDeleteMarker.getMarker().getPosition());
+                                    }
+                                    // reset undo variables
+                                    mUndoDeleteMarker=null;
+                                    mUndoDeleteIndex=-1;
+                                }
+                            })
+                            .setActionTextColor(Color.RED)
+                            .show();
+
+                } else {
+                    Log.d("TBR:", "Something went wrong finding the marker index from markerId. Deletion cancelled");
+                }
+
+
+
+            }
+        }
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -421,7 +512,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
-        gotoLocation(loc, 10);
+        gotoLocation(loc, ZOOM_NORMAL);
 
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
@@ -485,7 +576,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     public void onInfoWindowClick(Marker marker) {
 
         Intent intent = NavPagerActivity.newIntent(this, currentMarkerId);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_M_ID);
         marker.hideInfoWindow();
     }
 
