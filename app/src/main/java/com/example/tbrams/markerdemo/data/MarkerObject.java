@@ -135,12 +135,15 @@ public class MarkerObject {
     }
 
 
-    public MarkerObject() {
+    public MarkerObject(Marker marker, String text, String snippet, ArrayList<Pejling> pejlinger){
         myIndex  = null;
-        myText = null;
         myMarker = null;
         mPejlinger = null;
         mMIN_ALT=1000; // In Denmark...
+        mTAS=0;
+        mALT=0;
+        mWindStrenght=0;
+        mWindDirection=0;
 
         mDist=0;
         mGS=0;
@@ -151,9 +154,7 @@ public class MarkerObject {
         mMH=0;
         mTIME=0;
         mETO=0;
-    }
 
-    public MarkerObject(Marker marker, String text, String snippet, ArrayList<Pejling> pejlinger){
         myText = text;
         mySnippet = snippet;
         myMarker = marker;
@@ -161,7 +162,32 @@ public class MarkerObject {
         mPejlinger=pejlinger;
     }
 
+    public MarkerObject() {
+        myIndex  = null;
+        myMarker = null;
+        mPejlinger = null;
+        mMIN_ALT=1000; // In Denmark...
+        mTAS=0;
+        mALT=0;
+        mWindStrenght=0;
+        mWindDirection=0;
 
+        mDist=0;
+        mGS=0;
+        mTT=0;
+        mWCA=0;
+        mTH=0;
+        mVAR=0;
+        mMH=0;
+        mTIME=0;
+        mETO=0;
+
+        myText = "";
+        mySnippet = "";
+        myMarker = null;
+        mPejlinger = new ArrayList<>();
+
+    }
 
     public ArrayList<Pejling> getPejlinger() {
         return mPejlinger;

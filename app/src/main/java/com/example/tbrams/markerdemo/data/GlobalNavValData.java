@@ -14,7 +14,7 @@ public class GlobalNavValData {
         mTAS = tas;
         mMIN_ALT = 1000;   // In Denmark ....
         mWINDfrom=Double.parseDouble(wind.split("/")[0]);
-        mWINDkts=Double.parseDouble(wind.split("/")[0]);
+        mWINDkts=Double.parseDouble(wind.split("/")[1]);
     }
 
     public double getALT() {return mALT;}

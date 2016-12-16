@@ -69,6 +69,10 @@ public class DetailInfoFragment extends Fragment {
 
 
         if ((markerIndex+1)<markerList.size()) {
+            tvLegLabel.setText("Leg #"+ String.format("%d", markerIndex+1));
+            tvFromWP.setText(markerList.get(markerIndex).getMarker().getTitle());
+            tvToWP.setText(markerList.get(markerIndex+1).getMarker().getTitle());
+
             MarkerObject mo = markerList.get(markerIndex);
             tvDist.setText(String.format("%.1f nm", mo.getDist()));
             tvIAS.setText(String.format("%.1f kts", mo.getIAS()));
@@ -79,17 +83,21 @@ public class DetailInfoFragment extends Fragment {
             tvVAR.setText(String.format("%.1f ˚", mo.getVAR()));
             tvMH.setText(String.format("%.1f ˚", mo.getMH()));
             tvTAS.setText(String.format("%.1f kts", mo.getTAS()));
-            tvAlt.setText(String.format("%.1f nm", mo.getALT()));
-            tvMinAlt.setText(String.format("%.1f nm", mo.getMIN_ALT()));
+            tvAlt.setText(String.format("%.1f ft", mo.getALT()));
+            tvMinAlt.setText(String.format("%.1f ft", mo.getMIN_ALT()));
             tvTime.setText(String.format("%.1f", mo.getTIME()));
 
             String wind = String.format("%.0f", mo.getWindDirection())+"/"+String.format("%.0f", mo.getWindStrenght());
-            tvWv.setText(String.format("%.1f kts", wind);
+            tvWv.setText(wind);
 
             double time=0;
-            for (int i=0;i<markerList.size()-1;i++){
+            for (int i=0;i<markerIndex;i++){
                 time+=markerList.get(i).getTIME();
             }
+
+            String hh="";
+            String mm="";
+            String ss="";
 
             tvAccTime.setText(String.format("%.1f", time));
         }
