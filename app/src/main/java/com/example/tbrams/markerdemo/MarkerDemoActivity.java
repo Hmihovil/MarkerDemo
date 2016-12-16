@@ -152,7 +152,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
                     LatLng latLng = marker.getPosition();
                     tvLocality.setText(marker.getTitle());
-                    //        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance()/1852.));
 
                     tvLat.setText("Lat: " +String.format("%.4f", latLng.latitude));
                     tvLng.setText("Lon: " +String.format("%.4f", latLng.longitude));
@@ -209,6 +208,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             public void onMarkerDragEnd(Marker marker) {
                 updateMarkerInfo(marker);
                 updatePolyline();
+                updateNavinfo();
             }
         });
 
@@ -304,6 +304,25 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         updateMidpoints();
     }
 
+    /*
+     * Update distance and heading info for all markers
+     */
+    public void updateNavinfo(){
+        if (markerList.size()<2) {
+            return;
+        }
+
+        for (int i=0;i<markerList.size()-1;i++){
+            MarkerObject mFrom =markerList.get(i);
+            MarkerObject mTo = markerList.get(i+1);
+
+            double dist=computeDistanceBetween(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
+            double heading = computeHeading(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
+
+            mFrom.setDist(dist);
+            mFrom.setTT(heading);
+        }
+    }
 
     /*
      *  Clear all physical traces of midpoints from the map, then go through all established
@@ -505,6 +524,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         markerList.add(mo);
 
         updatePolyline();
+        updateNavinfo();
+
     }
 
 
@@ -525,6 +546,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         markerList.add(afterThis+1, mo);
         updatePolyline();
+        updateNavinfo();
     }
 
 
