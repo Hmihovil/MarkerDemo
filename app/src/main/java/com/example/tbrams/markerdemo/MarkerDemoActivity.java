@@ -410,7 +410,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
             if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
                 Marker m=markerList.get(markerIndex).getMarker();
-      //          gotoLocation(m.getPosition(),ZOOM_NORMAL);
+                gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
 
             } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
                 Log.d("TBR:", "onActivityResult: delete markerIndex: "+markerIndex);
@@ -524,7 +524,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
-        gotoLocation(loc, ZOOM_NORMAL);
+ //       gotoLocation(loc, ZOOM_NORMAL);
 
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
