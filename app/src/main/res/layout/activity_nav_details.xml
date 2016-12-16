@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Leg #"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tvLegLabel"
+            android:textSize="16dp"
+            android:textColor="@color/cast_expanded_controller_background_color"
+            android:layout_marginLeft="8dp"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:text="TextView"
+                android:width="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvFromWP"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"
+                android:layout_marginTop="4dp"
+                android:layout_marginLeft="8dp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="?android:attr/homeAsUpIndicator"
+                android:id="@+id/imageView"
+                android:layout_weight="1"
+                android:rotation="180"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="100dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvToWP"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="Dist"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"/>
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvDist"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+            <TextView
+                android:text="MIN ALT"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvMinAlt"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="ALT"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"/>
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAlt"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+
+            <TextView
+                android:text="IAS"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvIAS"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="TAS"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"/>
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvTAS"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+            <TextView
+                android:text="W/V"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvWV"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="GS"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvGS"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+            <TextView
+                android:text="TT"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvTT"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="WCA"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvWCA"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+            <TextView
+                android:text="TH"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvTH"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="VAR"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvVAR"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+            <TextView
+                android:text="MH"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvMH"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:text="TIME"
+                android:width="35dp"
+                android:layout_marginLeft="8dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvTime"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+
+            <TextView
+                android:text="ACC"
+                android:width="75dp"
+                android:layout_marginLeft="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:text="TextView"
+                android:width="75dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvAccTime"
+                android:layout_weight="1"
+                android:background="@color/cast_intro_overlay_button_background_color"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</FrameLayout>

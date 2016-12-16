@@ -462,6 +462,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             if (resultCode == Activity.RESULT_OK) {
                 Log.d("TBR:","Result OK received from GlobalNavValFragment");
 
+                Intent intent = DetailPagerActivity.newIntent(this, currentMarkerIndex);
+                startActivity(intent);
+
+
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Log.d("TBR:", "Result Cancelled from GlobalNavValFragment");
 

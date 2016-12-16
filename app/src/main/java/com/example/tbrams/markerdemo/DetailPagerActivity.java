@@ -17,8 +17,7 @@ import com.google.android.gms.maps.model.Marker;
 
 import java.util.List;
 
-
-public class NavPagerActivity extends AppCompatActivity {
+public class DetailPagerActivity extends AppCompatActivity {
 
     private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     private ViewPager mViewPager;
@@ -26,7 +25,7 @@ public class NavPagerActivity extends AppCompatActivity {
 
 
     public static Intent newIntent(Context packageContext, int markerIndex) {
-        Intent intent = new Intent(packageContext, NavPagerActivity.class);
+        Intent intent = new Intent(packageContext, DetailPagerActivity.class);
         intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         return intent;
     }
@@ -39,7 +38,7 @@ public class NavPagerActivity extends AppCompatActivity {
 
         // Get markerIndex from arguments
         int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
-        Log.d("TBR:","NavPagerActivity/onCreate - intent/markerIndex: "+markerIndex);
+        Log.d("TBR:","DetailPagerActivity/onCreate - intent/markerIndex: "+markerIndex);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_nav_info_pager);
         markerList = MarkerLab.getMarkerLab(this).getMarkers();
@@ -49,12 +48,12 @@ public class NavPagerActivity extends AppCompatActivity {
             @Override
             public Fragment getItem(int position) {
                 Marker m=markerList.get(position).getMarker();
-                return InfoEditFragment.newInstance(position);
+                return DetailInfoFragment.newInstance(position);
             }
 
             @Override
             public int getCount() {
-                return markerList.size();
+                return markerList.size()-1;
             }
         });
 

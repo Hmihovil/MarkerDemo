@@ -13,6 +13,13 @@ public class MarkerObject {
     private String mySnippet;
     private Marker myMarker;
 
+    // Navigational parameters that are fed in
+    private double mTAS;
+    private double mMIN_ALT;
+    private double mALT;
+    private double mWindStrenght;
+    private double mWindDirection;
+
     // Navigational parameters that are calculated
     private double mDist;
     private double mIAS;
@@ -64,6 +71,14 @@ public class MarkerObject {
 
 
     // Navigational getters & setters
+
+
+    public double getTAS() {return mTAS;}
+    public double getMIN_ALT() {return mMIN_ALT;}
+    public double getALT() {return mALT;}
+    public double getWindStrenght() {return mWindStrenght;}
+    public double getWindDirection() {return mWindDirection;}
+
     public double getDist() {return mDist;}
     public double getIAS() {return mIAS;}
     public double getGS() {return mGS;}
@@ -76,13 +91,14 @@ public class MarkerObject {
     public double getETO() {return mETO;}
 
     // These two are done for all way points except for the starting point
-    public void setDist(double dist) {mDist= dist/1852.; Log.d("TBR:", "mDist updated: "+mDist);}
-    public void setTT(double tt) {mTT = (tt+360)%360;Log.d("TBR:", "mTT updated: "+mTT);}
+    public void setDist(double dist) {mDist= dist/1852.;}
+    public void setTT(double tt) {mTT = (tt+360)%360;}
 
 
     // Calculate navigational factors based on global nav values
     public void calcIAS(double tas, double alt)
     {
+        mALT=alt;
         mIAS = tas/(1+alt/1000.*0.02);
     }
 
@@ -94,34 +110,26 @@ public class MarkerObject {
     }
 
     public void calcWCA(double tas, double windDirection, double windStrength) {
+        mTAS = tas;
+        mWindDirection=windDirection;
+        mWindStrenght=windStrength;
 
         mWCA = Math.atan(windStrength*Math.sin(windDirection-mTT)/tas);
     }
 
-
-
     public void calcTH() {
         mTH = (mTT+mWCA+360.)%360;
     }
-
-
-    public void calcVAR() {
-        mVAR = -3.;
-    }
-
-
+    public void calcVAR() {mVAR = -3.; }
     public void calcMH() {
         mMH = mTH-mVAR;
     }
-
     public void addStartTIME() {
         mTIME=mTIME+2.;
     }
     public void calcTIME() {
         mTIME = (mDist/mGS)*60.;
     }
-
-
     public void calcETO() {
         mETO = 0;
     }
@@ -132,6 +140,7 @@ public class MarkerObject {
         myText = null;
         myMarker = null;
         mPejlinger = null;
+        mMIN_ALT=1000; // In Denmark...
 
         mDist=0;
         mGS=0;

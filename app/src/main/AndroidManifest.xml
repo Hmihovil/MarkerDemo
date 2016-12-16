@@ -34,6 +34,9 @@
         <activity
             android:name=".GlobalNavValActivity">
         </activity>
+        <activity
+            android:name=".DetailPagerActivity">
+        </activity>
 
 
         <activity
