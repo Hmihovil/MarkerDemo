@@ -149,13 +149,23 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
                     TextView tvLat = (TextView) v.findViewById(R.id.tvLat);
                     TextView tvLng = (TextView) v.findViewById(R.id.tvLng);
                     TextView tvSnippet = (TextView) v.findViewById(R.id.tvSnippet);
+                    tvSnippet.setText(marker.getSnippet());
 
                     LatLng latLng = marker.getPosition();
                     tvLocality.setText(marker.getTitle());
 
                     tvLat.setText("Lat: " +String.format("%.4f", latLng.latitude));
                     tvLng.setText("Lon: " +String.format("%.4f", latLng.longitude));
-                    tvSnippet.setText(marker.getSnippet());
+
+                    int markerIndex=getIndexById(marker.getId());
+                    MarkerObject mo = markerList.get(markerIndex);
+                    double dist = mo.getDist();
+                    double heading = mo.getTT();
+
+                    TextView tvDist = (TextView) v.findViewById(R.id.textDist);
+                    TextView tvHead = (TextView) v.findViewById(R.id.textHeading);
+                    tvDist.setText(String.format("%.1f nm", dist));
+                    tvHead.setText(String.format("%.0f ˚", heading));
 
                     return v;
 
@@ -400,7 +410,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
             if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
                 Marker m=markerList.get(markerIndex).getMarker();
-                gotoLocation(m.getPosition(),ZOOM_NORMAL);
+      //          gotoLocation(m.getPosition(),ZOOM_NORMAL);
 
             } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
                 Log.d("TBR:", "onActivityResult: delete markerIndex: "+markerIndex);

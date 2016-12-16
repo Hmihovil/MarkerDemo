@@ -69,6 +69,19 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
         eSnp.setText(markerList.get(markerIndex).getSnippet());
 
+        // Update Next WP fields
+        TextView WPtextLabel = (TextView) v.findViewById(R.id.textViewNextWP);
+        if ((markerIndex+1)<markerList.size()) {
+            TextView WPtextDist = (TextView) v.findViewById(R.id.textViewDistance);
+            TextView WPtextHeading = (TextView) v.findViewById(R.id.textViewHeading);
+            WPtextLabel.setText("Next WP: "+markerList.get(markerIndex+1).getText());
+            double dist =markerList.get(markerIndex).getDist();
+            double heading = markerList.get(markerIndex).getTT();
+            WPtextDist.setText(String.format("%.1f nm", dist));
+            WPtextHeading.setText(String.format("%.0f ˚", heading));
+        } else {
+            WPtextLabel.setText("Final destination") ;
+        }
 
         // update VOR fields for marker
         ArrayList<Pejling> pejlinger = markerList.get(markerIndex).getPejlinger();
