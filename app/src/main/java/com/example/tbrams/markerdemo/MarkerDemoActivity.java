@@ -301,7 +301,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     public void updatePolyline() {
         if (polyline==null) {
-            PolylineOptions lineOptions = new PolylineOptions();
+            PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
             polyline = mMap.addPolyline(lineOptions);
         }
 
@@ -496,6 +496,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         TextView tv = (TextView) findViewById(R.id.editText1);
         String searchString = tv.getText().toString();
+        tv.setText("");
 
         Geocoder gc = new Geocoder(this);
         List<Address> list = gc.getFromLocationName(searchString, 1);
@@ -509,6 +510,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             double lng = adr.getLongitude();
             LatLng location = new LatLng(lat, lng);
 
+            gotoLocation(location, ZOOM_NORMAL);
             addMarker(location);
         }
     }
@@ -524,7 +526,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
- //       gotoLocation(loc, ZOOM_NORMAL);
 
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
