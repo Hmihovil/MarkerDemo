@@ -62,5 +62,12 @@ public class NavPagerActivity extends AppCompatActivity {
         // Set current markerIndex in ViewPAger
         mViewPager.setCurrentItem(markerIndex);
 
+/*        for (int i = 0; i < markerList.size(); i++) {
+            if (markerList.get(i).getMarker().getId().equals(markerID)) {
+                mViewPager.setCurrentItem(i);
+                break;
+            }
+        }
+*/
     }
 }

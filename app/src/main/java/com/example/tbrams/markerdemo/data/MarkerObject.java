@@ -13,13 +13,6 @@ public class MarkerObject {
     private String mySnippet;
     private Marker myMarker;
 
-    // Navigation parameters that is needed for the flightplan
-    private double mMIN_ALT;
-    private double mALT;
-    private double mTAS;
-    private double mWINDfrom;
-    private double mWINDkts;
-
     // Navigational parameters that are calculated
     private double mDist;
     private double mIAS;
@@ -87,20 +80,22 @@ public class MarkerObject {
     public void setTT(double tt) {mTT = (tt+360)%360;Log.d("TBR:", "mTT updated: "+mTT);}
 
 
-    // Calculate these without passed input parameters
-    public void calcIAS() {
-        mIAS = mTAS/(1+mALT/1000.*0.02);
+    // Calculate navigational factors based on global nav values
+    public void calcIAS(double tas, double alt)
+    {
+        mIAS = tas/(1+alt/1000.*0.02);
     }
 
-    public void calcGS() {
-        double a = mWINDkts*Math.sin(mWINDfrom-mTT)/mTAS;
-        double b=  mWINDkts*Math.cos(mWINDfrom-mTT);
+    public void calcGS(double tas, double windDirection, double windStrength) {
+        double a = windStrength*Math.sin(windDirection-mTT)/tas;
+        double b=  windStrength*Math.cos(windDirection-mTT);
 
-        mGS = Math.sqrt(1-Math.pow(a,2))*(mTAS-b);
+        mGS = Math.sqrt(1-Math.pow(a,2))*(tas-b);
     }
 
-    public void calcWCA() {
-        mWCA = Math.atan(mWINDkts*Math.sin(mWINDfrom-mTT)/mTAS);
+    public void calcWCA(double tas, double windDirection, double windStrength) {
+
+        mWCA = Math.atan(windStrength*Math.sin(windDirection-mTT)/tas);
     }
 
 
@@ -131,20 +126,6 @@ public class MarkerObject {
         mETO = 0;
     }
 
-    /*
-     * used to initialize navigational parameters
-     * @params
-     *    alt   double  Altitude in ft
-     *    tas   double  True Air Speed in kts
-     *    wind  String  Wind info, in format "060/18"
-     */
-    public void setNavParams(double alt, double tas, String wind) {
-        mALT=alt;
-        mTAS=tas;
-        mWINDfrom=Double.parseDouble(wind.split("-")[0]);
-        mWINDkts=Double.parseDouble(wind.split("-")[0]);
-    }
-
 
     public MarkerObject() {
         myIndex  = null;
@@ -153,12 +134,6 @@ public class MarkerObject {
         mPejlinger = null;
 
         mDist=0;
-        mMIN_ALT=0;
-        mALT=0;
-        mTAS=0;
-        mWINDfrom=0;
-        mWINDkts=0;
-
         mGS=0;
         mTT=0;
         mWCA=0;

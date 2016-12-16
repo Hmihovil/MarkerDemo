@@ -1,5 +1,6 @@
 package com.example.tbrams.markerdemo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.data.GlobalNavValData;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
@@ -46,6 +48,7 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private static final int REQUEST_M_ID=1;
+    private static final int REQUEST_GLOBAL_VARS=2;
     private static final float ZOOM_DETAIL = 14.5f;
     private static final float ZOOM_OVERVIEW = 10.0f;
     private static final float ZOOM_NORMAL = 12.5f;
@@ -87,8 +90,16 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "This is where we go to the flight plan", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Click here when you are done adding way points", Snackbar.LENGTH_LONG)
+                        .setAction("Go!", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(MarkerDemoActivity.this, GlobalNavValActivity.class);
+                                startActivityForResult(intent, REQUEST_GLOBAL_VARS);
+
+                                Log.d("TBR:", "GlobalNavValActivity Started...");
+                            }
+                        }).show();
             }
         });
 
@@ -413,7 +424,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
                 gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
 
             } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
-                Log.d("TBR:", "onActivityResult: delete markerIndex: "+markerIndex);
+
+                // This is for handling results after showing the Waypoint Info Screen
 
                 // Prepare for undoing later by storing both marker and position in track
                 mUndoDeleteIndex = markerIndex;
@@ -444,7 +456,21 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
                         .setActionTextColor(Color.RED)
                         .show();
             }
-        }
+        } else if (requestCode == REQUEST_GLOBAL_VARS) {
+
+            // This is for handling results after getting global navigation variables
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d("TBR:","Result OK received from GlobalNavValFragment");
+
+
+            } else if (requestCode == Activity.RESULT_CANCELED) {
+                Log.d("TBR:", "Result Cancelled from GlobalNavValFragment");
+
+
+            }
+
+
+            }
 
     }
 
