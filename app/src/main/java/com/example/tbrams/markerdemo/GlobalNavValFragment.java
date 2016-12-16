@@ -33,12 +33,29 @@ public class GlobalNavValFragment extends Fragment {
 
         final View v= inflater.inflate(R.layout.global_nav_val_fragment,container, false);
         final EditText editTextTAS = (EditText) v.findViewById(R.id.editTextTAS);
-        EditText editTextALT = (EditText) v.findViewById(R.id.editTextALT);
-        EditText editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
+        final EditText editTextALT = (EditText) v.findViewById(R.id.editTextALT);
+        final EditText editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
 
         v.findViewById(R.id.buttonNavValOK).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (!String.valueOf(editTextTAS.getText()).matches("\\d+([.]\\d*)?")) {
+                    editTextTAS.setError("You need to provide True Airspeed here");
+                    return;
+                }
+                if (!String.valueOf(editTextALT.getText()).matches("\\d+([.]\\d*)?")) {
+                    editTextALT.setError("You need to provide an altitude here");
+                    return;
+                }
+
+                if (!String.valueOf(editTextWIND.getText()).matches("\\d{3}/\\d{2}")) {
+                    editTextWIND.setError("You must provide wind info here for example 090/15");
+                    return;
+                }
+
+
+
                 double tas = Double.parseDouble(String.valueOf(editTextTAS.getText()));
                 double alt = Double.parseDouble(String.valueOf(editTextTAS.getText()));
                 String wind = String.valueOf(editTextTAS.getText());
