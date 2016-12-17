@@ -103,7 +103,11 @@ public class MarkerObject {
     public void setTT(double tt) {mTT = (tt+360)%360;}
 
     public void setETO(double ETO) { mETO = ETO; }
-    public void setATO(double ATO) { mATO = ATO; }
+    public void setATO(double ATO) {
+        mATO = ATO;
+        mDiff = mETO-mATO;  // positive means ahead of schedule
+    }
+    public void setRETO(double RETO) { mRETO = RETO; }
 
     // Calculate navigational factors based on global nav values
     public void calcIAS(double tas, double alt)

@@ -30,7 +30,7 @@
         android:text="SlaglilleKildebroendeKirke"
         android:layout_width="218dp"
         android:layout_height="wrap_content"
-        android:id="@+id/textView11"
+        android:id="@+id/textViewNextWP"
         android:width="100dp"
         app:layout_constraintTop_toTopOf="@+id/textView9"
         android:background="@color/cast_intro_overlay_button_background_color"
@@ -45,7 +45,7 @@
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView22"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewWPnumber"/>
 
     <TextView
         android:text="Distance"
@@ -61,7 +61,7 @@
         android:text="999˚"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView14"
+        android:id="@+id/textViewMH"
         android:width="75dp"
         app:layout_constraintTop_toTopOf="@+id/textView12"
         android:layout_marginStart="8dp"
@@ -72,9 +72,9 @@
         android:text="9999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView15"
+        android:id="@+id/textViewDist"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMH"
         android:layout_marginStart="8dp"
         app:layout_constraintLeft_toRightOf="@+id/textView13"/>
 
@@ -92,26 +92,26 @@
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView17"
-        app:layout_constraintTop_toTopOf="@+id/textView16"
+        android:id="@+id/textViewRETA"
         android:layout_marginStart="8dp"
         app:layout_constraintLeft_toRightOf="@+id/textView16"
-        android:background="@color/cast_intro_overlay_button_background_color"/>
+        android:background="@color/cast_intro_overlay_button_background_color"
+        tools:layout_editor_absoluteY="194dp"/>
 
     <TextView
         android:text="Acc Diff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView18"
-        app:layout_constraintTop_toTopOf="@+id/textView17"
-        app:layout_constraintRight_toLeftOf="@+id/textView19"
+        app:layout_constraintTop_toTopOf="@+id/textViewRETA"
+        app:layout_constraintRight_toLeftOf="@+id/textViewDiff"
         android:layout_marginEnd="8dp"/>
 
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView19"
+        android:id="@+id/textViewDiff"
         app:layout_constraintTop_toTopOf="@+id/textView18"
         android:layout_marginEnd="16dp"
         app:layout_constraintRight_toRightOf="parent"
@@ -121,26 +121,26 @@
         android:text="Time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button2"
+        android:id="@+id/buttonTime"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView17"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewRETA"/>
 
     <Button
         android:text="Talk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button3"
+        android:id="@+id/buttonTalk"
         android:layout_marginStart="24dp"
-        app:layout_constraintLeft_toRightOf="@+id/button2"
-        app:layout_constraintTop_toTopOf="@+id/button2"/>
+        app:layout_constraintLeft_toRightOf="@+id/buttonTime"
+        app:layout_constraintTop_toTopOf="@+id/buttonTime"/>
 
     <TextView
         android:text="New Course 231˚"
         android:layout_width="326dp"
         android:layout_height="128dp"
-        android:id="@+id/textView20"
+        android:id="@+id/textViewHints"
         android:textSize="36sp"
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -152,7 +152,7 @@
         android:paddingTop="35dp"
         android:background="@color/cast_intro_overlay_button_background_color"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/button3"/>
+        app:layout_constraintTop_toBottomOf="@+id/buttonTalk"/>
 
     <TextView
         android:text="Leg #"
@@ -168,7 +168,7 @@
         android:text="99"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView22"
+        android:id="@+id/textViewWPnumber"
         android:layout_marginStart="8dp"
         app:layout_constraintLeft_toRightOf="@+id/textView21"
         android:width="20dp"
@@ -181,7 +181,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView23"
         android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView22"
+        app:layout_constraintLeft_toRightOf="@+id/textViewWPnumber"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/textView9"/>
 
@@ -189,7 +189,7 @@
         android:text="999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView24"
+        android:id="@+id/textViewWPtotal"
         android:width="30dp"
         android:layout_marginStart="8dp"
         app:layout_constraintLeft_toRightOf="@+id/textView23"
@@ -203,6 +203,6 @@
         android:id="@+id/textView25"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/textView20"
+        app:layout_constraintBottom_toTopOf="@+id/textViewHints"
         android:layout_marginBottom="8dp"/>
 </android.support.constraint.ConstraintLayout>

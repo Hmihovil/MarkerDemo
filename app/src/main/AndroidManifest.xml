@@ -41,6 +41,9 @@
         <activity
             android:name=".ETOActivity">
         </activity>
+        <activity android:name=".TimePagerActivity">
+
+        </activity>
 
 
         <activity

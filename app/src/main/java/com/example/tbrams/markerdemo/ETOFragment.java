@@ -1,5 +1,6 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -48,6 +49,12 @@ public class ETOFragment extends Fragment {
                     double t=markerList.get(i).getTIME();
                     markerList.get(i).setETO(t+ETOD);
                 }
+                Log.d("TBR:", "ETOs calculated");
+                Intent intent = new Intent(getActivity(), TimePagerActivity.class);
+                startActivity(intent);
+
+                Log.d("TBR:", "TimePagerActivity Started...");
+
             }
         });
 
