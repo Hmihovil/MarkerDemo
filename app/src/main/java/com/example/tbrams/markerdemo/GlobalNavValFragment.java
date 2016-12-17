@@ -7,6 +7,7 @@ import android.opengl.ETC1;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,10 @@ public class GlobalNavValFragment extends Fragment {
         final EditText editTextALT = (EditText) v.findViewById(R.id.editTextALT);
         final EditText editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
 
+        // Initialize fields with whatever global values we can find in first marker
+        MarkerObject mo=markerList.get(0);
+
+
         v.findViewById(R.id.buttonNavValOK).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,8 +62,8 @@ public class GlobalNavValFragment extends Fragment {
 
 
                 double tas = Double.parseDouble(String.valueOf(editTextTAS.getText()));
-                double alt = Double.parseDouble(String.valueOf(editTextTAS.getText()));
-                String wind = String.valueOf(editTextTAS.getText());
+                double alt = Double.parseDouble(String.valueOf(editTextALT.getText()));
+                String wind = String.valueOf(editTextWIND.getText());
 
                 GlobalNavValData gnd=new GlobalNavValData(alt,tas,wind);
 
@@ -89,11 +94,34 @@ public class GlobalNavValFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        Log.d("TBR:", "onDestroyView");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("TBR:", "onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        Log.d("TBR:", "onPause");
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        Log.d("TBR:","onStop");
+        super.onStop();
+    }
 
     /*
-     * Helper function used to send results back to the main activity where it can
-     * be processed in the onActivityResult method
-     */
+             * Helper function used to send results back to the main activity where it can
+             * be processed in the onActivityResult method
+             */
     private void sendResult(int resultCode) {
         Intent intent = new Intent();
         getActivity().setResult(resultCode, intent);

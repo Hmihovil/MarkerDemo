@@ -42,10 +42,10 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="?android:attr/homeAsUpIndicator"
+                app:srcCompat="@drawable/ic_forward_black_24dp"
                 android:id="@+id/imageView"
                 android:layout_weight="1"
-                android:rotation="180"/>
+                />
 
             <TextView
                 android:text="TextView"

@@ -326,7 +326,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     /*
-     * Update distance and heading info for all markers
+     * Update distance and heading info for all markers except the last one
+     * After this is done all markers will have the distance to next marker and
+     * the initial heading needed to reach next marker
      */
     public void updateNavinfo(){
         if (markerList.size()<2) {
@@ -416,45 +418,48 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_M_ID) {
-            int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
-            Log.d("TBR:", "onActivityResult: Received markerIndex:"+markerIndex);
 
-            if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
-                Marker m=markerList.get(markerIndex).getMarker();
-                gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+            if (data!=null) {
+                int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
+                Log.d("TBR:", "onActivityResult: Received markerIndex:"+markerIndex);
 
-            } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
+                if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
+                    Marker m=markerList.get(markerIndex).getMarker();
+                    gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
 
-                // This is for handling results after showing the Waypoint Info Screen
+                } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
 
-                // Prepare for undoing later by storing both marker and position in track
-                mUndoDeleteIndex = markerIndex;
-                mUndoDeleteMarker = new MarkerObject();
-                mUndoDeleteMarker = markerList.get(markerIndex);
+                    // This is for handling results after showing the Waypoint Info Screen
 
-                // Delete physical marker and then the MarkerObject
-                markerList.get(markerIndex).getMarker().remove();
-                markerList.remove(markerIndex);
-                updatePolyline();
+                    // Prepare for undoing later by storing both marker and position in track
+                    mUndoDeleteIndex = markerIndex;
+                    mUndoDeleteMarker = new MarkerObject();
+                    mUndoDeleteMarker = markerList.get(markerIndex);
 
-                // Make a snackbar message offering undo
-                Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                int previousIndex = mUndoDeleteIndex-1;
-                                if (previousIndex>=0) {
-                                    addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
-                                } else {
-                                    addMarker(mUndoDeleteMarker.getMarker().getPosition());
+                    // Delete physical marker and then the MarkerObject
+                    markerList.get(markerIndex).getMarker().remove();
+                    markerList.remove(markerIndex);
+                    updatePolyline();
+
+                    // Make a snackbar message offering undo
+                    Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    int previousIndex = mUndoDeleteIndex-1;
+                                    if (previousIndex>=0) {
+                                        addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
+                                    } else {
+                                        addMarker(mUndoDeleteMarker.getMarker().getPosition());
+                                    }
+                                    // reset undo variables
+                                    mUndoDeleteMarker=null;
+                                    mUndoDeleteIndex=-1;
                                 }
-                                // reset undo variables
-                                mUndoDeleteMarker=null;
-                                mUndoDeleteIndex=-1;
-                            }
-                        })
-                        .setActionTextColor(Color.RED)
-                        .show();
+                            })
+                            .setActionTextColor(Color.RED)
+                            .show();
+                }
             }
         } else if (requestCode == REQUEST_GLOBAL_VARS) {
 
