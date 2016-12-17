@@ -39,7 +39,11 @@ public class GlobalNavValFragment extends Fragment {
 
         // Initialize fields with whatever global values we can find in first marker
         MarkerObject mo=markerList.get(0);
-
+        if (mo.getTAS()!=0) {
+            editTextTAS.setText(String.format("%.1f", mo.getTAS()));
+            editTextALT.setText(String.format("%.1f", mo.getALT()));
+            editTextWIND.setText(String.format("%.0f", mo.getWindDirection()) + "/" + String.format("%.0f", mo.getWindStrenght()));
+        }
 
         v.findViewById(R.id.buttonNavValOK).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,17 +98,6 @@ public class GlobalNavValFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onDestroyView() {
-        Log.d("TBR:", "onDestroyView");
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d("TBR:", "onDestroy");
-        super.onDestroy();
-    }
 
     @Override
     public void onPause() {
