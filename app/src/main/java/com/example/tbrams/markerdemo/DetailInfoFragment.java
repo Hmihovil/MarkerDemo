@@ -91,7 +91,7 @@ public class DetailInfoFragment extends Fragment {
             tvWv.setText(wind);
 
             double time=0;
-            for (int i=0;i<markerIndex;i++){
+            for (int i=0;i<=markerIndex;i++){
                 time+=markerList.get(i).getTIME();
             }
 
