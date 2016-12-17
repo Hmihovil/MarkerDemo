@@ -31,7 +31,7 @@
         android:background="@color/cast_intro_overlay_button_background_color"/>
 
     <TextView
-        android:text="@"
+        android:text="\@"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView30"
@@ -46,8 +46,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView31"
         android:background="@color/cast_intro_overlay_button_background_color"
-        tools:layout_editor_absoluteY="103dp"
-        tools:layout_editor_absoluteX="37dp"/>
+        tools:layout_editor_absoluteX="37dp"
+        app:layout_constraintTop_toTopOf="@+id/textView30"/>
 
     <TextView
         android:text="9999"
@@ -135,7 +135,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView41"/>
 
     <TextView
-        android:text="@"
+        android:text="\@"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView41"

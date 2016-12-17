@@ -29,8 +29,13 @@ public class MarkerObject {
     private double mTH;
     private double mVAR;
     private double mMH;
+
+    // Timing vars
     private double mTIME;
     private double mETO;
+    private double mRETO;
+    private double mATO;
+    private double mDiff;
 
 
 
@@ -89,11 +94,16 @@ public class MarkerObject {
     public double getMH() {return mMH;}
     public double getTIME() {return mTIME;}
     public double getETO() {return mETO;}
+    public double getRETO() { return mRETO; }
+    public double getATO() { return mATO; }
+    public double getDiff() { return mDiff; }
 
     // These two are done for all way points except for the starting point
     public void setDist(double dist) {mDist= dist/1852.;}
     public void setTT(double tt) {mTT = (tt+360)%360;}
 
+    public void setETO(double ETO) { mETO = ETO; }
+    public void setATO(double ATO) { mATO = ATO; }
 
     // Calculate navigational factors based on global nav values
     public void calcIAS(double tas, double alt)

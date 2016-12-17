@@ -7,23 +7,23 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:text="ETO: Expected Take Off"
+        android:text="Getting Ready"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView7"
         android:textSize="18sp"
         android:textColor="@color/cast_expanded_controller_background_color"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:text="Enter your expected Take Off time (in minutes)"
+        android:text="Enter your expected Take Off time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView4"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/textView7"/>
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:inputType="time"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/editETO"
         android:hint="00"
         android:width="35dp"
         android:layout_marginEnd="24dp"
@@ -47,27 +47,44 @@
         android:id="@+id/btnOK"
         android:layout_marginEnd="24dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/editText"/>
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"/>
 
     <Button
         android:text="Now"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnNow"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="24dp"
-        app:layout_constraintRight_toRightOf="parent"/>
+        android:layout_marginStart="24dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView26"/>
 
     <Button
-        android:text="Quit"
+        android:text="Cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnQuit"
+        app:layout_constraintTop_toTopOf="@+id/btnNow"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:text="Or press here"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView26"
         android:layout_marginStart="24dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="24dp"/>
+        app:layout_constraintTop_toTopOf="@+id/guideline3"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline3"
+        app:layout_constraintGuide_begin="144dp"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteY="144dp"
+        tools:layout_editor_absoluteX="0dp"/>
 
 </android.support.constraint.ConstraintLayout>

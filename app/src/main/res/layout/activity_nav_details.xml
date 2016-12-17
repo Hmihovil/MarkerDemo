@@ -373,5 +373,18 @@
 
     </LinearLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@android:drawable/ic_dialog_email"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintRight_toRightOf="@+id/map"
+        app:backgroundTint="@android:color/holo_orange_light"/>
+
+
+
 
 </FrameLayout>

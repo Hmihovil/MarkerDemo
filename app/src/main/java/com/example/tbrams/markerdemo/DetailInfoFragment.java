@@ -1,12 +1,15 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
@@ -45,6 +48,25 @@ public class DetailInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.activity_nav_details,container,false);
+
+        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_work_black_24dp);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Click here when you are done adding way points", Snackbar.LENGTH_LONG)
+                        .setAction("Go!", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(getActivity(), ETOActivity.class);
+                                startActivity(intent);
+
+                                Log.d("TBR:", "ETOActivity Started...");
+                            }
+                        }).show();
+            }
+        });
+
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
