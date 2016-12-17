@@ -1,5 +1,6 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,7 +21,9 @@ import java.util.List;
 
 
 public class TimeFragment extends Fragment {
+
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
+
     private int markerIndex = -1;
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -54,7 +57,7 @@ public class TimeFragment extends Fragment {
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
-        Log.d("TBR:","markerIndex: "+markerIndex);
+        Log.d("TBR:","TimeFragment, OnCreatView, markerIndex: "+markerIndex);
 
         // Next Way Point
         if (markerIndex+1==markerList.size()){
@@ -121,7 +124,10 @@ public class TimeFragment extends Fragment {
         btnTalk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TBR:", "TALK clicked");
+                Log.d("TBR:", "Starting TalkActivity");
+
+                Intent intent = NavPagerActivity.newIntent(getActivity(), markerIndex);
+                startActivity(intent);
 
             }
         });
