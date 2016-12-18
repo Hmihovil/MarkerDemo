@@ -66,9 +66,9 @@ public class TalkFragment extends Fragment {
             MarkerObject nextWP = markerList.get(markerIndex+1);
             tvPositionNextName.setText(nextWP.getText());
             tvPositionNextTimeLabel.setVisibility(View.VISIBLE);
-            tvPositionNextTime.setText(String.format("%0f",nextWP.getRETO()));
+            tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
             tvPositionNextAlt.setVisibility(View.VISIBLE);
-            tvPositionNextTime.setText(String.format("%0f",nextWP.getALT()));
+            tvPositionNextTime.setText(String.format("%.0f",nextWP.getALT()));
         } else {
             // hide labels
             tvPositionNextAlt.setVisibility(View.INVISIBLE);

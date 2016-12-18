@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
@@ -51,7 +50,7 @@ public class TimeFragment extends Fragment {
         final TextView tvWPtotal = (TextView) v.findViewById(R.id.textViewWPtotal);
         final TextView tvHeading = (TextView) v.findViewById(R.id.textViewMH);
         final TextView tvDistance = (TextView) v.findViewById(R.id.textViewDist);
-        final TextView tvRETO = (TextView) v.findViewById(R.id.textViewRETA);
+        final TextView tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
         final TextView tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
         final TextView tvHints = (TextView) v.findViewById(R.id.textViewHints);
 
@@ -70,19 +69,21 @@ public class TimeFragment extends Fragment {
 
 
         // Way Point Number and Total
-        tvWPnumber.setText( Integer.toString(markerIndex));
+        tvWPnumber.setText( Integer.toString(markerIndex+1));  // Because most humans start counting at 1
         tvWPtotal.setText( Integer.toString(markerList.size()));
 
         final MarkerObject mo=markerList.get(markerIndex);
 
         // Heading and Distance
-        tvHeading.setText(Double.toString(mo.getTT()));
-        tvDistance.setText(Double.toString(mo.getDist()));
+        tvHeading.setText(String.format("%.0f", mo.getTT()));
+        tvDistance.setText(String.format("%.1f", mo.getDist()));
 
-        // RETA
+        // RETO
+        // TODO: Need some time formatting here later
         if (markerIndex==0) {
             tvRETO.setText("NA");
         } else {
+            Log.d("TBR:", "mo.getRETO(): "+mo.getRETO());
             tvRETO.setText(Double.toString(mo.getRETO()));
         }
 
@@ -90,8 +91,10 @@ public class TimeFragment extends Fragment {
         tvDiff.setText(Double.toString(mo.getDiff()));
 
         // Hints field
+        // TODO: Need to make these hints context relevant and cycle through messages, timer?
         tvHints.setText("Prepare for Take off");
 
+        // TIME Button
         final Button btnTime = (Button) v.findViewById(R.id.buttonTime);
         btnTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,9 +112,9 @@ public class TimeFragment extends Fragment {
                     double difference = mo.getETO()-mo.getATO();
                     Log.d("TBR:", "Diff is: "+difference);
 
-                    MarkerObject NextMO = markerList.get(markerIndex+1);
-                    double reto = NextMO.getETO() - difference;
-                    NextMO.setRETO(reto);
+                    MarkerObject nextMO = markerList.get(markerIndex+1);
+                    double reto = nextMO.getETO() - difference;
+                    nextMO.setRETO(reto);
                     Log.d("TBR:", "RETO for next point is: "+reto);
                 }
 
@@ -119,14 +122,14 @@ public class TimeFragment extends Fragment {
         });
 
 
-
+        // TALK Button
         final Button btnTalk = (Button) v.findViewById(R.id.buttonTalk);
         btnTalk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("TBR:", "Starting TalkActivity");
 
-                Intent intent = NavPagerActivity.newIntent(getActivity(), markerIndex);
+                Intent intent = TalkActivity.newIntent(getActivity(), markerIndex);
                 startActivity(intent);
 
             }
