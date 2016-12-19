@@ -90,12 +90,12 @@ public class DetailInfoFragment extends Fragment {
         TextView tvAccTime = (TextView) v.findViewById(R.id.tvAccTime);
 
 
-        if ((markerIndex+1)<markerList.size()) {
+        if (markerIndex<markerList.size()) {
             tvLegLabel.setText("Leg #"+ String.format("%d", markerIndex+1));
             tvFromWP.setText(markerList.get(markerIndex).getMarker().getTitle());
             tvToWP.setText(markerList.get(markerIndex+1).getMarker().getTitle());
 
-            MarkerObject mo = markerList.get(markerIndex);
+            MarkerObject mo = markerList.get(markerIndex+1);
             tvDist.setText(String.format("%.1f nm", mo.getDist()));
             tvIAS.setText(String.format("%.1f kts", mo.getIAS()));
             tvGS.setText(String.format("%.1f kts", mo.getGS()));
@@ -113,7 +113,7 @@ public class DetailInfoFragment extends Fragment {
             tvWv.setText(wind);
 
             double time=0;
-            for (int i=0;i<=markerIndex;i++){
+            for (int i=1;i<=markerIndex;i++){
                 time+=markerList.get(i).getTIME();
             }
 

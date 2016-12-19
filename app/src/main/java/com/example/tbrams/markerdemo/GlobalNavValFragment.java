@@ -72,7 +72,7 @@ public class GlobalNavValFragment extends Fragment {
 
                 GlobalNavValData gnd=new GlobalNavValData(alt,tas,wind);
 
-                for (int i=0;i<markerList.size();i++){
+                for (int i=1;i<markerList.size();i++){
                     markerList.get(i).calcGS(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
                     markerList.get(i).calcWCA(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
                     markerList.get(i).calcIAS(gnd.getTAS(), gnd.getALT());

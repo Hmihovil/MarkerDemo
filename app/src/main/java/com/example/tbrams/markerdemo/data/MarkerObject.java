@@ -141,6 +141,7 @@ public class MarkerObject {
     public void addStartTIME() {
         mTIME=mTIME+2.;
     }
+
     public void calcTIME() {
         mTIME = (mDist/mGS)*60.;
     }

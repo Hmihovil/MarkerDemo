@@ -38,7 +38,7 @@ public class ETOFragment extends Fragment {
             public void onClick(View view) {
                 Log.d("TBR:", "OK Clicked");
 
-                if (!String.valueOf(editETO.getText()).matches("\\d{2}")) {
+                if (!String.valueOf(editETO.getText()).matches("\\d[\\d]")) {
                     editETO.setError("Please write ETO in minutes, e.g. 07");
                     return;
                 }
@@ -50,10 +50,14 @@ public class ETOFragment extends Fragment {
                     markerList.get(i).setETO(t+ETOD);
                 }
                 Log.d("TBR:", "ETOs calculated");
-                Intent intent = new Intent(getActivity(), TimePagerActivity.class);
+                for (int i=1;i<markerList.size();i++){
+                    Log.d("TBR:", "ETO for "+markerList.get(i).getText()+" is "+markerList.get(i).getETO());
+                }
+
+                Intent intent = new Intent(getActivity(), TimeActivity.class);
                 startActivity(intent);
 
-                Log.d("TBR:", "TimePagerActivity Started...");
+                Log.d("TBR:", "TimeActivity Started...");
 
             }
         });

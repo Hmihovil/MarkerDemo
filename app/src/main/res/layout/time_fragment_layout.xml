@@ -206,4 +206,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/textViewHints"
         android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:text="NEXT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonNext"
+        app:layout_constraintTop_toTopOf="@+id/buttonTalk"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent"/>
 </android.support.constraint.ConstraintLayout>

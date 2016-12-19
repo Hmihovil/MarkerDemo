@@ -19,126 +19,135 @@ import com.example.tbrams.markerdemo.data.NavAids;
 import java.util.List;
 
 
-public class TimeFragment extends Fragment {
+public class TimeFragment extends Fragment implements View.OnClickListener {
 
-    public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
+    public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
 
-    private int markerIndex = -1;
+    private int segmentIndex = 0;
+    private View v;
+    private TextView tvNextWP;
+    private TextView tvWPnumber;
+    private TextView tvWPtotal;
+    private TextView tvHeading;
+    private TextView tvDistance;
+    private TextView tvRETO;
+    private TextView tvDiff;
+    private TextView tvHints;
+
+    private MarkerObject fromWP;
+    private MarkerObject toWP;
+
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
-
-    public static TimeFragment newInstance(int markerIndex) {
-        Bundle args = new Bundle();
-        args.putSerializable(EXTRA_MARKER_ID, markerIndex);
-
-        TimeFragment fragment = new TimeFragment();
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.time_fragment_layout, container, false);
-        final TextView tvNextWP = (TextView) v.findViewById(R.id.textViewNextWP);
-        final TextView tvWPnumber = (TextView) v.findViewById(R.id.textViewWPnumber);
-        final TextView tvWPtotal = (TextView) v.findViewById(R.id.textViewWPtotal);
-        final TextView tvHeading = (TextView) v.findViewById(R.id.textViewMH);
-        final TextView tvDistance = (TextView) v.findViewById(R.id.textViewDist);
-        final TextView tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
-        final TextView tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
-        final TextView tvHints = (TextView) v.findViewById(R.id.textViewHints);
+        v = inflater.inflate(R.layout.time_fragment_layout, container, false);
+        tvNextWP = (TextView) v.findViewById(R.id.textViewNextWP);
+        tvWPnumber = (TextView) v.findViewById(R.id.textViewWPnumber);
+        tvWPtotal = (TextView) v.findViewById(R.id.textViewWPtotal);
+        tvHeading = (TextView) v.findViewById(R.id.textViewMH);
+        tvDistance = (TextView) v.findViewById(R.id.textViewDist);
+        tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
+        tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
+        tvHints = (TextView) v.findViewById(R.id.textViewHints);
 
-        // Get marker id from argument bundle
-        markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
-        Log.d("TBR:","TimeFragment, OnCreatView, markerIndex: "+markerIndex);
+        v.findViewById(R.id.buttonTime).setOnClickListener(this);
+        v.findViewById(R.id.buttonTalk).setOnClickListener(this);
+        v.findViewById(R.id.buttonNext).setOnClickListener(this);
 
-        // Next Way Point
-        if (markerIndex+1==markerList.size()){
-            // end of the segments
-            tvNextWP.setText("");
-        } else {
-            // we have a next WP
-            tvNextWP.setText(markerList.get(markerIndex+1).getText());
-        }
-
-
-        // Way Point Number and Total
-        tvWPnumber.setText( Integer.toString(markerIndex+1));      // Because most humans start counting at 1
-        tvWPtotal.setText( Integer.toString(markerList.size()-1)); // counting legs, not WPs
-
-        final MarkerObject mo=markerList.get(markerIndex);
-
-        // Heading and Distance
-        tvHeading.setText(String.format("%.0f", mo.getTT()));
-        tvDistance.setText(String.format("%.1f", mo.getDist()));
-
-        // RETO
-        // TODO: Need some time formatting here later
-        if (markerIndex==0) {
-            tvRETO.setText("NA");
-        } else {
-            Log.d("TBR:", "mo.getRETO(): "+mo.getRETO());
-            tvRETO.setText(Double.toString(mo.getRETO()));
-        }
-
-        // Time difference
-        tvDiff.setText(Double.toString(mo.getDiff()));
-
-        // Hints field
-        // TODO: Need to make these hints context relevant and cycle through messages, timer?
-        tvHints.setText("Prepare for Take off");
-
-        // TIME Button
-        final Button btnTime = (Button) v.findViewById(R.id.buttonTime);
-        btnTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("TBR:", "Time clicked");
-
-                // for testing I will hardcode time stamp to be like:
-                int time = 8;
-                mo.setATO(time);
-                Log.d("TBR:", "ATO set to "+time);
-
-
-                if (markerIndex+1!=markerList.size()){
-                    // we have a next WP, calculate and register the RETO
-                    double difference = mo.getETO()-mo.getATO();
-                    Log.d("TBR:", "Diff is: "+difference);
-
-                    MarkerObject nextMO = new MarkerObject();
-                    nextMO=markerList.get(markerIndex+1);
-                    double reto = nextMO.getETO() - difference;
-                    nextMO.setRETO(reto);
-                    Log.d("TBR:", "RETO for next point is: "+reto);
-                }
-
-            }
-        });
-
-
-        // TALK Button
-        final Button btnTalk = (Button) v.findViewById(R.id.buttonTalk);
-        btnTalk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("TBR:", "Starting TalkActivity");
-
-                Intent intent = TalkActivity.newIntent(getActivity(), markerIndex);
-                startActivity(intent);
-
-            }
-        });
+        updateFields();
 
         return v;
 
     }
 
+    private void updateFields() {
 
+        // TODO: Can we assume we have at least Two markers?
+        fromWP = markerList.get(segmentIndex);
+        toWP   = markerList.get(segmentIndex+1);
+
+        // Next WP Name
+        tvNextWP.setText(toWP.getText());
+
+        // Segment Number and Total
+        tvWPnumber.setText( Integer.toString(segmentIndex+1));   // The first segment is "1" here
+        tvWPtotal.setText( Integer.toString(markerList.size()-1));
+
+        // Heading and Distance
+        tvHeading.setText(String.format("%.0f", toWP.getTT()));
+        tvDistance.setText(String.format("%.1f", toWP.getDist()));
+
+        // RETO
+        // TODO: Need some time formatting here later
+        if (segmentIndex==0) {
+            // Special for first Segment
+            // We only have ETO for first destination (still no ATO and thus no RETO)
+
+            tvRETO.setText(String.format("%.0f", toWP.getETO()));
+        } else {
+            Log.d("TBR:", "toWP.getRETO(): "+toWP.getRETO());
+
+            tvRETO.setText(String.format("%.0f", toWP.getRETO()));
+        }
+
+        // Time difference
+        tvDiff.setText(String.format("%.0f", toWP.getDiff()));
+
+        // Hints field
+        // TODO: Need to make these hints context relevant and cycle through messages, timer?
+        tvHints.setText("Prepare for Take off");
+    }
+
+
+
+    @Override
+    public void onClick(View view) {
+        Log.d("TBR:","click handler...");
+        if (view.getId()==R.id.buttonNext) {
+
+            // Next Button behaviour
+            if (segmentIndex<markerList.size()-1) {
+                segmentIndex++;
+                updateFields();
+
+                Log.d("TBR:", "Next page...segmentIndex now: "+segmentIndex);
+            }
+
+        } else if (view.getId()==R.id.buttonTalk ) {
+            // TALK Functionality
+            Log.d("TBR:", "Starting TalkActivity");
+
+            Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
+            startActivity(intent);
+        } else if (view.getId()==R.id.buttonTime) {
+            // TIME functionality
+            Log.d("TBR:", "Time clicked");
+
+            // for testing I will hardcode time stamp to be like:
+            int time = 8;
+
+            toWP.setATO(time);    // set ATO to the "actual" time
+            Log.d("TBR:", "ATO set to "+time+" for "+toWP.getText());
+
+            // Calculate and time difference
+            double timeDifference = toWP.getETO()-toWP.getATO();
+            Log.d("TBR:", "Diff from estimate is: "+timeDifference+" for "+toWP.getText());
+
+            if (segmentIndex<markerList.size()-2) {
+                // We have a next segment
+                MarkerObject thenWP = markerList.get(segmentIndex+2);
+                double reto = thenWP.getETO() - timeDifference;
+                thenWP.setRETO(reto);
+                Log.d("TBR:", "RETO set to: " + reto + thenWP.getText());
+            }
+            Log.d("TBR:", "Dumping ETO/RETO for all markers here");
+            for (int i=1;i<markerList.size();i++){
+                Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
+            }
+        }
+    }
 }

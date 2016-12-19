@@ -342,8 +342,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             double dist=computeDistanceBetween(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
             double heading = computeHeading(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
 
-            mFrom.setDist(dist);
-            mFrom.setTT(heading);
+            // Set these values on the to point, that way we will have all we need in the WP
+            // dist from prev, required heading from prev, IAS, TAS etc later...
+
+            mTo.setDist(dist);
+            mTo.setTT(heading);
         }
     }
 

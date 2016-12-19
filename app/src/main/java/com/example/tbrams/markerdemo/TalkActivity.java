@@ -8,22 +8,21 @@ import android.util.Log;
 
 
 public class TalkActivity extends SingleFragmentActivity {
-    private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
+    public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
 
     public static Intent newIntent(Context packageContext, int markerIndex) {
         Intent intent = new Intent(packageContext, TalkActivity.class);
-        intent.putExtra(EXTRA_MARKER_ID, markerIndex);
+        intent.putExtra(EXTRA_SEGMENT_ID, markerIndex);
         return intent;
     }
 
     @Override
     protected Fragment createFragment() {
 
-        // Get markerIndex from argument passed to activity and pass it on to Fragment
-        // Get markerIndex from arguments
-        int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
-        Log.d("TBR:","TalkActivity/onCreate - intent/markerIndex: "+markerIndex);
+        // Get segmentIndex from argument passed to activity and pass it on to Fragment
+        int segmentIndex = (int) getIntent().getSerializableExtra(EXTRA_SEGMENT_ID);
+        Log.d("TBR:","TalkActivity/onCreate - intent/segmentIndex: "+segmentIndex);
 
-        return TalkFragment.newInstance(markerIndex);
+        return TalkFragment.newInstance(segmentIndex);
     }
 }

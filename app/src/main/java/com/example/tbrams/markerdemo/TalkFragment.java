@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,20 +20,20 @@ import java.util.List;
 
 
 public class TalkFragment extends Fragment {
-    public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
+    public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
     NavAids navaids = NavAids.get(getActivity());
     List<NavAid> vorList = navaids.getList();
 
-    private int markerIndex = -1;
+    private int segmentIndex = -1;
 
 
 
-    public static TalkFragment newInstance(int markerIndex){
+    public static TalkFragment newInstance(int segmentIndex){
         Bundle args = new Bundle();
-        args.putSerializable(EXTRA_MARKER_ID, markerIndex);
+        args.putSerializable(EXTRA_SEGMENT_ID, segmentIndex);
 
         TalkFragment fragment = new TalkFragment();
         fragment.setArguments(args);
@@ -45,8 +46,8 @@ public class TalkFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         // Get marker id from argument bundle
-        markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
-        Log.d("TBR:","TalkFragment/onCreateView - intent/markerIndex: "+markerIndex);
+        segmentIndex = (int) getArguments().getSerializable(EXTRA_SEGMENT_ID);
+        Log.d("TBR:","TalkFragment/onCreateView - intent/segmentIndex: "+segmentIndex);
 
         final View v = inflater.inflate(R.layout.talk_fragment_layout, container, false);
         final TextView tvPositionName = (TextView) v.findViewById(R.id.textViewPositionName);
@@ -60,37 +61,52 @@ public class TalkFragment extends Fragment {
         final TextView tvPositionThenName = (TextView) v.findViewById(R.id.textViewPositionThenName);
         final TextView tvPositionThenNameLabel = (TextView) v.findViewById(R.id.textViewPositionThenLabel);
 
-        MarkerObject thisWP = markerList.get(markerIndex);
+        MarkerObject thisWP = markerList.get(segmentIndex+1);
+        tvPositionName.setText(thisWP.getText());
+        tvPositionTime.setText(String.format("%.0f",thisWP.getTIME()));
+        tvPositionAlt.setText(String.format("%.0f", thisWP.getALT()));
 
-        if (markerIndex+1<markerList.size()) {
-            MarkerObject nextWP = markerList.get(markerIndex+1);
+        if (segmentIndex+2<markerList.size()) {
+            // Next Report point
+            MarkerObject nextWP = markerList.get(segmentIndex+2);
             tvPositionNextName.setText(nextWP.getText());
             tvPositionNextTimeLabel.setVisibility(View.VISIBLE);
             tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
             tvPositionNextAlt.setVisibility(View.VISIBLE);
             tvPositionNextTime.setText(String.format("%.0f",nextWP.getALT()));
         } else {
-            // hide labels
+            // No next report point - hide labels
             tvPositionNextAlt.setVisibility(View.INVISIBLE);
             tvPositionNextAltLabel.setVisibility(View.INVISIBLE);
             tvPositionNextTime.setVisibility(View.INVISIBLE);
             tvPositionNextTimeLabel.setVisibility(View.INVISIBLE);
+
+            // hide labels for expected RP
+            tvPositionThenName.setVisibility(View.INVISIBLE);
+            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
+
         }
 
-        if (markerIndex+2<markerList.size()) {
-            MarkerObject thenWP = markerList.get(markerIndex+2);
-            tvPositionThenName.setVisibility(View.INVISIBLE);
+        if (segmentIndex+3<markerList.size()) {
+            // Expect Reporting point
+            MarkerObject thenWP = markerList.get(segmentIndex+3);
+            tvPositionThenName.setVisibility(View.VISIBLE);
             tvPositionThenName.setText(thenWP.getText());
-            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
-        } else {
-            // hide labels
-            tvPositionThenName.setVisibility(View.INVISIBLE);
-            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
+            tvPositionThenNameLabel.setVisibility(View.VISIBLE);
         }
 
+        Button btnOK = (Button) v.findViewById(R.id.btnPositionOK);
+        btnOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss this screen
+                getActivity().onBackPressed();
+            }
+        });
 
         return v;
     }
+
 
 
 }
