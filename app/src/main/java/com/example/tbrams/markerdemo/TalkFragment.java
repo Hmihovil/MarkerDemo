@@ -60,40 +60,44 @@ public class TalkFragment extends Fragment {
         final TextView tvPositionNextAltLabel = (TextView) v.findViewById(R.id.textViewPositionNextAltLabel);
         final TextView tvPositionThenName = (TextView) v.findViewById(R.id.textViewPositionThenName);
         final TextView tvPositionThenNameLabel = (TextView) v.findViewById(R.id.textViewPositionThenLabel);
+        final TextView tvPositionNextLabel   = (TextView) v.findViewById(R.id.textViewExpLabel);
 
         MarkerObject thisWP = markerList.get(segmentIndex+1);
         tvPositionName.setText(thisWP.getText());
         tvPositionTime.setText(String.format("%.0f",thisWP.getTIME()));
         tvPositionAlt.setText(String.format("%.0f", thisWP.getALT()));
 
-        if (segmentIndex+1<markerList.size()) {
-            // Next Report point
+
+        if ((markerList.size()-segmentIndex)>3) {
+            // At least two segments to work on, start with the Expect fields
             MarkerObject nextWP = markerList.get(segmentIndex+2);
             tvPositionNextName.setText(nextWP.getText());
-            tvPositionNextTimeLabel.setVisibility(View.VISIBLE);
             tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
-            tvPositionNextAlt.setVisibility(View.VISIBLE);
             tvPositionNextAlt.setText(String.format("%.0f",nextWP.getALT()));
+
+            // Then info
+            MarkerObject thenWP = markerList.get(segmentIndex+3);
+            tvPositionThenName.setText(thenWP.getText());
+
         } else {
-            // No next report point - hide labels
+            // Just a report point and then final dest in the expect position of the layout
+
+            // Hide the next time and alt fields and labels
             tvPositionNextAlt.setVisibility(View.INVISIBLE);
             tvPositionNextAltLabel.setVisibility(View.INVISIBLE);
             tvPositionNextTime.setVisibility(View.INVISIBLE);
             tvPositionNextTimeLabel.setVisibility(View.INVISIBLE);
 
-            // hide labels for expected RP
+            // change next label to be final destination "Then"
+            tvPositionNextLabel.setText("Then");
+            tvPositionNextName.setText(markerList.get(segmentIndex+2).getText());
+
+            // hide label and textView for original Then field
             tvPositionThenName.setVisibility(View.INVISIBLE);
             tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
 
         }
 
-        if (segmentIndex+2<markerList.size()) {
-            // Expect Reporting point
-            MarkerObject thenWP = markerList.get(segmentIndex+2);
-            tvPositionThenName.setVisibility(View.VISIBLE);
-            tvPositionThenName.setText(thenWP.getText());
-            tvPositionThenNameLabel.setVisibility(View.VISIBLE);
-        }
 
         Button btnOK = (Button) v.findViewById(R.id.btnPositionOK);
         btnOK.setOnClickListener(new View.OnClickListener() {

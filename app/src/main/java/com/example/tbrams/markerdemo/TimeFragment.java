@@ -61,8 +61,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         nextBtn = (Button) v.findViewById(R.id.buttonNext);
 
         timeBtn.setOnClickListener(this);
-        talkBtn.setOnClickListener(this);
-        nextBtn.setOnClickListener(this);
+        talkBtn.setOnClickListener(this); talkBtn.setEnabled(false);
+        nextBtn.setOnClickListener(this); nextBtn.setEnabled(false);
 
         updateFields();
 
@@ -108,7 +108,12 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvHints.setText("Prepare for Take off");
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("TBR:","onResume...");
 
+    }
 
     @Override
     public void onClick(View view) {
@@ -132,7 +137,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
             startActivity(intent);
 
-            nextBtn.setEnabled(true);
+            if (segmentIndex<markerList.size()-1) {
+                nextBtn.setEnabled(true);
+            }
 
         } else if (view.getId()==R.id.buttonTime) {
 
