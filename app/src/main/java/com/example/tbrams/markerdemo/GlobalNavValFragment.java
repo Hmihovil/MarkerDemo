@@ -1,9 +1,7 @@
 package com.example.tbrams.markerdemo;
 
 
-import android.app.Activity;
 import android.content.Intent;
-import android.opengl.ETC1;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,7 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import com.example.tbrams.markerdemo.data.GlobalNavValData;
@@ -36,6 +34,9 @@ public class GlobalNavValFragment extends Fragment {
         final EditText editTextTAS = (EditText) v.findViewById(R.id.editTextTAS);
         final EditText editTextALT = (EditText) v.findViewById(R.id.editTextALT);
         final EditText editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
+
+        // Make sure the keyboard is committing on the last field instead of moving to next
+        editTextWIND.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         // Initialize fields with whatever global values we can find in first marker
         MarkerObject mo=markerList.get(0);

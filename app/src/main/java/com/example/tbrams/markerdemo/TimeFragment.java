@@ -69,8 +69,8 @@ public class TimeFragment extends Fragment {
 
 
         // Way Point Number and Total
-        tvWPnumber.setText( Integer.toString(markerIndex+1));  // Because most humans start counting at 1
-        tvWPtotal.setText( Integer.toString(markerList.size()));
+        tvWPnumber.setText( Integer.toString(markerIndex+1));      // Because most humans start counting at 1
+        tvWPtotal.setText( Integer.toString(markerList.size()-1)); // counting legs, not WPs
 
         final MarkerObject mo=markerList.get(markerIndex);
 
@@ -112,7 +112,8 @@ public class TimeFragment extends Fragment {
                     double difference = mo.getETO()-mo.getATO();
                     Log.d("TBR:", "Diff is: "+difference);
 
-                    MarkerObject nextMO = markerList.get(markerIndex+1);
+                    MarkerObject nextMO = new MarkerObject();
+                    nextMO=markerList.get(markerIndex+1);
                     double reto = nextMO.getETO() - difference;
                     nextMO.setRETO(reto);
                     Log.d("TBR:", "RETO for next point is: "+reto);
