@@ -66,14 +66,14 @@ public class TalkFragment extends Fragment {
         tvPositionTime.setText(String.format("%.0f",thisWP.getTIME()));
         tvPositionAlt.setText(String.format("%.0f", thisWP.getALT()));
 
-        if (segmentIndex+2<markerList.size()) {
+        if (segmentIndex+1<markerList.size()) {
             // Next Report point
             MarkerObject nextWP = markerList.get(segmentIndex+2);
             tvPositionNextName.setText(nextWP.getText());
             tvPositionNextTimeLabel.setVisibility(View.VISIBLE);
             tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
             tvPositionNextAlt.setVisibility(View.VISIBLE);
-            tvPositionNextTime.setText(String.format("%.0f",nextWP.getALT()));
+            tvPositionNextAlt.setText(String.format("%.0f",nextWP.getALT()));
         } else {
             // No next report point - hide labels
             tvPositionNextAlt.setVisibility(View.INVISIBLE);
@@ -87,9 +87,9 @@ public class TalkFragment extends Fragment {
 
         }
 
-        if (segmentIndex+3<markerList.size()) {
+        if (segmentIndex+2<markerList.size()) {
             // Expect Reporting point
-            MarkerObject thenWP = markerList.get(segmentIndex+3);
+            MarkerObject thenWP = markerList.get(segmentIndex+2);
             tvPositionThenName.setVisibility(View.VISIBLE);
             tvPositionThenName.setText(thenWP.getText());
             tvPositionThenNameLabel.setVisibility(View.VISIBLE);

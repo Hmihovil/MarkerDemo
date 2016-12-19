@@ -34,6 +34,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private TextView tvDiff;
     private TextView tvHints;
 
+    private Button timeBtn, talkBtn, nextBtn;
+
     private MarkerObject fromWP;
     private MarkerObject toWP;
 
@@ -54,9 +56,13 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
         tvHints = (TextView) v.findViewById(R.id.textViewHints);
 
-        v.findViewById(R.id.buttonTime).setOnClickListener(this);
-        v.findViewById(R.id.buttonTalk).setOnClickListener(this);
-        v.findViewById(R.id.buttonNext).setOnClickListener(this);
+        timeBtn = (Button) v.findViewById(R.id.buttonTime);
+        talkBtn = (Button) v.findViewById(R.id.buttonTalk);
+        nextBtn = (Button) v.findViewById(R.id.buttonNext);
+
+        timeBtn.setOnClickListener(this);
+        talkBtn.setOnClickListener(this);
+        nextBtn.setOnClickListener(this);
 
         updateFields();
 
@@ -89,9 +95,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
             tvRETO.setText(String.format("%.0f", toWP.getETO()));
         } else {
-            Log.d("TBR:", "toWP.getRETO(): "+toWP.getRETO());
 
             tvRETO.setText(String.format("%.0f", toWP.getRETO()));
+            Log.d("TBR:", "toWP.getRETO(): "+toWP.getRETO());
         }
 
         // Time difference
@@ -106,26 +112,31 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Log.d("TBR:","click handler...");
         if (view.getId()==R.id.buttonNext) {
 
-            // Next Button behaviour
+            // NEXT Button
+
             if (segmentIndex<markerList.size()-1) {
                 segmentIndex++;
                 updateFields();
 
-                Log.d("TBR:", "Next page...segmentIndex now: "+segmentIndex);
+                talkBtn.setEnabled(false);
+                nextBtn.setEnabled(false);
+
             }
 
         } else if (view.getId()==R.id.buttonTalk ) {
-            // TALK Functionality
-            Log.d("TBR:", "Starting TalkActivity");
+
+            // TALK Button
 
             Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
             startActivity(intent);
+
+            nextBtn.setEnabled(true);
+
         } else if (view.getId()==R.id.buttonTime) {
-            // TIME functionality
-            Log.d("TBR:", "Time clicked");
+
+            // TIME Button
 
             // for testing I will hardcode time stamp to be like:
             int time = 8;
@@ -148,6 +159,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             for (int i=1;i<markerList.size();i++){
                 Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
             }
+
+            talkBtn.setEnabled(true);
         }
     }
 }

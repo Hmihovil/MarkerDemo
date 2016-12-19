@@ -71,7 +71,7 @@ public class GlobalNavValFragment extends Fragment {
                 String wind = String.valueOf(editTextWIND.getText());
 
                 GlobalNavValData gnd=new GlobalNavValData(alt,tas,wind);
-
+                double eto=0;
                 for (int i=1;i<markerList.size();i++){
                     markerList.get(i).calcGS(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
                     markerList.get(i).calcWCA(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
@@ -80,6 +80,9 @@ public class GlobalNavValFragment extends Fragment {
                     markerList.get(i).calcVAR();
                     markerList.get(i).calcMH();
                     markerList.get(i).calcTIME();
+                    // calculate the accumulated ETO time and update each marker accordingly
+                    eto+=markerList.get(i).getETO();
+                    markerList.get(i).setETO(eto);
                 }
 
                 sendResult(RESULT_OK);

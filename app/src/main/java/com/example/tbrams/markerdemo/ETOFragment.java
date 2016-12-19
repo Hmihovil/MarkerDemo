@@ -36,20 +36,20 @@ public class ETOFragment extends Fragment {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TBR:", "OK Clicked");
+                Log.d("TBR:", "ETOFragment - OK Clicked");
 
                 if (!String.valueOf(editETO.getText()).matches("\\d[\\d]")) {
                     editETO.setError("Please write ETO in minutes, e.g. 07");
                     return;
                 }
 
-                // Use the Estimated Time of Departure to calculate ETO for all points
-                int ETOD=Integer.parseInt(String.valueOf(editETO.getText()));
+                // Use the Estimated Time of Departure to calculate new ETO for all points
+                int ETD=Integer.parseInt(String.valueOf(editETO.getText()));
                 for (int i = 0; i < markerList.size() ; i++) {
                     double t=markerList.get(i).getTIME();
-                    markerList.get(i).setETO(t+ETOD);
+                    markerList.get(i).setETO(t+ETD);
                 }
-                Log.d("TBR:", "ETOs calculated");
+                Log.d("TBR:", "ETOs updated with new start time");
                 for (int i=1;i<markerList.size();i++){
                     Log.d("TBR:", "ETO for "+markerList.get(i).getText()+" is "+markerList.get(i).getETO());
                 }
