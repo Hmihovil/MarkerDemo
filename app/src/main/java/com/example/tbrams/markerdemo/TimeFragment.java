@@ -16,6 +16,7 @@ import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.NavAids;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -38,6 +39,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     private MarkerObject fromWP;
     private MarkerObject toWP;
+    private static int hintCounter=0;
+    private List<String> mHints = new ArrayList();
 
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -64,10 +67,43 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         talkBtn.setOnClickListener(this); talkBtn.setEnabled(false);
         nextBtn.setOnClickListener(this); nextBtn.setEnabled(false);
 
+        mHints.add("Track");
+        mHints.add("Check Magnetic compass and gyro");
+        mHints.add("Track");
+        mHints.add("Check Fuel");
+        mHints.add("Track");
+        mHints.add("Check Engine instruments");
+
         updateFields();
+
+        Thread t = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(30000);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateAdvice();
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        t.start();
 
         return v;
 
+    }
+
+    private void updateAdvice() {
+        hintCounter=(hintCounter+1)%mHints.size();
+        tvHints.setText(mHints.get(hintCounter));
     }
 
     private void updateFields() {
