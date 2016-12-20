@@ -60,6 +60,8 @@ public class TalkFragment extends Fragment {
         final TextView tvPositionThenName = (TextView) v.findViewById(R.id.textViewPositionThenName);
         final TextView tvPositionThenNameLabel = (TextView) v.findViewById(R.id.textViewPositionThenLabel);
         final TextView tvPositionNextLabel   = (TextView) v.findViewById(R.id.textViewExpLabel);
+        final TextView tvPositionPTLabel   = (TextView) v.findViewById(R.id.textViewPTLabel);
+        final TextView tvPositionFeetLabel   = (TextView) v.findViewById(R.id.textViewFeetLabel);
 
         MarkerObject thisWP = markerList.get(segmentIndex+1);
         tvPositionName.setText(thisWP.getText());
@@ -78,7 +80,7 @@ public class TalkFragment extends Fragment {
             MarkerObject thenWP = markerList.get(segmentIndex+3);
             tvPositionThenName.setText(thenWP.getText());
 
-        } else {
+        } else if (segmentIndex==markerList.size()-3) {
             // Just a report point and then final dest in the expect position of the layout
 
             // Hide the next time and alt fields and labels
@@ -89,12 +91,30 @@ public class TalkFragment extends Fragment {
 
             // change next label to be final destination "Then"
             tvPositionNextLabel.setText("Then");
- //           tvPositionNextName.setText(markerList.get(segmentIndex+1).getText());
-            tvPositionNextName.setText("TEMP");
+            tvPositionNextName.setText(markerList.get(segmentIndex+2).getText());
 
             // hide label and textView for original Then field
             tvPositionThenName.setVisibility(View.INVISIBLE);
             tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
+        } else {
+            // Only one point to report
+
+            // Hide altitude
+            tvPositionAlt.setVisibility(View.INVISIBLE);
+
+            // Hide the next time and alt fields and labels
+            tvPositionNextName.setVisibility(View.INVISIBLE);
+            tvPositionNextLabel.setVisibility(View.INVISIBLE);
+            tvPositionNextAlt.setVisibility(View.INVISIBLE);
+            tvPositionNextAltLabel.setVisibility(View.INVISIBLE);
+            tvPositionNextTime.setVisibility(View.INVISIBLE);
+            tvPositionNextTimeLabel.setVisibility(View.INVISIBLE);
+
+            // hide label and textView for original Then field
+            tvPositionThenName.setVisibility(View.INVISIBLE);
+            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
+            tvPositionFeetLabel.setVisibility(View.INVISIBLE);
+            tvPositionPTLabel.setVisibility(View.INVISIBLE);
 
         }
 

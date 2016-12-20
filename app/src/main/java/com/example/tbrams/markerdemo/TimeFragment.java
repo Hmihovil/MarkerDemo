@@ -28,6 +28,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private static final int C_TALK=3;
     private static final int C_CHECK=4;
     private static final int C_ARRIVED=5;
+    private static final int C_READY=6;
+    private static final int C_AFIS=7;
+    private static final int C_LAND=8;
 
     private int segmentIndex = 0;
     private View v;
@@ -38,15 +41,18 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private TextView tvDistance;
     private TextView tvRETO;
     private TextView tvDiff;
+    private TextView tvRetoLbl;
     private TextView tvCommand;
+    private Button checkBtn;
     private Time mTime;
+    private Boolean noIncrement=true;
 
     private Button timeBtn, talkBtn, nextBtn;
 
     private MarkerObject fromWP;
     private MarkerObject toWP;
     private static int mCommand;
-    private List<String> mHints = new ArrayList();
+    private List<String> mCommandList = new ArrayList();
 
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -56,7 +62,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mTime=new Time();
-        mCommand = C_TIME;
 
         v = inflater.inflate(R.layout.time_fragment_layout, container, false);
         tvNextWP = (TextView) v.findViewById(R.id.textViewNextWP);
@@ -67,16 +72,20 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
         tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
         tvCommand = (TextView) v.findViewById(R.id.textViewHints);
-
-        Button checkBtn = (Button) v.findViewById(R.id.buttonCheck);
+        tvRetoLbl = (TextView) v.findViewById(R.id.textViewRETOLabel);
+        checkBtn = (Button) v.findViewById(R.id.buttonCheck);
         checkBtn.setOnClickListener(this);
 
-        mHints.add("TIME");
-        mHints.add("TURN");
-        mHints.add("TRACK");
-        mHints.add("TALK");
-        mHints.add("CHECK");
-        mHints.add("Arrived at destination");
+        mCommandList.add("TIME");
+        mCommandList.add("TURN");
+        mCommandList.add("TRACK");
+        mCommandList.add("TALK");
+        mCommandList.add("CHECK");
+        mCommandList.add("Arrived at destination");
+        mCommandList.add("Ready when you are...");
+        mCommandList.add("Listen to AFIS");
+        mCommandList.add("Request Landing Clearance");
+
 
         updateFields();
 
@@ -85,47 +94,48 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    private void updateAdvice() {
-        mCommand =(mCommand +1)%mHints.size();
-        tvCommand.setText(mHints.get(mCommand));
-    }
+
 
     private void updateFields() {
 
-        // TODO: Can we assume we have at least Two markers?
         fromWP = markerList.get(segmentIndex);
         toWP   = markerList.get(segmentIndex+1);
+
+        // Segment Number and Total
+        tvWPnumber.setText( Integer.toString(segmentIndex+1));
+        tvWPtotal.setText( Integer.toString(markerList.size()-1));
 
         // Next WP Name
         tvNextWP.setText(toWP.getText());
 
-        // Segment Number and Total
-        tvWPnumber.setText( Integer.toString(segmentIndex+1));   // The first segment is "1" here
-        tvWPtotal.setText( Integer.toString(markerList.size()-1));
-
         // Heading and Distance
-        tvHeading.setText(String.format("%.0f ˚", toWP.getTT()));
+        tvHeading.setText(String.format("%.0f ˚", toWP.getMH()));
         tvDistance.setText(String.format("%.1f nm", toWP.getDist()));
 
         // RETO
         // TODO: Need some time formatting here later
         if (segmentIndex==0) {
             // Special for first Segment
-            // We only have ETO for first destination (still no ATO and thus no RETO)
+            // We only have ETO for first destination (No ATO, hence no RETO)
 
             tvRETO.setText(String.format("%.0f", toWP.getETO()));
+            tvRetoLbl.setText("ETO");
         } else {
 
+            tvRetoLbl.setText("RETO");
             tvRETO.setText(String.format("%.0f", toWP.getRETO()));
-            Log.d("TBR:", "toWP.getRETO(): "+toWP.getRETO());
         }
 
         // Time difference
-        tvDiff.setText(String.format("%.0f", toWP.getDiff()));
+        tvDiff.setText(String.format("%.0f", fromWP.getDiff()));
 
-        // Command
-        tvCommand.setText(mHints.get(mCommand));
+        // Next state
+        newCommand(C_READY);
+
+
     }
+
+
 
     @Override
     public void onResume() {
@@ -134,6 +144,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     }
 
+
+
     @Override
     public void onClick(View view) {
         if (view.getId()==R.id.buttonCheck) {
@@ -141,91 +153,92 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             // Process Click action depending on what state we are in
             switch (mCommand) {
                 case C_TIME:
-                    Log.d("TBR:", "C_TIME command");
+                    Log.d("TBR:", "C_TIME State");
 
-                    // Get zulu time in minutes
+                    // Get zulu time in minutes and set ATO. Difference will be auto calculated
                     String minutes = mTime.getZuluTime().split(":")[1];
-                    Log.d("TBR:", "Zulu time in minutes is: "+minutes);
-
-                    double time = Double.parseDouble(minutes);
-                    toWP.setATO(time);    // set ATO to the "actual" time
-                    Log.d("TBR:", "ATO set to "+minutes+" for "+toWP.getText());
-
-                    // Calculate and time difference
-                    double timeDifference = toWP.getETO()-toWP.getATO();
-                    Log.d("TBR:", "Diff from estimate is: "+timeDifference+" for "+toWP.getText());
-
+                    toWP.setATO(Double.parseDouble(minutes));
+                    Log.d("TBR:", "WP "+toWP.getText()+" ATO set to: "+minutes);
+                    Log.d("TBR:", "WP "+toWP.getText()+" DIFF found: "+toWP.getDiff());
 
                     if (segmentIndex<markerList.size()-2) {
-                        // If we have a WP following toWP, then we need to update
+                        // This is not the final leg
                         MarkerObject thenWP = markerList.get(segmentIndex+2);
-                        double reto = thenWP.getETO() - timeDifference;
-                        thenWP.setRETO(reto);
-                        Log.d("TBR:", "RETO set to: " + reto + " for "+thenWP.getText());
+                        double RETO = thenWP.getETO() - toWP.getDiff();
+                        thenWP.setRETO(RETO);
 
-                        // Debug only
+                        // Debug
+                        Log.d("TBR:", thenWP.getText()+" RETO set to: " + RETO);
                         Log.d("TBR:", "Dumping ETO/RETO for all markers here");
                         for (int i=1;i<markerList.size();i++){
                             Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
                         }
 
-                        // We have arrived at toWP, next action is to change heading to the following point
-                        tvCommand.setText("TURN: Heading "+thenWP.getMH()+"˚");
-                        mCommand =C_TURN;
+                        // We have arrived at toWP and got the time already
+                        // Next action is to change heading towards new point
+                        toWP=thenWP;
+                        newCommand(C_TURN);
 
                     } else {
-                        mCommand =C_ARRIVED;
+
+                        newCommand(C_ARRIVED);
                     }
                     break;
 
                 case C_TURN:
-                    Log.d("TBR:", "C_TURN command");
+                    Log.d("TBR:", "C_TURN State");
 
-                    if (segmentIndex<markerList.size()-2) {
+                    // Special treatment of first turn where we keep focus after start
+                    if (noIncrement) {
+                        noIncrement = false;
+                    } else {
                         segmentIndex++;
                         updateFields();
                     }
-
-                    tvCommand.setText("TRACK");
-                    mCommand =C_TRACK;
-
-                    break;
-
-                case C_TALK:
-                    Log.d("TBR:", "C_TALK command");
-
-                    Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
-                    startActivity(intent);
-
-                    tvCommand.setText("CHECK");
-                    mCommand =C_CHECK;
-
+                    newCommand(C_TRACK);
                     break;
 
 
                 case C_TRACK:
-                    Log.d("TBR:", "C_TRACK command");
+                    Log.d("TBR:", "C_TRACK State");
 
-                    tvCommand.setText("TALK");
-                    mCommand =C_TALK;
-
+                    if (segmentIndex!=0) {
+                        newCommand(C_TALK);
+                    } else {
+                        // special for first segment - skip talking, just check compass etc
+                        newCommand(C_CHECK);
+                    }
                     break;
+
+
+                case C_TALK:
+                    Log.d("TBR:", "C_TALK State");
+
+                    Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
+                    startActivity(intent);
+
+                    newCommand(C_CHECK);
+                    break;
+
 
                 case C_CHECK:
-                    Log.d("TBR:", "C_CHECK command");
-
-                    tvCommand.setText("TIME");
-                    mCommand =C_TIME;
-
+                    Log.d("TBR:", "C_CHECK State");
+                    newCommand(C_TIME);
                     break;
 
+
                 case C_ARRIVED:
-                    Log.d("TBR:", "C_ARRIVED command");
+                    Log.d("TBR:", "C_ARRIVED State");
+                    break;
+
+                case C_READY:
+                    Log.d("TBR:", "C_READY State");
+                    newCommand(C_TURN);
                     break;
 
                 default:
-                    Log.d("TBR:", "Something went wrong in switch statement");
-                    mCommand =C_ARRIVED;
+                    Log.d("TBR:", "Unknown state: " + mCommand);
+                    newCommand(C_ARRIVED);
                     break;
             }
 
@@ -286,5 +299,20 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             talkBtn.setEnabled(true);
         }
         */
+    }
+
+
+
+    private void newCommand(int cmd) {
+        mCommand =cmd;
+        if (cmd==C_TURN) {
+            tvCommand.setText("TURN: Heading "+String.format("%.0f",toWP.getMH())+"˚");
+        } else if (cmd==C_ARRIVED) {
+            tvCommand.setText("Arrived at destination "+String.format("%.0f",toWP.getATO()));
+            checkBtn.setEnabled(false);
+            checkBtn.setText("Done");
+        } else {
+            tvCommand.setText(mCommandList.get(cmd));
+        }
     }
 }

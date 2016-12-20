@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/textViewPositionAlt"
         android:background="@color/cast_intro_overlay_button_background_color"
-        app:layout_constraintBaseline_toBaselineOf="@+id/textView39"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewFeetLabel"
         tools:layout_constraintBaseline_creator="1"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="@+id/guideline"/>
@@ -128,7 +128,7 @@
         android:text="feet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView39"
+        android:id="@+id/textViewFeetLabel"
         tools:layout_constraintTop_creator="1"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"

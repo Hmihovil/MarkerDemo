@@ -58,10 +58,14 @@ public class DetailInfoFragment extends Fragment {
                         .setAction("Go!", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Intent intent = new Intent(getActivity(), ETOActivity.class);
-                                startActivity(intent);
+                                // If we have at least two segments, we can start the program
+                                if (markerList.size()>=3) {
+                                    Intent intent = new Intent(getActivity(), ETOActivity.class);
+                                    startActivity(intent);
 
-                                Log.d("TBR:", "ETOActivity Started...");
+                                    Log.d("TBR:", "ETOActivity Started...");
+
+                                }
                             }
                         }).show();
             }
