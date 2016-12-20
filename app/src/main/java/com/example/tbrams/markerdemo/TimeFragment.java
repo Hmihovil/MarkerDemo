@@ -89,10 +89,18 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         updateFields();
 
+        // First state
+        newCommand(C_READY);
 
         return v;
 
     }
+
+
+    private boolean hasNextSegment() {
+        return ((segmentIndex + 1) < (markerList.size() - 1));
+    }
+
 
 
 
@@ -113,13 +121,13 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvDistance.setText(String.format("%.1f nm", toWP.getDist()));
 
         // RETO
-        // TODO: Need some time formatting here later
         if (segmentIndex==0) {
             // Special for first Segment
             // We only have ETO for first destination (No ATO, hence no RETO)
+            // TODO: Need some time formatting here later
 
-            tvRETO.setText(String.format("%.0f", toWP.getETO()));
             tvRetoLbl.setText("ETO");
+            tvRETO.setText(String.format("%.0f", toWP.getETO()));
         } else {
 
             tvRetoLbl.setText("RETO");
@@ -128,10 +136,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         // Time difference
         tvDiff.setText(String.format("%.0f", fromWP.getDiff()));
-
-        // Next state
-        newCommand(C_READY);
-
 
     }
 
@@ -176,7 +180,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
                         // We have arrived at toWP and got the time already
                         // Next action is to change heading towards new point
-                        toWP=thenWP;
                         newCommand(C_TURN);
 
                     } else {
@@ -188,13 +191,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 case C_TURN:
                     Log.d("TBR:", "C_TURN State");
 
-                    // Special treatment of first turn where we keep focus after start
-                    if (noIncrement) {
-                        noIncrement = false;
-                    } else {
-                        segmentIndex++;
-                        updateFields();
-                    }
                     newCommand(C_TRACK);
                     break;
 
@@ -202,12 +198,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 case C_TRACK:
                     Log.d("TBR:", "C_TRACK State");
 
-                    if (segmentIndex!=0) {
-                        newCommand(C_TALK);
-                    } else {
-                        // special for first segment - skip talking, just check compass etc
-                        newCommand(C_CHECK);
-                    }
+                    newCommand(C_TALK);
                     break;
 
 
@@ -305,14 +296,41 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     private void newCommand(int cmd) {
         mCommand =cmd;
-        if (cmd==C_TURN) {
-            tvCommand.setText("TURN: Heading "+String.format("%.0f",toWP.getMH())+"˚");
-        } else if (cmd==C_ARRIVED) {
-            tvCommand.setText("Arrived at destination "+String.format("%.0f",toWP.getATO()));
-            checkBtn.setEnabled(false);
-            checkBtn.setText("Done");
-        } else {
-            tvCommand.setText(mCommandList.get(cmd));
+        switch (cmd) {
+            case C_TURN:
+                // Special treatment of first turn where we keep focus after start
+                if (noIncrement) {
+                    noIncrement = false;
+                } else {
+                    segmentIndex++;
+                    updateFields();
+                }
+                tvCommand.setText("TURN: Heading "+String.format("%.0f",toWP.getMH())+"˚");
+                checkBtn.setText("DONE");
+                break;
+
+            case C_ARRIVED:
+                tvCommand.setText("Arrived at destination "+String.format("%.0f",toWP.getATO()));
+                checkBtn.setEnabled(false);
+                checkBtn.setText("DONE");
+                break;
+
+            case C_TIME:
+                tvCommand.setText(mCommandList.get(cmd));
+                checkBtn.setText("LOG");
+                break;
+
+            case C_TALK:
+                tvCommand.setText(mCommandList.get(cmd));
+                checkBtn.setText("READ");
+                break;
+
+            default:
+                tvCommand.setText(mCommandList.get(cmd));
+                checkBtn.setText("DONE");
+                break;
         }
+
+
     }
 }

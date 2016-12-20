@@ -63,21 +63,34 @@ public class TalkFragment extends Fragment {
         final TextView tvPositionPTLabel   = (TextView) v.findViewById(R.id.textViewPTLabel);
         final TextView tvPositionFeetLabel   = (TextView) v.findViewById(R.id.textViewFeetLabel);
 
-        MarkerObject thisWP = markerList.get(segmentIndex+1);
+        // Actual position, time and altitude
+        MarkerObject thisWP = markerList.get(segmentIndex);
         tvPositionName.setText(thisWP.getText());
-        tvPositionTime.setText(String.format("%.0f",thisWP.getTIME()));
-        tvPositionAlt.setText(String.format("%.0f", thisWP.getALT()));
+        if (segmentIndex==0) {
+            tvPositionTime.setText(String.format("%.0f", thisWP.getETO()));
+        } else {
+            tvPositionTime.setText(String.format("%.0f", thisWP.getATO()));
+        }
+        tvPositionAlt.setText(String.format("%.0f",thisWP.getALT()));
 
+        if (segmentIndex+2<markerList.size()) {
+            // In here, we have at least two segments to work on
 
-        if ((markerList.size()-segmentIndex)>3) {
-            // At least two segments to work on, start with the Expect fields
-            MarkerObject nextWP = markerList.get(segmentIndex+2);
+            // start with the Expect fields
+            MarkerObject nextWP = markerList.get(segmentIndex+1);
             tvPositionNextName.setText(nextWP.getText());
-            tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
+
+            // Use ETO for first point instead of RETO
+            if (segmentIndex==0) {
+                tvPositionNextTime.setText(String.format("%.0f",nextWP.getETO()));
+            } else {
+                tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
+            }
+
             tvPositionNextAlt.setText(String.format("%.0f",nextWP.getALT()));
 
             // Then info
-            MarkerObject thenWP = markerList.get(segmentIndex+3);
+            MarkerObject thenWP = markerList.get(segmentIndex+2);
             tvPositionThenName.setText(thenWP.getText());
 
         } else if (segmentIndex==markerList.size()-3) {
@@ -98,6 +111,12 @@ public class TalkFragment extends Fragment {
             tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
         } else {
             // Only one point to report
+
+            tvPositionName.setText("Expecting "+ thisWP.getText()+" at "+ String.format("%.0f", thisWP.getRETO()));
+
+            // hide normal time
+            tvPositionTime.setVisibility(View.INVISIBLE);
+
 
             // Hide altitude
             tvPositionAlt.setVisibility(View.INVISIBLE);

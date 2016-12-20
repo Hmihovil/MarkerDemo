@@ -13,10 +13,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.tbrams.markerdemo.data.GlobalNavValData;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
@@ -83,6 +84,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        EditText searchText = (EditText) findViewById(R.id.editText1);
+        searchText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchText.setImeOptions(EditorInfo.IME_ACTION_GO);
+
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

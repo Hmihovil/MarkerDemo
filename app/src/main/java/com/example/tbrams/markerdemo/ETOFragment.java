@@ -74,7 +74,7 @@ public class ETOFragment extends Fragment {
                 Log.d("TBR:", "Minutes is: "+minutes);
 
                 // use it to generate RETOs
-                updateETO(Integer.parseInt(minutes));
+                updateETO(Double.parseDouble(minutes));
 
                 dumpETOs();  // Just for debugging...
 
@@ -116,11 +116,11 @@ public class ETOFragment extends Fragment {
    /*
     *  Update all ETOs to RETOs based on newTime parameter
     */
-    private void updateETO(int newTime) {
-        Log.d("TBR:", "updateETO("+Integer.toString(newTime)+")");
+    private void updateETO(double newTime) {
+        Log.d("TBR:", "updateETO("+Double.toString(newTime)+")");
 
         for (int i = 0; i < markerList.size() ; i++) {
-            double originalTime=markerList.get(i).getTIME();
+            double originalTime=markerList.get(i).getETO();
             markerList.get(i).setETO(originalTime+newTime);
         }
     }

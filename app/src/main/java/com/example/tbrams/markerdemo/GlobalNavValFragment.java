@@ -152,8 +152,9 @@ updateModelData();            }
             markerList.get(i).calcMH();
             markerList.get(i).calcTIME();
             // calculate the accumulated ETO time and update each marker accordingly
-            eto+=markerList.get(i).getETO();
+            eto+=markerList.get(i).getTIME();
             markerList.get(i).setETO(eto);
+            Log.d("TBR:", markerList.get(i).getText()+" ETO set to "+eto);
         }
 
         sendResult(RESULT_OK);
