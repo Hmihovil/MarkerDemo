@@ -78,6 +78,19 @@ updateModelData();            }
         });
 
 
+        v.findViewById(R.id.btnDebug).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("TBR:", "Debug Button clicked");
+
+                editTextTAS.setText("100");
+                editTextALT.setText("1200");
+                editTextWIND.setText("270/05");
+
+//                getActivity().onBackPressed();
+            }
+        });
+
 
         return v;
     }

@@ -21,38 +21,37 @@ import java.util.List;
 
 public class ETOFragment extends Fragment {
 
-    MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
-    List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
+    private MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
+    private List<MarkerObject> markerList = markerLab.getMarkers();
+    private NavAids navaids = NavAids.get(getActivity());
+    private List<NavAid> vorList = navaids.getList();
+    private Time mTime;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.eto_layout, container, false);
         final EditText editETO = (EditText) v.findViewById(R.id.editETO);
+        mTime = new Time();
 
+
+        // OK Button
         final Button btnOK = (Button) v.findViewById(R.id.btnOK);
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("TBR:", "ETOFragment - OK Clicked");
 
-                if (!String.valueOf(editETO.getText()).matches("\\d[\\d]")) {
+                if (!String.valueOf(editETO.getText()).matches("\\d\\d?")) {
                     editETO.setError("Please write ETO in minutes, e.g. 07");
                     return;
                 }
 
-                // Use the Estimated Time of Departure to calculate new ETO for all points
-                int ETD=Integer.parseInt(String.valueOf(editETO.getText()));
-                for (int i = 0; i < markerList.size() ; i++) {
-                    double t=markerList.get(i).getTIME();
-                    markerList.get(i).setETO(t+ETD);
-                }
-                Log.d("TBR:", "ETOs updated with new start time");
-                for (int i=1;i<markerList.size();i++){
-                    Log.d("TBR:", "ETO for "+markerList.get(i).getText()+" is "+markerList.get(i).getETO());
-                }
+                // Calculate RETO for all points
+                updateETO(Integer.parseInt(String.valueOf(editETO.getText())));
+
+                dumpETOs();  // Just for debugging...
 
                 Intent intent = new Intent(getActivity(), TimeActivity.class);
                 startActivity(intent);
@@ -62,11 +61,29 @@ public class ETOFragment extends Fragment {
             }
         });
 
+
+        // NOW Button
         Button btnNow = (Button) v.findViewById(R.id.btnNow);
         btnNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TBR:", "OK Button clicked");
+                String time = mTime.getZuluTime();
+                Log.d("TBR:", "Zulu Time is: "+time);
+
+                String minutes = time.split(":")[1];
+                Log.d("TBR:", "Minutes is: "+minutes);
+
+                // use it to generate RETOs
+                updateETO(Integer.parseInt(minutes));
+
+                dumpETOs();  // Just for debugging...
+
+                Intent intent = new Intent(getActivity(), TimeActivity.class);
+                startActivity(intent);
+
+                Log.d("TBR:", "TimeActivity Started...");
+
+
             }
         });
 
@@ -80,6 +97,33 @@ public class ETOFragment extends Fragment {
             }
         });
 
+
+
         return v;
     }
+
+
+   /*
+    * Debug only - dump all RETOs
+    */
+    private void dumpETOs() {
+        for (int i=1;i<markerList.size();i++){
+            Log.d("TBR:", "ETO for "+markerList.get(i).getText()+" is "+markerList.get(i).getETO());
+        }
+    }
+
+
+   /*
+    *  Update all ETOs to RETOs based on newTime parameter
+    */
+    private void updateETO(int newTime) {
+        Log.d("TBR:", "updateETO("+Integer.toString(newTime)+")");
+
+        for (int i = 0; i < markerList.size() ; i++) {
+            double originalTime=markerList.get(i).getTIME();
+            markerList.get(i).setETO(originalTime+newTime);
+        }
+    }
+
+
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MarkerDemo.iml" filepath="$PROJECT_DIR$/MarkerDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tbjavalib/tbjavalib.iml" filepath="$PROJECT_DIR$/tbjavalib/tbjavalib.iml" />
     </modules>
   </component>
 </project>
