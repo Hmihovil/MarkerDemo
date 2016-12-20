@@ -23,31 +23,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView9"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView8"
         android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"/>
 
     <TextView
         android:text="SlaglilleKildebroendeKirke"
-        android:layout_width="218dp"
-        android:layout_height="wrap_content"
+        android:layout_width="249dp"
         android:id="@+id/textViewNextWP"
-        android:width="100dp"
-        app:layout_constraintTop_toTopOf="@+id/textView9"
+        android:width="120dp"
         android:background="@color/cast_intro_overlay_button_background_color"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintRight_toRightOf="parent"/>
+        android:layout_height="17dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textView9"
+        android:layout_marginStart="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/textView9"/>
 
     <TextView
-        android:text="Magnetic Heading"
+        android:text="MH"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView12"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewWPnumber"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView21"/>
 
     <TextView
         android:text="Distance"
@@ -65,96 +65,69 @@
         android:layout_height="wrap_content"
         android:id="@+id/textViewMH"
         android:width="75dp"
+        android:background="@color/cast_intro_overlay_button_background_color"
         app:layout_constraintTop_toTopOf="@+id/textView12"
-        android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView12"
-        android:background="@color/cast_intro_overlay_button_background_color"/>
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"/>
 
     <TextView
         android:text="9999"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewDist"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMH"
-        android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView13"/>
+        android:background="@color/cast_intro_overlay_button_background_color"
+        android:width="75dp"
+        app:layout_constraintTop_toTopOf="@+id/textView13"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline4"/>
 
     <TextView
         android:text="RETO"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView16"
-        android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView13"/>
+        app:layout_constraintTop_toTopOf="@+id/textViewMH"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline5"/>
 
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewRETO"
-        android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView16"
         android:background="@color/cast_intro_overlay_button_background_color"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView16"/>
 
     <TextView
-        android:text="Acc Diff"
+        android:text="Diff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView18"
-        app:layout_constraintTop_toTopOf="@+id/textViewRETO"
-        app:layout_constraintRight_toLeftOf="@+id/textViewDiff"
-        android:layout_marginEnd="8dp"/>
+        app:layout_constraintTop_toTopOf="@+id/textViewDist"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline5"/>
 
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewDiff"
-        app:layout_constraintTop_toTopOf="@+id/textView18"
+        android:background="@color/cast_intro_overlay_button_background_color"
         android:layout_marginEnd="16dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="@color/cast_intro_overlay_button_background_color"/>
-
-    <Button
-        android:text="Time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/buttonTime"
-        android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewRETO"/>
-
-    <Button
-        android:text="Talk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/buttonTalk"
-        android:layout_marginStart="24dp"
-        app:layout_constraintLeft_toRightOf="@+id/buttonTime"
-        app:layout_constraintTop_toTopOf="@+id/buttonTime"/>
+        app:layout_constraintTop_toTopOf="@+id/textView18"/>
 
     <TextView
-        android:text="New Course 231˚"
-        android:layout_width="326dp"
-        android:layout_height="128dp"
+        android:text="TURN: Course 231˚"
+        android:layout_width="352dp"
+        android:layout_height="29dp"
         android:id="@+id/textViewHints"
-        android:textSize="36sp"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="16dp"
+        android:textSize="18sp"
+        android:background="@color/cast_intro_overlay_button_background_color"
         android:layout_marginStart="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginEnd="16dp"
         app:layout_constraintRight_toRightOf="parent"
-        android:paddingTop="35dp"
-        android:background="@color/cast_intro_overlay_button_background_color"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/buttonTalk"/>
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDist"/>
 
     <TextView
         android:text="Leg #"
@@ -171,20 +144,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textViewWPnumber"
+        app:layout_constraintTop_toTopOf="@+id/textView21"
         android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView21"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView9"/>
+        app:layout_constraintLeft_toRightOf="@+id/textView21"/>
 
     <TextView
         android:text="of"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView23"
+        app:layout_constraintTop_toTopOf="@+id/textViewWPnumber"
         android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textViewWPnumber"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView9"/>
+        app:layout_constraintLeft_toRightOf="@+id/textViewWPnumber"/>
 
     <TextView
         android:text="999"
@@ -192,27 +163,35 @@
         android:layout_height="wrap_content"
         android:id="@+id/textViewWPtotal"
         android:width="30dp"
+        app:layout_constraintTop_toTopOf="@+id/textView23"
         android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/textView23"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView9"/>
-
-    <TextView
-        android:text="Helpful Hints"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView25"
-        android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/textViewHints"
-        android:layout_marginBottom="8dp"/>
+        app:layout_constraintLeft_toRightOf="@+id/textView23"/>
 
     <Button
-        android:text="NEXT"
+        android:text="CHECK"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/buttonNext"
-        app:layout_constraintTop_toTopOf="@+id/buttonTalk"
+        android:id="@+id/buttonCheck"
         android:layout_marginEnd="16dp"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewHints"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline4"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="78dp"
+        app:layout_constraintGuide_percent="0.203125"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline5"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="258dp"
+        app:layout_constraintGuide_percent="0.671875"/>
 </android.support.constraint.ConstraintLayout>

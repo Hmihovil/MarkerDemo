@@ -13,8 +13,6 @@ import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
-import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +21,13 @@ import java.util.List;
 public class TimeFragment extends Fragment implements View.OnClickListener {
 
     public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
+
+    private static final int C_TIME=0;
+    private static final int C_TURN=1;
+    private static final int C_TRACK=2;
+    private static final int C_TALK=3;
+    private static final int C_CHECK=4;
+    private static final int C_ARRIVED=5;
 
     private int segmentIndex = 0;
     private View v;
@@ -33,13 +38,14 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private TextView tvDistance;
     private TextView tvRETO;
     private TextView tvDiff;
-    private TextView tvHints;
+    private TextView tvCommand;
+    private Time mTime;
 
     private Button timeBtn, talkBtn, nextBtn;
 
     private MarkerObject fromWP;
     private MarkerObject toWP;
-    private static int hintCounter=0;
+    private static int mCommand;
     private List<String> mHints = new ArrayList();
 
 
@@ -49,6 +55,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mTime=new Time();
+        mCommand = C_TIME;
+
         v = inflater.inflate(R.layout.time_fragment_layout, container, false);
         tvNextWP = (TextView) v.findViewById(R.id.textViewNextWP);
         tvWPnumber = (TextView) v.findViewById(R.id.textViewWPnumber);
@@ -57,53 +66,28 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvDistance = (TextView) v.findViewById(R.id.textViewDist);
         tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
         tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
-        tvHints = (TextView) v.findViewById(R.id.textViewHints);
+        tvCommand = (TextView) v.findViewById(R.id.textViewHints);
 
-        timeBtn = (Button) v.findViewById(R.id.buttonTime);
-        talkBtn = (Button) v.findViewById(R.id.buttonTalk);
-        nextBtn = (Button) v.findViewById(R.id.buttonNext);
+        Button checkBtn = (Button) v.findViewById(R.id.buttonCheck);
+        checkBtn.setOnClickListener(this);
 
-        timeBtn.setOnClickListener(this);
-        talkBtn.setOnClickListener(this); talkBtn.setEnabled(false);
-        nextBtn.setOnClickListener(this); nextBtn.setEnabled(false);
-
-        mHints.add("Track");
-        mHints.add("Check Magnetic compass and gyro");
-        mHints.add("Track");
-        mHints.add("Check Fuel");
-        mHints.add("Track");
-        mHints.add("Check Engine instruments");
+        mHints.add("TIME");
+        mHints.add("TURN");
+        mHints.add("TRACK");
+        mHints.add("TALK");
+        mHints.add("CHECK");
+        mHints.add("Arrived at destination");
 
         updateFields();
 
-        Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        Thread.sleep(30000);
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateAdvice();
-                            }
-                        });
-                    }
-                } catch (InterruptedException e) {
-                }
-            }
-        };
-
-        t.start();
 
         return v;
 
     }
 
     private void updateAdvice() {
-        hintCounter=(hintCounter+1)%mHints.size();
-        tvHints.setText(mHints.get(hintCounter));
+        mCommand =(mCommand +1)%mHints.size();
+        tvCommand.setText(mHints.get(mCommand));
     }
 
     private void updateFields() {
@@ -139,9 +123,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         // Time difference
         tvDiff.setText(String.format("%.0f", toWP.getDiff()));
 
-        // Hints field
-        // TODO: Need to make these hints context relevant and cycle through messages, timer?
-        tvHints.setText("Prepare for Take off");
+        // Command
+        tvCommand.setText(mHints.get(mCommand));
     }
 
     @Override
@@ -153,6 +136,101 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        if (view.getId()==R.id.buttonCheck) {
+
+            // Process Click action depending on what state we are in
+            switch (mCommand) {
+                case C_TIME:
+                    Log.d("TBR:", "C_TIME command");
+
+                    // Get zulu time in minutes
+                    String minutes = mTime.getZuluTime().split(":")[1];
+                    Log.d("TBR:", "Zulu time in minutes is: "+minutes);
+
+                    double time = Double.parseDouble(minutes);
+                    toWP.setATO(time);    // set ATO to the "actual" time
+                    Log.d("TBR:", "ATO set to "+minutes+" for "+toWP.getText());
+
+                    // Calculate and time difference
+                    double timeDifference = toWP.getETO()-toWP.getATO();
+                    Log.d("TBR:", "Diff from estimate is: "+timeDifference+" for "+toWP.getText());
+
+
+                    if (segmentIndex<markerList.size()-2) {
+                        // If we have a WP following toWP, then we need to update
+                        MarkerObject thenWP = markerList.get(segmentIndex+2);
+                        double reto = thenWP.getETO() - timeDifference;
+                        thenWP.setRETO(reto);
+                        Log.d("TBR:", "RETO set to: " + reto + " for "+thenWP.getText());
+
+                        // Debug only
+                        Log.d("TBR:", "Dumping ETO/RETO for all markers here");
+                        for (int i=1;i<markerList.size();i++){
+                            Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
+                        }
+
+                        // We have arrived at toWP, next action is to change heading to the following point
+                        tvCommand.setText("TURN: Heading "+thenWP.getMH());
+                        mCommand =C_TURN;
+
+                    } else {
+                        mCommand =C_ARRIVED;
+                    }
+                    break;
+
+                case C_TURN:
+                    Log.d("TBR:", "C_TURN command");
+
+                    segmentIndex++;
+                    updateFields();
+
+                    tvCommand.setText("TRACK");
+                    mCommand =C_TRACK;
+
+                    break;
+
+                case C_TALK:
+                    Log.d("TBR:", "C_TALK command");
+
+                    Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
+                    startActivity(intent);
+
+                    tvCommand.setText("CHECK");
+                    mCommand =C_CHECK;
+
+                    break;
+
+
+                case C_TRACK:
+                    Log.d("TBR:", "C_TRACK command");
+
+                    tvCommand.setText("TALK");
+                    mCommand =C_TALK;
+
+                    break;
+
+                case C_CHECK:
+                    Log.d("TBR:", "C_CHECK command");
+
+                    tvCommand.setText("TIME");
+                    mCommand =C_TIME;
+
+                    break;
+
+                case C_ARRIVED:
+                    Log.d("TBR:", "C_ARRIVED command");
+                    break;
+
+                default:
+                    Log.d("TBR:", "Something went wrong in switch statement");
+                    mCommand =C_ARRIVED;
+                    break;
+            }
+
+        }
+
+
+        /* OLD MODEL HEREAFTER ...
         if (view.getId()==R.id.buttonNext) {
 
             // NEXT Button
@@ -205,5 +283,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
             talkBtn.setEnabled(true);
         }
+        */
     }
 }
