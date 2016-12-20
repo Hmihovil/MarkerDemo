@@ -1,15 +1,9 @@
 package com.example.tbrams.markerdemo;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
-
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,8 +69,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             TextView WPtextDist = (TextView) v.findViewById(R.id.textViewDistance);
             TextView WPtextHeading = (TextView) v.findViewById(R.id.textViewHeading);
             WPtextLabel.setText("Next WP: "+markerList.get(markerIndex+1).getText());
-            double dist =markerList.get(markerIndex).getDist();
-            double heading = markerList.get(markerIndex).getTT();
+            double dist =markerList.get(markerIndex+1).getDist();
+            double heading = markerList.get(markerIndex+1).getTT();
             WPtextDist.setText(String.format("%.1f nm", dist));
             WPtextHeading.setText(String.format("%.0f ˚", heading));
         } else {
