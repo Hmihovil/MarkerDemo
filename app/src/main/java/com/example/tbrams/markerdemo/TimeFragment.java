@@ -104,8 +104,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvWPtotal.setText( Integer.toString(markerList.size()-1));
 
         // Heading and Distance
-        tvHeading.setText(String.format("%.0f", toWP.getTT()));
-        tvDistance.setText(String.format("%.1f", toWP.getDist()));
+        tvHeading.setText(String.format("%.0f ˚", toWP.getTT()));
+        tvDistance.setText(String.format("%.1f nm", toWP.getDist()));
 
         // RETO
         // TODO: Need some time formatting here later
@@ -170,7 +170,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                         }
 
                         // We have arrived at toWP, next action is to change heading to the following point
-                        tvCommand.setText("TURN: Heading "+thenWP.getMH());
+                        tvCommand.setText("TURN: Heading "+thenWP.getMH()+"˚");
                         mCommand =C_TURN;
 
                     } else {
@@ -181,8 +181,10 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 case C_TURN:
                     Log.d("TBR:", "C_TURN command");
 
-                    segmentIndex++;
-                    updateFields();
+                    if (segmentIndex<markerList.size()-2) {
+                        segmentIndex++;
+                        updateFields();
+                    }
 
                     tvCommand.setText("TRACK");
                     mCommand =C_TRACK;

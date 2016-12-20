@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
@@ -90,7 +89,8 @@ public class TalkFragment extends Fragment {
 
             // change next label to be final destination "Then"
             tvPositionNextLabel.setText("Then");
-            tvPositionNextName.setText(markerList.get(segmentIndex+2).getText());
+ //           tvPositionNextName.setText(markerList.get(segmentIndex+1).getText());
+            tvPositionNextName.setText("TEMP");
 
             // hide label and textView for original Then field
             tvPositionThenName.setVisibility(View.INVISIBLE);
