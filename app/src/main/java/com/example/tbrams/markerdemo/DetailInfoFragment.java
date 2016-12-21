@@ -103,17 +103,17 @@ public class DetailInfoFragment extends Fragment {
             tvDist.setText(String.format("%.1f nm", mo.getDist()));
             tvIAS.setText(String.format("%.1f kts", mo.getIAS()));
             tvGS.setText(String.format("%.1f kts", mo.getGS()));
-            tvTT.setText(String.format("%.1f ˚", mo.getTT()));
-            tvTH.setText(String.format("%.1f ˚", mo.getTH()));
-            tvWCA.setText(String.format("%.1f ˚", mo.getWCA()));
+            tvTT.setText(String.format("%03d ˚", (int)mo.getTT()));
+            tvTH.setText(String.format("%03d ˚", (int)mo.getTH()));
+            tvWCA.setText(String.format("%.0f ˚", mo.getWCA()));
             tvVAR.setText(String.format("%.1f ˚", mo.getVAR()));
-            tvMH.setText(String.format("%.1f ˚", mo.getMH()));
+            tvMH.setText(String.format("%03d ˚", (int)mo.getMH()));
             tvTAS.setText(String.format("%.1f kts", mo.getTAS()));
             tvAlt.setText(String.format("%.1f ft", mo.getALT()));
             tvMinAlt.setText(String.format("%.1f ft", mo.getMIN_ALT()));
-            tvTime.setText(String.format("%.1f", mo.getTIME()));
+            tvTime.setText(String.format("%02d", (int)mo.getTIME()));
 
-            String wind = String.format("%.0f", mo.getWindDirection())+"/"+String.format("%.0f", mo.getWindStrenght());
+            String wind = String.format("%03d", (int)mo.getWindDirection())+"/"+String.format("%02d", (int)mo.getWindStrenght());
             tvWv.setText(wind);
 
             double time=0;
@@ -125,7 +125,7 @@ public class DetailInfoFragment extends Fragment {
             String mm="";
             String ss="";
 
-            tvAccTime.setText(String.format("%.1f", time));
+            tvAccTime.setText(String.format("%03d", (int)time));
         }
 
             return v;

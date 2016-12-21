@@ -117,7 +117,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         tvNextWP.setText(toWP.getText());
 
         // Heading and Distance
-        tvHeading.setText(String.format("%.0f ˚", toWP.getMH()));
+        tvHeading.setText(String.format("%03d ˚", (int) toWP.getMH()));
         tvDistance.setText(String.format("%.1f nm", toWP.getDist()));
 
         // RETO
@@ -127,15 +127,15 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             // TODO: Need some time formatting here later
 
             tvRetoLbl.setText("ETO");
-            tvRETO.setText(String.format("%.0f", toWP.getETO()));
+            tvRETO.setText(String.format("%03d", (int) toWP.getETO()));
         } else {
 
             tvRetoLbl.setText("RETO");
-            tvRETO.setText(String.format("%.0f", toWP.getRETO()));
+            tvRETO.setText(String.format("%03d", (int)toWP.getRETO()));
         }
 
         // Time difference
-        tvDiff.setText(String.format("%.0f", fromWP.getDiff()));
+        tvDiff.setText(String.format("%02d", (int)fromWP.getDiff()));
 
     }
 
@@ -305,12 +305,12 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     segmentIndex++;
                     updateFields();
                 }
-                tvCommand.setText("TURN: Heading "+String.format("%.0f",toWP.getMH())+"˚");
+                tvCommand.setText("TURN: Heading "+String.format("%03d",(int)toWP.getMH())+"˚");
                 checkBtn.setText("DONE");
                 break;
 
             case C_ARRIVED:
-                tvCommand.setText("Arrived at destination "+String.format("%.0f",toWP.getATO()));
+                tvCommand.setText("Arrived at destination "+String.format("%03d",(int)toWP.getATO()));
                 checkBtn.setEnabled(false);
                 checkBtn.setText("DONE");
                 break;

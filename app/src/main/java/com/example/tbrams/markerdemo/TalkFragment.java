@@ -67,9 +67,9 @@ public class TalkFragment extends Fragment {
         MarkerObject thisWP = markerList.get(segmentIndex);
         tvPositionName.setText(thisWP.getText());
         if (segmentIndex==0) {
-            tvPositionTime.setText(String.format("%.0f", thisWP.getETO()));
+            tvPositionTime.setText(String.format("%02d", (int)thisWP.getETO()));
         } else {
-            tvPositionTime.setText(String.format("%.0f", thisWP.getATO()));
+            tvPositionTime.setText(String.format("%02d", (int)thisWP.getATO()));
         }
         tvPositionAlt.setText(String.format("%.0f",thisWP.getALT()));
 
@@ -82,9 +82,9 @@ public class TalkFragment extends Fragment {
 
             // Use ETO for first point instead of RETO
             if (segmentIndex==0) {
-                tvPositionNextTime.setText(String.format("%.0f",nextWP.getETO()));
+                tvPositionNextTime.setText(String.format("%02d",(int)nextWP.getETO()));
             } else {
-                tvPositionNextTime.setText(String.format("%.0f",nextWP.getRETO()));
+                tvPositionNextTime.setText(String.format("%02d",(int)nextWP.getRETO()));
             }
 
             tvPositionNextAlt.setText(String.format("%.0f",nextWP.getALT()));
@@ -112,7 +112,7 @@ public class TalkFragment extends Fragment {
         } else {
             // Only one point to report
 
-            tvPositionName.setText("Expecting "+ thisWP.getText()+" at "+ String.format("%.0f", thisWP.getRETO()));
+            tvPositionName.setText("Expecting "+ thisWP.getText()+" at "+ String.format("%2d", (int)thisWP.getRETO()));
 
             // hide normal time
             tvPositionTime.setVisibility(View.INVISIBLE);
