@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -67,6 +68,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     private static Polyline polyline;
     private static int currentMarkerIndex=-1;
 
+    private Vibrator mVib;
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -79,6 +83,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_demo);
+
+        mVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -195,6 +201,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
             @Override
             public void onMapLongClick(LatLng latLng) {
+                mVib.vibrate(50);
                 MarkerDemoActivity.this.addMarker(latLng);
             }
 
@@ -224,6 +231,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
+                mVib.vibrate(25);
             }
 
             @Override
@@ -233,6 +241,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
+                mVib.vibrate(50);
                 updateMarkerInfo(marker);
                 updatePolyline();
                 updateNavinfo();

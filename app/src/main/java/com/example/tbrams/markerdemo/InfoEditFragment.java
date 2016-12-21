@@ -2,6 +2,7 @@ package com.example.tbrams.markerdemo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import com.example.tbrams.markerdemo.data.Pejling;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.VIBRATOR_SERVICE;
+
 public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
@@ -29,6 +32,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
     private int markerIndex = -1;
     private Button btnUpdate, btnDelete, btnCancel;
+    private Vibrator mVib;
 
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -111,6 +115,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         btnDelete.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 
+        mVib = (Vibrator) getActivity().getSystemService(VIBRATOR_SERVICE);
+
         return v;
     }
 
@@ -124,6 +130,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         getActivity().setResult(resultCode, intent);
         getActivity().onBackPressed();
+
+        mVib.vibrate(30);
     }
 
 
