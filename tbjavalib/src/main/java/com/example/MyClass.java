@@ -9,44 +9,37 @@ import java.util.TimeZone;
 public class MyClass {
     public static void main(String[] args){
 
-
-        String hello="Hello World....";
-
-        Time mTime = new Time();
-        System.out.println(hello+"it is now: "+ mTime.getZuluTime());
-    }
-
-
-    private static String getTime() {
-        Calendar cal = Calendar.getInstance();
-        Date currentLocalTime = cal.getTime();
-        DateFormat date = new SimpleDateFormat("HH:mm");
-        date.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        String zuluTime = date.format(currentLocalTime);
-        return zuluTime;
-    }
-
-}
-
-class Time {
-    private static Calendar mCalendar;
-    private static DateFormat mDateFormat;
-
-    Time() {
-        mCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        mDateFormat = new SimpleDateFormat("HH:mm");
-        System.out.println("Time Constructor done");
+        MagneticModel mM = new MagneticModel();
+        double[] result = mM.getDeclination(0, 55.5853306815137, 12.12890625, 2016.97);
+        printArray(result);
 
     }
 
-    public String getZuluTime() {
-        Date currentLocalTime = mCalendar.getTime();
-        mDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String zuluTime = mDateFormat.format(currentLocalTime);
-
-        return zuluTime;
+    public static void printArray(double[] array) {
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i] + " ");
+        }
     }
+
+ /*
+ * get the precise decimal notation year for the magnetic declination calculations
+ * @param None
+ *
+ * @return  decimal_fraction_year
+ *
+ * @customfunction
+
+    public double getDecimalYear() {
+        Calendar now = Calendar.getInstance();   // Gets the current date and time
+        int year = now.get(Calendar.YEAR);       // The current year
+//        now.getWeekYear();
+        Date n1=new Date(year, 0, 1);
+        Date d1=new Date(year, 11, 31);
+        Date d2=new Date(year-1, 11, 31);
+
+        return year+(t-n1)/(d1-d2);
+    }
+ */
 }
 
 
