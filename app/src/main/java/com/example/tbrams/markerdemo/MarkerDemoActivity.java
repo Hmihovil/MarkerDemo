@@ -149,8 +149,32 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
                         }).show();
             }
         });
-
+/*
+        // Restoring the markers on configuration changes
+        if(savedInstanceState!=null){
+            if(savedInstanceState.containsKey("markers")){
+                markerList = savedInstanceState.getParcelableArrayList("markers");
+                if(markerList!=null){
+                    updatePolyline();
+                    updateNavinfo();
+                }
+            }
+        }
+*/
     }
+
+
+    // A callback method, which is invoked on configuration is changed
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+ /*       // Adding the pointList arraylist to Bundle
+        outState.putParcelableArrayList("points", markerList);
+*/
+        // Saving the bundle
+        super.onSaveInstanceState(outState);
+    }
+
+
 
     /*
      * Called by getMapAsync when ready
