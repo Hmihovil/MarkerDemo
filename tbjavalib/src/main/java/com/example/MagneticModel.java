@@ -1,56 +1,169 @@
 package com.example;
 
 
+import java.util.Calendar;
+
 import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
 
 public class MagneticModel {
+    /*
+     * These parameters are required input for the model to work
+     *
+     * Altitude (km).   Height above the WGS84 ellipsoid. For most uses,
+     *                  it is safe to use the height above mean sea level (MSL).
+     *
+     * Latitude         Decimal degrees, positive for northern hemisphere, negative for southern
+     *                  hemisphere. 40 degree 30 minutes = 40 degrees + (30/60) minutes or
+     *                  40.5 decimal degrees
+     * Longitude        Decimal degrees, positive for eastern hemisphere, negative for western.
+     *                  105 degrees 15 minutes west = 105 + (15/60) = -105.25 degrees
+     *
+     * Year             Year or decimal fraction of year for which to compute the declination.
+     *                  This must be within the range of the current model, at present the WMM2015
+     *                  is valid for 2015.0 to 2020.0.
+     */
+    private double mAltitude;
+    private double mLat;
+    private double mLon;
+    private double mYear;
+
 
     /*
+     * Interpreting the results
+     *
+     * Declination
+     * -----------
+     * The angle of difference between true North and magnetic North. For instance, if the declination
+     * at a certain point were 10° W, then a compass at that location pointing north (magnetic) would
+     * actually align 10° W of true North. True North would be 10° E relative to the magnetic North
+     * direction given by the compass. Declination varies with location and slowly changes in time.
+     *
+     * Inclination
+     * -----------
+     * At a given location, the Inclination is the angle between the magnetic field vector and the
+     * horizontal plane (the plane is tangent to the surface of the Earth at that point). The inclination
+     * is positive when the magnetic field points downward into the earth and negative when it points
+     * upward.
+     *
+     * Horizontal Intensity
+     * --------------------
+     * The intensity of the component of the magnetic field is tangent to the Earth surface at a
+     * given point.
+     *
+     * North Component
+     * ---------------
+     * The portion of the magnetic field that is directed horizontally northward. A southward directed
+     * field would have a negative value for the North component.
+     *
+     * East Component
+     * --------------
+     * The portion of the magnetic field that is directed horizontally eastward. A westward directed
+     * magnetic field has a negative value for the East component.
+     *
+     * Vertical Component
+     * ------------------
+     * The portion of the magnetic field that is directed perpendicular to the Earth's surface at a
+     * given location. Down is measured as positive and up as negative.
+     *
+     * Total Field
+     * -----------
+     * The intensity (or strength) of the entire magnetic field at a given location. Geometrically,
+     * it is the length of the magnetic field vector.
+     *
+     * Accuracies for the angular components (Declination, D and Inclination, I) are reported in degrees
+     * and minutes of arc and are generally within 30 minutes. Accuracies for the force components
+     * (Horizontal - H, North - X, East - Y, Vertical - Z, and Total force - F) are generally within
+     * 100 to 250 nanotesla.
+     *
+     */
 
-    World Magnetic Model spreasheet scripts. The script returns
-    the WMM2015 declination values. Usage example
 
-    =getWMM(altitude,latitude,longitude,decimal_year,component)
+    //       return new double[]{bx, by, bz, bh=HorizontalFieldStrength, ti=fieldstrength?, mDeclination, mInclination, gv=grivation};
 
-    1) altitude: Altitude (km). Height above the WGS84 ellipsoid. For most uses,
-       it is safe to use the height above mean sea level (MSL).
-    2) latitude; Latitude - in decimal degrees, positive for northern hemisphere,
-       negative of southern hemisphere. 40 degree 30 minutes = 40 degrees + (30/60)
-       minutes = 40.5 decimal degrees
-    3) Longitude - in decimal degrees, positive for eastern hemisphere, negative
-       for western hemisphere. 105 degrees 15 minutes west = 105 + (15/60) minutes
-       West = -105.25 degrees
-    4) Year - year or decimal fraction of year for which to compute the declination.
-       This must be within the range of the current model, at present the WMM2015
-       is valid for 2015.0 to 2020.0. The if a cell contains a date in the format
-       mm/dd/yyyy, it may be converted to decimal year by using the spreadsheet
-       formula =YEAR(A1)+(A1-DATE(YEAR(A1),1,1))/(DATE(YEAR(A1),12,31)-DATE(YEAR(A1),1,0))
-    5) Component returned. Valid values are 0 to 7.
-       0 -> X; Northern component of the magnetic field vector
-       1 -> Y; Eastern component of the magnetic field vector
-       2 -> Z; Downward component of the magnetic field vector
-       3 -> H; Horizontal Magnetic Field Strength
-       4 -> F; Magnetic Field Strength
-       5 -> Decl; (Angle between the magnetic field vector and true north, positive east)
-       6 -> Incl; Angle between the magnetic field vector and the horizontal plane, positive down
-       7 -> GV; Grivation (or grid variation) is the angle between grid north and
-                magnetic north. (Latitude => |55| deg).
+    private double mFieldVectorNorthern;        // X component of the Magnetic field vector
+    private double mFieldVectorEastern;         // Y component of the Magnetic field vector
+    private double mFieldVectorDownwards;       // Z component of the Magnetic field vector
+    private double mFieldStrength;              // F Magnetic Field Strength
+    private double mHorizontalFieldStrength;    // H Horizontal Magnetic Field Strength
+    private double mDeclination;                // Angle between the magnetic field vector and true
+                                                // north, positive east
+    private double mInclination;                // Angle between the magnetic Field and vertical?
+    private double mGrivation;                  // Grivation (or grid variation) is the angle
+                                                // between grid north and magnetic north.
+                                                // (Latitude => |55| deg).
 
-    The script uses WMM2015 model by the National Geophysical Data Center
-    http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml
 
-    Bill Chadwick ported WMM C software to Javascript
-
-    Manoj Nair, December 2014
-    manoj.c.nair@noaa.gov
-
-    Ported to Java by Torben Brams, December 2016
-    torben@brams.dk
-
+    /*
+     * The script uses WMM2015 model by the National Geophysical Data Center
+     *     http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml
+     *
+     * Kindly provided by Manoj Nair, October 2016 email:manoj.c.nair@noaa.gov
+     * ported from the JavaScript version by Torben Brams, December 2016, email:torben@brams.dk
+     *
     */
-/*
 
+
+    public void setAltitude(double altitude) {
+        mAltitude = altitude;
+    }
+
+
+    public void setLocation(double lat, double lon) {
+        mLat = lat;
+        mLon = lon;
+    }
+
+
+    public void setDecimalYear(Calendar date) {
+        double year = date.get(Calendar.YEAR);
+        double fraction = ((float) date.get(Calendar.WEEK_OF_YEAR)-1)/52;
+
+        mYear = year+fraction;
+    }
+
+
+    public double getDeclination() {
+        calculate();
+        return mDeclination;
+    }
+
+    public double getFieldVectorNorthern() {
+        calculate();
+        return mFieldVectorNorthern;
+    }
+
+    public double getFieldVectorEastern() {
+        calculate();
+        return mFieldVectorEastern;
+    }
+
+    public double getFieldVectorDownwards() {
+        calculate();
+        return mFieldVectorDownwards;
+    }
+
+    public double getFieldStrength() {
+        calculate();
+        return mFieldStrength;
+    }
+
+    public double getHorizontalFieldStrength() {
+        calculate();
+        return mHorizontalFieldStrength;
+    }
+
+    public double getInclination() {
+        calculate();
+        return mInclination;
+    }
+
+    public double getGrivation() {
+        calculate();
+        return mGrivation;
+    }
+
+    /*
     public double GetWMM(double alt, double lat, double lng, double year, int comp) {
 
         if (year > 2020.0 || year < 2015.0) {
@@ -210,7 +323,6 @@ Updated to WMM2015 */
                 "	12	,	12	,	0	,	0.7	,	0	,	0	"
     };
 
-    // static variables
 
     // some 13x13 2D arrays
     private double[][] c  = new double[13][13];
@@ -229,10 +341,15 @@ Updated to WMM2015 */
     private double[] pp = new double[13];
 
 
-    // locals
 
 
-    public MagneticModel() {    // CONSTRUCTOR
+    public MagneticModel() {
+
+        // Default values zero MSL and current time in Decimal Year
+        mAltitude = 0;
+        mYear = getDecimalYear();
+
+
         double maxdeg = 12;
         double maxord;
         double a,b,a2,b2,c2,a4,b4,c4,re;
@@ -306,8 +423,9 @@ Updated to WMM2015 */
     }
 
 
-    public double[] getDeclination(double alt, double lat, double lng, double year) {
 
+
+    private boolean calculate() {
         double a = 6378.137;
         double b = 6356.7523142;
         double re = 6371.2;
@@ -317,25 +435,23 @@ Updated to WMM2015 */
         double a4 = a2 * a2;
         double b4 = b2 * b2;
         double c4 = a4 - b4;
-        double dip, ti, gv, dec;
         double r;
 
 
         double pi, dt, rlon, rlat, srlon, srlat, crlon, crlat, srlat2,
                 crlat2, q, q1, q2, ct, d, aor, ar, br, r2, bpp, par,
-                temp1, parp, temp2, bx, by, bz, bh, dtr, bp, bt, st, ca, sa;
+                temp1, parp, temp2, dtr, bp, bt, st, ca, sa;
 
         int maxord = 12;
-        dt = year - 2015.0;
+        dt = mYear - 2015.0;
 
         // if more then 5 years has passed since last epoch update then return invalid
-        if ((dt < 0.0) || (dt > 5.0))
-            return new double[]{-999, -999,-999,-999,-999,-999,-999,-999};
+        if ((dt < 0.0) || (dt > 5.0)) return false;
 
         pi = 3.14159265359;
         dtr = pi / 180.0;
-        rlon = lng * dtr;
-        rlat = lat * dtr;
+        rlon = mLon * dtr;
+        rlat = mLat * dtr;
         srlon = Math.sin(rlon);
         srlat = Math.sin(rlat);
         crlon = Math.cos(rlon);
@@ -349,14 +465,14 @@ Updated to WMM2015 */
         // CONVERT FROM GEODETIC COORDS. TO SPHERICAL COORDS.
 
         q = Math.sqrt(a2 - c2 * srlat2);
-        q1 = alt * q;
+        q1 = mAltitude * q;
         q2 = ((q1 + a2) / (q1 + b2)) * ((q1 + a2) / (q1 + b2));
         ct = srlat / Math.sqrt(q2 * crlat2 + srlat2);
         st = Math.sqrt(1.0 - (ct * ct));
-        r2 = (alt * alt) + 2.0 * q1 + (a4 - c4 * srlat2) / (q * q);
+        r2 = (mAltitude * mAltitude) + 2.0 * q1 + (a4 - c4 * srlat2) / (q * q);
         r = Math.sqrt(r2);
         d = Math.sqrt(a2 * crlat2 + b2 * srlat2);
-        ca = (alt + d) / r;
+        ca = (mAltitude + d) / r;
         sa = c2 * crlat * srlat / (r * d);
 
 
@@ -453,9 +569,9 @@ Updated to WMM2015 */
 //    ROTATE MAGNETIC VECTOR COMPONENTS FROM SPHERICAL TO
 //    GEODETIC COORDINATES
 //
-        bx = -bt*ca-br*sa;
-        by = bp;
-        bz = bt*sa-br*ca;
+        mFieldVectorNorthern = -bt*ca-br*sa;
+        mFieldVectorEastern = bp;
+        mFieldVectorDownwards = bt*sa-br*ca;
 
 
 
@@ -463,10 +579,10 @@ Updated to WMM2015 */
 //    COMPUTE DECLINATION (DEC), INCLINATION (DIP) AND
 //    TOTAL INTENSITY (TI)
 //
-        bh = Math.sqrt((bx*bx)+(by*by));
-        ti = Math.sqrt((bh*bh)+(bz*bz));
-        dec = Math.atan2(by,bx)/dtr;
-        dip = Math.atan2(bz,bh)/dtr;
+        mHorizontalFieldStrength = Math.sqrt((mFieldVectorNorthern*mFieldVectorNorthern)+(mFieldVectorEastern*mFieldVectorEastern));
+        mFieldStrength = Math.sqrt((mHorizontalFieldStrength*mHorizontalFieldStrength)+(mFieldVectorDownwards*mFieldVectorDownwards));
+        mDeclination = Math.atan2(mFieldVectorEastern,mFieldVectorNorthern)/dtr;
+        mInclination = Math.atan2(mFieldVectorDownwards,mHorizontalFieldStrength)/dtr;
 
 
 //
@@ -476,24 +592,41 @@ Updated to WMM2015 */
 //
 //    OTHERWISE, SET MAGNETIC GRID VARIATION TO -999.0
 //
-        gv = -999.0;
-        if (Math.abs(lat) >= 55.0) {
-            if (lat > 0.0 && lng >= 0.0) gv = dec-lng;
-            if (lat > 0.0 && lng < 0.0) gv = dec+Math.abs(lng);
-            if (lat < 0.0 && lng >= 0.0) gv = dec+lng;
-            if (lat < 0.0 && lng < 0.0) gv = dec-Math.abs(lng);
-            if (gv > +180.0) gv -= 360.0;
-            if (gv < -180.0) gv += 360.0;
+        mGrivation = -999.0;
+        if (Math.abs(mLat) >= 55.0) {
+            if (mLat > 0.0 && mLon >= 0.0) mGrivation = mDeclination-mLon;
+            if (mLat > 0.0 && mLon < 0.0) mGrivation = mDeclination+Math.abs(mLon);
+            if (mLat < 0.0 && mLon >= 0.0) mGrivation = mDeclination+mLon;
+            if (mLat < 0.0 && mLon < 0.0) mGrivation = mDeclination-Math.abs(mLon);
+            if (mGrivation > +180.0) mGrivation -= 360.0;
+            if (mGrivation < -180.0) mGrivation += 360.0;
         }
 
-        // return magenetic field components as an array
-
-        return new double[]{bx, by, bz, bh, ti, dec, dip, gv};
+        return true;
     }
+
+
 
     public void dump(String s) {
         System.out.println(s);
     }
+
+    /*
+     * get the decimal notation year for the magnetic declination calculations
+     *
+     * @param None
+     *
+     * @return  decimal_fraction_year
+     *
+     */
+    public static double getDecimalYear() {
+        Calendar now = Calendar.getInstance();
+        double year = now.get(Calendar.YEAR);
+        double fraction = ((float) now.get(Calendar.WEEK_OF_YEAR)-1)/52;
+        return year+fraction;
+    }
+
+
 
 }
 
