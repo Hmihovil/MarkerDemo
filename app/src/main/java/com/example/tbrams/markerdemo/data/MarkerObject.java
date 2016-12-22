@@ -43,8 +43,8 @@ public class MarkerObject {
         return myMarker;
     }
 
-    public void setMarker(Marker myMarker) {
-        this.myMarker = myMarker;
+    public void setMarker(Marker marker) {
+        myMarker = marker;
     }
 
 
@@ -53,7 +53,8 @@ public class MarkerObject {
     }
 
     public void setText(String text) {
-        this.myText = text;
+        myText = text;
+        myMarker.setTitle(text);
     }
 
     public int getIndex() {
@@ -61,7 +62,7 @@ public class MarkerObject {
     }
 
     public void setIndex(int index) {
-        this.myIndex = index;
+        myIndex = index;
     }
 
     public String getSnippet() {
@@ -69,7 +70,8 @@ public class MarkerObject {
     }
 
     public void setSnippet(String text) {
-        this.mySnippet = text;
+        mySnippet = text;
+        myMarker.setSnippet(text);
     }
 
 

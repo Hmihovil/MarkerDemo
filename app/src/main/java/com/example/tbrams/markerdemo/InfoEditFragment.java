@@ -60,13 +60,25 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
-        MarkerObject mo =markerList.get(markerIndex);
+        final MarkerObject mo =markerList.get(markerIndex);
 
         // Update Edit Text fields with marker provided info
-        EditText eTit = (EditText) v.findViewById(R.id.placeText);
+        final EditText eTit = (EditText) v.findViewById(R.id.placeText);
         eTit.setText(mo.getText());
         EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
         eSnp.setText(mo.getSnippet());
+
+
+        // set a lost focus event handler to automatically update the position name
+        eTit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    mo.setText(String.valueOf(eTit.getText()));
+                }
+            }
+        });
+
 
         // Update Next WP fields
         TextView WPtextLabel = (TextView) v.findViewById(R.id.textViewNextWP);

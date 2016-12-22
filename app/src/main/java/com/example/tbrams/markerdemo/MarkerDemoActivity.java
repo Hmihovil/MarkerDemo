@@ -11,11 +11,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -69,6 +71,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     private static int currentMarkerIndex=-1;
 
     private Vibrator mVib;
+    private Object mSearchedFor;
 
 
     @Override
@@ -88,16 +91,48 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                                                                .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
 
-        EditText searchText = (EditText) findViewById(R.id.editText1);
+        final EditText searchText = (EditText) findViewById(R.id.editText1);
         searchText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchText.setImeOptions(EditorInfo.IME_ACTION_GO);
+        searchText.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                        case KeyEvent.KEYCODE_ENTER:
+                            try {
+                                geoLocate(v);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return true;
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
 
 
+        Button searchButton = (Button) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    geoLocate(view);
+                    searchText.requestFocus();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.FAB);
         fab.setImageResource(R.drawable.ic_work_black_24dp);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -546,11 +581,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.editText1);
-        String searchString = tv.getText().toString();
+        mSearchedFor = tv.getText().toString();
         tv.setText("");
 
         Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(searchString, 1);
+        List<Address> list = gc.getFromLocationName(String.valueOf(mSearchedFor), 1);
 
         if (list.size() > 0) {
             Address adr = list.get(0);
@@ -621,9 +656,16 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         String text = adr.getLocality();
         MarkerOptions options = new MarkerOptions()
-                .title(text)
                 .draggable(true)
                 .position(loc);
+
+        if (mSearchedFor=="") {
+            options.title(text);
+        } else {
+            // Use the name from the searchfield this time instead of the location name/blank
+            options.title((String) mSearchedFor);
+            mSearchedFor="";
+        }
 
         String country = adr.getCountryName();
         if (country.length() > 0) {
