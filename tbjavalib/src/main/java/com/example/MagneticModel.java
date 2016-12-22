@@ -32,45 +32,6 @@ public class MagneticModel {
     /*
      * Interpreting the results
      *
-     * Declination
-     * -----------
-     * The angle of difference between true North and magnetic North. For instance, if the declination
-     * at a certain point were 10° W, then a compass at that location pointing north (magnetic) would
-     * actually align 10° W of true North. True North would be 10° E relative to the magnetic North
-     * direction given by the compass. Declination varies with location and slowly changes in time.
-     *
-     * Inclination
-     * -----------
-     * At a given location, the Inclination is the angle between the magnetic field vector and the
-     * horizontal plane (the plane is tangent to the surface of the Earth at that point). The inclination
-     * is positive when the magnetic field points downward into the earth and negative when it points
-     * upward.
-     *
-     * Horizontal Intensity
-     * --------------------
-     * The intensity of the component of the magnetic field is tangent to the Earth surface at a
-     * given point.
-     *
-     * North Component
-     * ---------------
-     * The portion of the magnetic field that is directed horizontally northward. A southward directed
-     * field would have a negative value for the North component.
-     *
-     * East Component
-     * --------------
-     * The portion of the magnetic field that is directed horizontally eastward. A westward directed
-     * magnetic field has a negative value for the East component.
-     *
-     * Vertical Component
-     * ------------------
-     * The portion of the magnetic field that is directed perpendicular to the Earth's surface at a
-     * given location. Down is measured as positive and up as negative.
-     *
-     * Total Field
-     * -----------
-     * The intensity (or strength) of the entire magnetic field at a given location. Geometrically,
-     * it is the length of the magnetic field vector.
-     *
      * Accuracies for the angular components (Declination, D and Inclination, I) are reported in degrees
      * and minutes of arc and are generally within 30 minutes. Accuracies for the force components
      * (Horizontal - H, North - X, East - Y, Vertical - Z, and Total force - F) are generally within
@@ -78,8 +39,6 @@ public class MagneticModel {
      *
      */
 
-
-    //       return new double[]{bx, by, bz, bh=HorizontalFieldStrength, ti=fieldstrength?, mDeclination, mInclination, gv=grivation};
 
     private double mFieldVectorNorthern;        // X component of the Magnetic field vector
     private double mFieldVectorEastern;         // Y component of the Magnetic field vector
@@ -94,22 +53,26 @@ public class MagneticModel {
                                                 // (Latitude => |55| deg).
 
 
-    /*
-     * The script uses WMM2015 model by the National Geophysical Data Center
-     *     http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml
-     *
-     * Kindly provided by Manoj Nair, October 2016 email:manoj.c.nair@noaa.gov
-     * ported from the JavaScript version by Torben Brams, December 2016, email:torben@brams.dk
-     *
-    */
+
 
 
     public void setAltitude(double altitude) {
+        if (altitude < -10 ) {
+            throw new IllegalArgumentException("Altitude out of range ! Minimum elevation is -10 km");
+        }
+
         mAltitude = altitude;
     }
 
 
     public void setLocation(double lat, double lon) {
+        if (lon > 360.0 || lon < -180.0){
+            throw new IllegalArgumentException("Longitude out of range ! Valid range -180 to 360");
+        }
+        if (lat >= 90 || lat <= -90) {
+            throw new IllegalArgumentException("Latitude out of range ! 90.0 < Latitude > -90.0 ");
+        }
+
         mLat = lat;
         mLon = lon;
     }
@@ -117,119 +80,132 @@ public class MagneticModel {
 
     public void setDecimalYear(Calendar date) {
         double year = date.get(Calendar.YEAR);
+
+        if (year > 2020.0 || year < 2015.0) {
+            throw new IllegalArgumentException("Year out of range ! Valid range 2015.0 to 2020.0");
+        }
+
         double fraction = ((float) date.get(Calendar.WEEK_OF_YEAR)-1)/52;
 
         mYear = year+fraction;
     }
 
 
+
+
+    /*
+     * Declination
+     * -----------
+     * The angle of difference between true North and magnetic North. For instance, if the declination
+     * at a certain point were 10° W, then a compass at that location pointing north (magnetic) would
+     * actually align 10° W of true North. True North would be 10° E relative to the magnetic North
+     * direction given by the compass. Declination varies with location and slowly changes in time.
+     */
+
     public double getDeclination() {
         calculate();
         return mDeclination;
     }
 
+
+
+    /*
+     * North Component
+     * ---------------
+     * The portion of the magnetic field that is directed horizontally northward. A southward directed
+     * field would have a negative value for the North component.
+     */
     public double getFieldVectorNorthern() {
         calculate();
         return mFieldVectorNorthern;
     }
 
+
+
+    /*
+     * East Component
+     * --------------
+     * The portion of the magnetic field that is directed horizontally eastward. A westward directed
+     * magnetic field has a negative value for the East component.
+     *
+     */
     public double getFieldVectorEastern() {
         calculate();
         return mFieldVectorEastern;
     }
 
+
+    /*
+     * Vertical Component
+     * ------------------
+     * The portion of the magnetic field that is directed perpendicular to the Earth's surface at a
+     * given location. Down is measured as positive and up as negative.
+     *
+     */
     public double getFieldVectorDownwards() {
         calculate();
         return mFieldVectorDownwards;
     }
 
+
+
+    /*
+     * Total Field
+     * -----------
+     * The intensity (or strength) of the entire magnetic field at a given location. Geometrically,
+     * it is the length of the magnetic field vector.
+     */
     public double getFieldStrength() {
         calculate();
         return mFieldStrength;
     }
 
+
+
+    /*
+     * Horizontal Intensity
+     * --------------------
+     * The intensity of the component of the magnetic field is tangent to the Earth surface at a
+     * given point.
+     */
     public double getHorizontalFieldStrength() {
         calculate();
         return mHorizontalFieldStrength;
     }
+
+
+
+    /*
+     * Inclination
+     * -----------
+     * At a given location, the Inclination is the angle between the magnetic field vector and the
+     * horizontal plane (the plane is tangent to the surface of the Earth at that point). The inclination
+     * is positive when the magnetic field points downward into the earth and negative when it points
+     * upward.
+     */
 
     public double getInclination() {
         calculate();
         return mInclination;
     }
 
+
+
+    /*
+     * The angle, at any point on the surface of the Earth, between grid north and magnetic north.
+     * Grivation = convergence + declination.
+     */
     public double getGrivation() {
         calculate();
         return mGrivation;
     }
 
+
     /*
-    public double GetWMM(double alt, double lat, double lng, double year, int comp) {
-
-        if (year > 2020.0 || year < 2015.0) {
-            throw new new IllegalArgumentException("Year out of range ! Valid range 2015.0 to 2020.0");
-            return -999;
-        }
-
-        if (alt < -10 ) {
-            throw new new IllegalArgumentException("Altitude out of range ! Minimum elevation is -10 km");
-            return -999;
-        }
-
-        if (lng > 360.0 || lng < -180.0)
-        {
-            throw new new IllegalArgumentException("Longitude out of range ! Valid range -180 to 360");
-            return -999;
-        }
-
-        if (lat >= 90 || lat <= -90) {
-            throw new new IllegalArgumentException("Latitude out of range ! 90.0 < Latitude > -90.0 ");
-            return -999;
-        }
-
-        if (comp > 7 || comp < 0) {
-            throw new new IllegalArgumentException("Component out of range ! 0 <= Component =>7 ");
-            return -999;
-        }
-
-        WorldMagneticModel wmm = new WorldMagneticModel();
-
-        ArrayList<Double> result = new ArrayList<>();
-        result =    wmm.declination(alt, lat, lng, year);
-
-        // values array is [bx,by,bz,bh,ti,dec,dip,gv]
-        return result.get(comp);
-
-    }
-
-    public String AboutGetWMM(){
-        return "GetWMM function returns the WMM2015 declination values. More info at ngdc.noaa.gov/geomag.";
-    }
-
-*/
-
-
-/* DOD World Magnetic Model 2015-2020
-
-    return is declination angle in decimal degrees,
-    +ve for Magnetic North East of True North
-    (-999 for < 2015.0 and >= 2020.0)
-
-The method knownAnswerTest yields a maximum declination error of 0.007% on the small 2010 USGS test data set.
-The maximum error is at 80S latitude, 120W longitude. The value produced by this code at this point is 70.215 degrees.
-This is the same answer as produced by the BGS calculator at http://www.geomag.bgs.ac.uk/gifs/wmm_calc.html
-
-This javascript port by Bill Chadwick, 27-Oct-2008, updated with 2010 coefficients on 3 Jan 2010, update wuth 2015 coefficientis on 20 Dec 2015
-email: w.chadwick<at>sky.com
-
-*/
-
-
-/* 2015 - 2020 coefficients from WMM.COF
-Updated to WMM2015 */
-
-
-
+     * Import the 2015 - 2020 coefficients from WMM.COF as strings
+     *
+     * This is easy to maintain, distribute and parse in the Class.
+     */
     private String[] coff= {
                 "	1	,	0	,	-29438.5	,	0	,	10.7	,	0	",
                 "	1	,	1	,	-1501.1	,	4796.2	,	17.9	,	-26.8	",
@@ -324,15 +300,13 @@ Updated to WMM2015 */
     };
 
 
-    // some 13x13 2D arrays
+    // prepare some arrays for the model
     private double[][] c  = new double[13][13];
     private double[][] cd = new double[13][13];
     private double[][] tc = new double[13][13];
     private double[][] dp = new double[13][13];
     private double[][] k  = new double[13][13];
 
-
-    // some 1D arrays
     private double[] snorm = new double[169];
     private double[] sp = new double[13];
     private double[] cp = new double[13];
@@ -341,7 +315,13 @@ Updated to WMM2015 */
     private double[] pp = new double[13];
 
 
-
+    /*
+     * Constructor
+     *
+     * Initialize a couple of new variables, otherwise simply reuse everything as named
+     * in the previous port to JavaScript.
+     *
+     */
 
     public MagneticModel() {
 
@@ -349,7 +329,7 @@ Updated to WMM2015 */
         mAltitude = 0;
         mYear = getDecimalYear();
 
-
+        // misc variables
         double maxdeg = 12;
         double maxord;
         double a,b,a2,b2,c2,a4,b4,c4,re;
@@ -607,10 +587,6 @@ Updated to WMM2015 */
 
 
 
-    public void dump(String s) {
-        System.out.println(s);
-    }
-
     /*
      * get the decimal notation year for the magnetic declination calculations
      *
@@ -627,6 +603,16 @@ Updated to WMM2015 */
     }
 
 
+    /*
+     * This Class implements the WMM2015 model by the National Geophysical Data Center
+     *
+     *                 http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml
+     *
+     * The model was kindly provided by Manoj Nair, October 2016 email:manoj.c.nair@noaa.gov
+     * in a javascript edition, that has been ported to Java by Torben Brams, December 2016
+     * email:torben@brams.dk
+     *
+     */
 
 }
 

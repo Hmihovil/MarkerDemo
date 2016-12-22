@@ -4,7 +4,7 @@ public class MyClass {
     public static void main(String[] args){
 
         MagneticModel mM = new MagneticModel();
-        mM.setLocation(55.59, 12.13);
+        mM.setLocation(55.32,	10.57);
 
         System.out.println("Declination is: "+mM.getDeclination());
         System.out.println("Inclination is: "+mM.getInclination());
