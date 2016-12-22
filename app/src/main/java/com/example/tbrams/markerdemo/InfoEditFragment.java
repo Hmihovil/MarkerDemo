@@ -60,18 +60,19 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
+        MarkerObject mo =markerList.get(markerIndex);
 
         // Update Edit Text fields with marker provided info
         EditText eTit = (EditText) v.findViewById(R.id.placeText);
-        eTit.setText(markerList.get(markerIndex).getText());
+        eTit.setText(mo.getText());
         EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
-        eSnp.setText(markerList.get(markerIndex).getSnippet());
+        eSnp.setText(mo.getSnippet());
 
         // Update Next WP fields
         TextView WPtextLabel = (TextView) v.findViewById(R.id.textViewNextWP);
+        TextView WPtextDist = (TextView) v.findViewById(R.id.tvDistance);
+        TextView WPtextHeading = (TextView) v.findViewById(R.id.tvHeading);
         if ((markerIndex+1)<markerList.size()) {
-            TextView WPtextDist = (TextView) v.findViewById(R.id.textViewDistance);
-            TextView WPtextHeading = (TextView) v.findViewById(R.id.textViewHeading);
             WPtextLabel.setText("Next WP: "+markerList.get(markerIndex+1).getText());
             double dist =markerList.get(markerIndex+1).getDist();
             double heading = markerList.get(markerIndex+1).getTT();
@@ -79,6 +80,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             WPtextHeading.setText(String.format("%.0f ˚", heading));
         } else {
             WPtextLabel.setText("Final destination") ;
+            WPtextDist.setText("NA");
+            WPtextHeading.setText("NA");
         }
 
         // update VOR fields for marker
@@ -107,6 +110,13 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));
         VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance() / 1852.));
 
+        TextView tvLat = (TextView) v.findViewById(R.id.tvLat);
+        TextView tvLon = (TextView) v.findViewById(R.id.tvLon);
+        TextView tvVar = (TextView) v.findViewById(R.id.tvVar);
+
+        tvLat.setText(String.format("%.2f  °", mo.getMarker().getPosition().latitude));
+        tvLon.setText(String.format("%.2f  °", mo.getMarker().getPosition().longitude));
+        tvVar.setText(String.format("%.1f  °", mo.getVAR()));
 
         btnUpdate = (Button) v.findViewById(R.id.buttonUpdate);
         btnDelete = (Button) v.findViewById(R.id.buttonDelete);

@@ -1,8 +1,6 @@
 package com.example.tbrams.markerdemo.data;
 
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
@@ -37,7 +35,7 @@ public class MarkerObject {
     private double mATO;
     private double mDiff;
 
-
+    private MagneticModel magModel=new MagneticModel();
 
     private ArrayList<Pejling> mPejlinger;
 
@@ -165,7 +163,9 @@ public class MarkerObject {
         mTT=0;
         mWCA=0;
         mTH=0;
-        mVAR=0;
+
+        magModel.setLocation(marker.getPosition().latitude, marker.getPosition().longitude);
+        mVAR=magModel.getDeclination();
         mMH=0;
         mTIME=0;
         mETO=0;
