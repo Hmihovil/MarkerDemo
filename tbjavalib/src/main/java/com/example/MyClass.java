@@ -1,16 +1,10 @@
 package com.example;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 public class MyClass {
     public static void main(String[] args){
 
         MagneticModel mM = new MagneticModel();
-        double[] result = mM.getDeclination(0, 55.5853306815137, 12.12890625, 2016.97);
+        double[] result = mM.getDeclination(0, 55.59, 12.13,  2016.9735712997117);
         printArray(result);
 
     }

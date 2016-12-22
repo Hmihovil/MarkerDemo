@@ -1,8 +1,6 @@
 package com.example;
 
 
-import java.util.ArrayList;
-
 import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
 
@@ -289,9 +287,9 @@ Updated to WMM2015 */
             snorm[n] = snorm[n-1]*(2*n-1)/n;
             int j = 2;
             for (int m=0, D1=1, D2=(n-m+D1)/D1; D2>0; D2--, m+=D1) {
-                k[m][n] = (((n-1)*(n-1))-(m*m))/((2*n-1)*(2*n-3));
+                k[m][n] = (float)(((n-1)*(n-1))-(m*m))/(float)((2*n-1)*(2*n-3));
                 if (m > 0) {
-                    flnmj = ((n-m+1)*j)/(n+m);
+                    flnmj = (float)((n-m+1)*j)/(float)(n+m);
                     snorm[n+m*13] = snorm[n+(m-1)*13]*Math.sqrt(flnmj);
                     j = 1;
                     c[n][m-1] = snorm[n+m*13]*c[n][m-1];
@@ -309,6 +307,7 @@ Updated to WMM2015 */
 
 
     public double[] getDeclination(double alt, double lat, double lng, double year) {
+
         double a = 6378.137;
         double b = 6356.7523142;
         double re = 6371.2;
@@ -321,6 +320,7 @@ Updated to WMM2015 */
         double dip, ti, gv, dec;
         double r;
 
+
         double pi, dt, rlon, rlat, srlon, srlat, crlon, crlat, srlat2,
                 crlat2, q, q1, q2, ct, d, aor, ar, br, r2, bpp, par,
                 temp1, parp, temp2, bx, by, bz, bh, dtr, bp, bt, st, ca, sa;
@@ -331,7 +331,6 @@ Updated to WMM2015 */
         // if more then 5 years has passed since last epoch update then return invalid
         if ((dt < 0.0) || (dt > 5.0))
             return new double[]{-999, -999,-999,-999,-999,-999,-999,-999};
-
 
         pi = 3.14159265359;
         dtr = pi / 180.0;
@@ -360,6 +359,7 @@ Updated to WMM2015 */
         ca = (alt + d) / r;
         sa = c2 * crlat * srlat / (r * d);
 
+
         for (int m = 2; m <= maxord; m++) {
             sp[m] = sp[1] * cp[m - 1] + cp[1] * sp[m - 1];
             cp[m] = cp[1] * cp[m - 1] - sp[1] * sp[m - 1];
@@ -369,8 +369,10 @@ Updated to WMM2015 */
         ar = aor * aor;
         br = bt = bp = bpp = 0.0;
 
+
         for (int n=1; n<=maxord; n++) {
-            ar = ar*aor;
+            ar *= aor;
+
             for (int m=0, D3=1, D4=(n+m+D3)/D3; D4>0; D4--,m+=D3){
                 //
                 //   COMPUTE UNNORMALIZED ASSOCIATED LEGENDRE POLYNOMIALS
@@ -384,22 +386,30 @@ Updated to WMM2015 */
                     snorm[n+m*13] = ct*snorm[n-1+m*13];
                     dp[m][n] = ct*dp[m][n-1]-st*snorm[n-1+m*13];
                 } else if (n > 1) {
-                    if (m > n-2) snorm[n-2+m*13] = 0.0;
-                    if (m > n-2) dp[m][n-2] = 0.0;
+
+                    if (m > n-2) {
+                        snorm[n-2+m*13] = 0.0;
+                    }
+                    if (m > n-2) {
+                        dp[m][n-2] = 0.0;
+                    }
                     snorm[n+m*13] = ct*snorm[n-1+m*13]-k[m][n]*snorm[n-2+m*13];
                     dp[m][n] = ct*dp[m][n-1] - st*snorm[n-1+m*13]-k[m][n]*dp[m][n-2];
                 }
+
 
                 //
                 // TIME ADJUST THE GAUSS COEFFICIENTS
                 //
                 tc[m][n] = c[m][n]+dt*cd[m][n];
+
                 if (m != 0) tc[n][m-1] = c[n][m-1]+dt*cd[n][m-1];
 
                 //
                 // ACCUMULATE TERMS OF THE SPHERICAL HARMONIC EXPANSIONS
                 //
                 par = ar*snorm[n+m*13];
+
                 if (m == 0) {
                     temp1 = tc[m][n]*cp[m];
                     temp2 = tc[m][n]*sp[m];
@@ -407,9 +417,12 @@ Updated to WMM2015 */
                     temp1 = tc[m][n]*cp[m]+tc[n][m-1]*sp[m];
                     temp2 = tc[m][n]*sp[m]-tc[n][m-1]*cp[m];
                 }
+
+
                 bt = bt-ar*temp1*dp[m][n];
                 bp += (fm[m]*temp2*par);
                 br += (fn[n]*temp1*par);
+
 
                 //
                 //SPECIAL CASE:  NORTH/SOUTH GEOGRAPHIC POLES
@@ -422,7 +435,9 @@ Updated to WMM2015 */
 
                     parp = ar*pp[n];
                     bpp += (fm[m]*temp2*parp);
+
                 }
+
             }
 
         }
@@ -432,6 +447,8 @@ Updated to WMM2015 */
         else
             bp /= st;
 
+
+
 //
 //    ROTATE MAGNETIC VECTOR COMPONENTS FROM SPHERICAL TO
 //    GEODETIC COORDINATES
@@ -439,6 +456,9 @@ Updated to WMM2015 */
         bx = -bt*ca-br*sa;
         by = bp;
         bz = bt*sa-br*ca;
+
+
+
 //
 //    COMPUTE DECLINATION (DEC), INCLINATION (DIP) AND
 //    TOTAL INTENSITY (TI)
@@ -447,6 +467,7 @@ Updated to WMM2015 */
         ti = Math.sqrt((bh*bh)+(bz*bz));
         dec = Math.atan2(by,bx)/dtr;
         dip = Math.atan2(bz,bh)/dtr;
+
 
 //
 //    COMPUTE MAGNETIC GRID VARIATION IF THE CURRENT
@@ -468,6 +489,10 @@ Updated to WMM2015 */
         // return magenetic field components as an array
 
         return new double[]{bx, by, bz, bh, ti, dec, dip, gv};
+    }
+
+    public void dump(String s) {
+        System.out.println(s);
     }
 
 }
