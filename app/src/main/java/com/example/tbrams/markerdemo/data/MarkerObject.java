@@ -1,11 +1,14 @@
 package com.example.tbrams.markerdemo.data;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
 
-public class MarkerObject {
+public class MarkerObject implements Parcelable {
     private Integer myIndex;
     private String myText;
     private String mySnippet;
@@ -38,6 +41,70 @@ public class MarkerObject {
     private MagneticModel magModel=new MagneticModel();
 
     private ArrayList<Pejling> mPejlinger;
+
+    protected MarkerObject(Parcel in) {
+        myText = in.readString();
+        mySnippet = in.readString();
+        mTAS = in.readDouble();
+        mMIN_ALT = in.readDouble();
+        mALT = in.readDouble();
+        mWindStrenght = in.readDouble();
+        mWindDirection = in.readDouble();
+        mDist = in.readDouble();
+        mIAS = in.readDouble();
+        mGS = in.readDouble();
+        mTT = in.readDouble();
+        mWCA = in.readDouble();
+        mTH = in.readDouble();
+        mVAR = in.readDouble();
+        mMH = in.readDouble();
+        mTIME = in.readDouble();
+        mETO = in.readDouble();
+        mRETO = in.readDouble();
+        mATO = in.readDouble();
+        mDiff = in.readDouble();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(myText);
+        dest.writeString(mySnippet);
+        dest.writeDouble(mTAS);
+        dest.writeDouble(mMIN_ALT);
+        dest.writeDouble(mALT);
+        dest.writeDouble(mWindStrenght);
+        dest.writeDouble(mWindDirection);
+        dest.writeDouble(mDist);
+        dest.writeDouble(mIAS);
+        dest.writeDouble(mGS);
+        dest.writeDouble(mTT);
+        dest.writeDouble(mWCA);
+        dest.writeDouble(mTH);
+        dest.writeDouble(mVAR);
+        dest.writeDouble(mMH);
+        dest.writeDouble(mTIME);
+        dest.writeDouble(mETO);
+        dest.writeDouble(mRETO);
+        dest.writeDouble(mATO);
+        dest.writeDouble(mDiff);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<MarkerObject> CREATOR = new Creator<MarkerObject>() {
+        @Override
+        public MarkerObject createFromParcel(Parcel in) {
+            return new MarkerObject(in);
+        }
+
+        @Override
+        public MarkerObject[] newArray(int size) {
+            return new MarkerObject[size];
+        }
+    };
 
     public Marker getMarker() {
         return myMarker;

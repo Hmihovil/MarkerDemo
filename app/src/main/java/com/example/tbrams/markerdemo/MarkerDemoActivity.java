@@ -77,9 +77,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     protected void onResume() {
         super.onResume();
-        if (polyline!=null) {
-            updatePolyline();
-        }
+
     }
 
     @Override
@@ -88,12 +86,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         setContentView(R.layout.activity_marker_demo);
 
         mVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
+        // setRetainInstance(true);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                                                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+        mapFragment.setRetainInstance(true);
 
         final EditText searchText = (EditText) findViewById(R.id.editText1);
         searchText.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -204,11 +204,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
         if (mMap!=null) {
-
-            // Restoring the markers on configuration changes
-            if (markerList!=null) {
-                updatePolyline();
-            }
 
 
             // This is where the Way Point data is shown and can be edited if clicked
@@ -382,6 +377,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     public void updatePolyline() {
         if (polyline==null) {
+            Log.d("TBR:", "UpdatePolyLine: ==null");
             PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
             polyline = mMap.addPolyline(lineOptions);
         }
