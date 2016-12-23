@@ -149,18 +149,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
                         }).show();
             }
         });
-/*
-        // Restoring the markers on configuration changes
-        if(savedInstanceState!=null){
-            if(savedInstanceState.containsKey("markers")){
-                markerList = savedInstanceState.getParcelableArrayList("markers");
-                if(markerList!=null){
-                    updatePolyline();
-                    updateNavinfo();
-                }
-            }
-        }
-*/
+
+
     }
 
 
@@ -214,6 +204,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
         if (mMap!=null) {
+
+            // Restoring the markers on configuration changes
+            if (markerList!=null) {
+                updatePolyline();
+            }
+
 
             // This is where the Way Point data is shown and can be edited if clicked
             mMap.setOnInfoWindowClickListener(this);
