@@ -148,7 +148,6 @@ updateModelData();            }
             markerList.get(i).calcWCA(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
             markerList.get(i).calcIAS(gnd.getTAS(), gnd.getALT());
             markerList.get(i).calcTH();
-            markerList.get(i).calcVAR();
             markerList.get(i).calcMH();
             markerList.get(i).calcTIME();
             // calculate the accumulated ETO time and update each marker accordingly

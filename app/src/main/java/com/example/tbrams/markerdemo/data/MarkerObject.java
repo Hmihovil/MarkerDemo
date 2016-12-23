@@ -201,7 +201,6 @@ public class MarkerObject implements Parcelable {
     public void calcTH() {
         mTH = (mTT+mWCA+360.)%360;
     }
-    public void calcVAR() {mVAR = -3.; }
     public void calcMH() {
         mMH = mTH-mVAR;
     }
