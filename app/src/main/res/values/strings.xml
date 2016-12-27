@@ -9,5 +9,13 @@
     <string name="hybrid">Hybrid</string>
     <string name="none">None</string>
     <string name="map_info">Map info</string>
+    <string name="map_type_title">Map type</string>
+    <string name="zoomSummary">Preferred zoom level</string>
+    <string name="startTitle">Start location</string>
+    <string name="startSummary">Preferred start location</string>
+    <string name="navaids_title"><![CDATA[>Navigational Aids]]></string>
+    <string name="navaids_summary">Select if you prefer to have navigational aids on the map</string>
+    <string name="preferences">Preferences</string>
+
 
 </resources>

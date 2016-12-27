@@ -1,0 +1,15 @@
+<resources>
+    <string-array name="listArrayMapType">
+        <item>@string/normal</item>
+        <item>@string/satellite</item>
+        <item>@string/terrain</item>
+        <item>@string/hybrid</item>
+    </string-array>
+
+    <string-array name="listValuesMapType">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+</resources>

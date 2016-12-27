@@ -2,11 +2,13 @@ package com.example.tbrams.markerdemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -44,6 +46,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
 import static com.google.maps.android.SphericalUtil.computeHeading;
@@ -53,20 +56,26 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
     private static final int REQUEST_M_ID=1;
     private static final int REQUEST_GLOBAL_VARS=2;
-    private static final float ZOOM_DETAIL = 14.5f;
+    private static final int SETTINGS_RESULT = 3;
+
     private static final float ZOOM_OVERVIEW = 10.0f;
-    private static final float ZOOM_NORMAL = 12.5f;
+
+    private static final String DEGREES="\u00B0";
 
     private  MarkerObject mUndoDeleteMarker = null;
     private  int mUndoDeleteIndex= -1;
 
     private static GoogleMap mMap;
-    MarkerLab markerLab = MarkerLab.getMarkerLab(this);
-    List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(this);
-    List<NavAid> vorList = navaids.getList();
+    private SharedPreferences mSharedPrefs;
+    private float mZoomLevel;
 
-    private static List<Marker> midpointList = new ArrayList<>();
+
+    private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
+    private final List<MarkerObject> markerList = markerLab.getMarkers();
+    private final NavAids navaids = NavAids.get(this);
+    private final List<NavAid> vorList = navaids.getList();
+
+    private final static List<Marker> midpointList = new ArrayList<>();
     private static Polyline polyline;
     private static int currentMarkerIndex=-1;
 
@@ -85,8 +94,13 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_demo);
 
+        // make sure we have default values by running this first time a user launches the app
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
         mVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
-        // setRetainInstance(true);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -154,16 +168,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
-    // A callback method, which is invoked on configuration is changed
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
- /*       // Adding the pointList arraylist to Bundle
-        outState.putParcelableArrayList("points", markerList);
-*/
-        // Saving the bundle
-        super.onSaveInstanceState(outState);
-    }
-
 
 
     /*
@@ -173,15 +177,34 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+
+        // Check map type preference and update the map here
+        updateMapType();
+        updateZoom();
+
+        LatLng position = null;
+        try {
+            position = searchLocation(mSharedPrefs.getString("startPlace", "Roskilde airport, Denmark"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,mZoomLevel));
+
+
+
+
+
+
         // Disable the navigation toolbar that will otherwise pop up after setting a marker
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // Plot VOR navigation aids on the map
         for (int i=0;i<vorList.size();i++) {
-            LatLng position = vorList.get(i).getPosition();
+            LatLng vorPos = vorList.get(i).getPosition();
             GroundOverlayOptions newarkMap = new GroundOverlayOptions()
                     .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue))
-                    .position(position,240f,240f);
+                    .position(vorPos, 240f, 240f);
 
             mMap.addGroundOverlay(newarkMap);
         }
@@ -298,10 +321,54 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-        LatLng EKRK = new LatLng(55.59,	12.13);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(EKRK,12));
+
+        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                CameraPosition cameraPosition = mMap.getCameraPosition();
+                mZoomLevel=cameraPosition.zoom;
+
+                writePreferenceChanges();
+            }
+        });
+
+        LatLng startPos=null;
+        try {
+            startPos = searchLocation(mSharedPrefs.getString("startLocation", "Copenhagen, Denmark"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos,mZoomLevel));
 
     }
+
+    private void updateMapType() {
+        switch (mSharedPrefs.getString("mapType","1")) {
+            case "1":
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                break;
+            case "2":
+                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                break;
+            case "3":
+                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                break;
+            case "4":
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                break;
+        }
+    }
+
+
+
+    private void updateZoom() {
+        mZoomLevel = (float) Double.parseDouble(mSharedPrefs.getString("zoomLevel","10."));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(mZoomLevel), 1000, null);
+    }
+
+
 
     /*
      * find new location text for existing marker - used when dragged
@@ -359,7 +426,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
      * Find and return the marker index with the marker_id as specified
      * otherwise return minus one
      */
-    public int getIndexById(String mid) {
+    private int getIndexById(String mid) {
         for (int i=0; i<markerList.size();i++) {
             if (markerList.get(i).getMarker().getId().equals(mid)) {
                 return i;
@@ -375,7 +442,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
      * when the activity resumes
      */
 
-    public void updatePolyline() {
+    private void updatePolyline() {
         if (polyline==null) {
             Log.d("TBR:", "UpdatePolyLine: ==null");
             PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
@@ -396,7 +463,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
      * After this is done all markers will have the distance to next marker and
      * the initial heading needed to reach next marker
      */
-    public void updateNavinfo(){
+    private void updateNavinfo(){
         if (markerList.size()<2) {
             return;
         }
@@ -546,28 +613,31 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             }
 
 
-            }
+        } else if (requestCode == SETTINGS_RESULT) {
+            // A preference has been changed
+
+            // If we need to do something, like if the NAVAIDs has been toggled - this is the place
+            // TODO: Navaids display update
+
+            updateMapType();
+            updateZoom();
+        }
 
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+
         int id = item.getItemId();
 
         //Add menu handling code
         switch (id) {
-            case R.id.mapTypeNormal:
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                break;
-            case R.id.mapTypeSatellite:
-                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                break;
-            case R.id.mapTypeTerrain:
-                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                break;
-            case R.id.mapTypeHybrid:
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            case R.id.mapPreferences:
+                // Launch the PreferenceActivity
+                Intent i = new Intent(this, MarkerPreferenceActivity.class);
+                startActivityForResult(i,SETTINGS_RESULT);
                 break;
         }
 
@@ -592,29 +662,42 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
      * Look up a place name and find the coordinates, then pass the coordinates to
      * the normal appending addMarker
      */
-    public void geoLocate(View v) throws IOException {
+    private void geoLocate(View v) throws IOException {
 
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.editText1);
-        mSearchedFor = tv.getText().toString();
+        String searchedFor = tv.getText().toString();
         tv.setText("");
 
+        LatLng position = searchLocation((String) searchedFor);
+        placeAndZoomOnMarker(position, mZoomLevel);
+
+    }
+
+
+    private LatLng searchLocation(String searchedFor) throws IOException {
         Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(String.valueOf(mSearchedFor), 1);
+        List<Address> list = gc.getFromLocationName(String.valueOf(searchedFor), 1);
+
+        LatLng position = null;
 
         if (list.size() > 0) {
             Address adr = list.get(0);
-            String locality = adr.getLocality();
-
 
             double lat = adr.getLatitude();
             double lng = adr.getLongitude();
-            LatLng location = new LatLng(lat, lng);
-
-            gotoLocation(location, ZOOM_NORMAL);
-            addMarker(location);
+            position = new LatLng(lat, lng);
         }
+
+        return position;
+    }
+
+
+
+    private void placeAndZoomOnMarker(LatLng position, float zoom) {
+        gotoLocation(position, zoom);
+        addMarker(position);
     }
 
 
@@ -694,15 +777,24 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
 
     /*
-    * When the info window is clicked, we will launch the NavPagerActivity
-    * allowing us to edit texts or delete a marker. To achieve that we pass
-    * along the currentMarkerIndex (index of the last clicked marker)
-    */
+     * When the info window is clicked, we will launch the NavPagerActivity
+     * allowing us to edit texts or delete a marker. To achieve that we pass
+     * along the currentMarkerIndex (index of the last clicked marker)
+     */
     @Override
     public void onInfoWindowClick(Marker marker) {
         Intent intent = NavPagerActivity.newIntent(this, currentMarkerIndex);
         startActivityForResult(intent, REQUEST_M_ID);
         marker.hideInfoWindow();
+    }
+
+
+
+    private void writePreferenceChanges() {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putString("zoomLevel", String.format(Locale.US, "%.1f",mZoomLevel));
+        editor.apply();
+
     }
 
 

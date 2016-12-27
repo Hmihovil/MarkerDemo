@@ -33,6 +33,9 @@
             android:name=".NavPagerActivity">
         </activity>
         <activity
+            android:name=".MarkerPreferenceActivity">
+        </activity>
+        <activity
             android:name=".GlobalNavValActivity">
         </activity>
         <activity

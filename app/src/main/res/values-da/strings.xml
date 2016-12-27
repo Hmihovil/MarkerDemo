@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MarkerDemo</string>
+    <string name="location_label">Lokation</string>
+    <string name="satellite">Satellit</string>
+    <string name="terrain">Terræn</string>
+    <string name="action_settings">Indstillinger</string>
+</resources>

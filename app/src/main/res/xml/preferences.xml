@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="startLocation"
+        android:title="@string/startTitle"
+        android:defaultValue="Roskilde airport, Denmark"
+        android:summary="@string/startSummary" />
+    <EditTextPreference
+        android:key="zoomLevel"
+        android:title="zoomLevel"
+        android:defaultValue="10.0"
+        android:summary="@string/zoomSummary" />
+     <ListPreference
+         android:key="mapType"
+         android:title="@string/map_type_title"
+         android:summary="@string/map_type_title"
+         android:defaultValue="1"
+         android:entries="@array/listArrayMapType"
+         android:entryValues="@array/listValuesMapType" />
+    <CheckBoxPreference
+        android:key="navAids"
+        android:title="@string/navaids_title"
+        android:summary="@string/navaids_summary"
+        android:defaultValue="true"/>
+    </PreferenceScreen>
