@@ -395,6 +395,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
      * For zoom levels above 14 it seems there is n need for this functionality as the native
      * airport markers start to appear in Google Maps.
      *
+     * Zooming out over level 7 makes the maps ugly because of the extra large icons, so they
+     * are hidden at these levels as well
      *
      */
     private void plotAerodromes() {
@@ -417,7 +419,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
 
-        if (mHideADicons || mZoomLevel > 14) {
+        if (mHideADicons || mZoomLevel > 14 || mZoomLevel<7) {
             for (Marker m : mADMarkers) {
                 m.setVisible(false);
             }
@@ -463,7 +465,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         }
 
 
-        if (mHideNavAidIcons || mZoomLevel >16) {
+        if (mHideNavAidIcons || mZoomLevel >16 || mZoomLevel<7) {
             // Preference off for AD markers - hide them
             for (Marker m : mNavAidMarkers) {
                 m.setVisible(false);
