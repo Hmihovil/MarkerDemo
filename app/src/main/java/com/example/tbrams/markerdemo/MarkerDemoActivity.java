@@ -73,6 +73,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private static GoogleMap mMap;
     private SharedPreferences mSharedPrefs;
     private float mZoomLevel;
+    private boolean mMapTypeChangedByZoom=false;
 
 
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
@@ -217,25 +218,20 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                 public void onCameraIdle() {
                     CameraPosition cameraPosition = mMap.getCameraPosition();
                     mZoomLevel=cameraPosition.zoom;
-
                     Log.d("TBR:", "Camera Idle, zoomlevel: "+ mZoomLevel);
 
                     writePreferenceChanges();
 
                     if(mZoomLevel> 16.0) {
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                        mMapTypeChangedByZoom = true;
                     } else {
-                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                        double pixelSizeAtZoom14 = 200; //the size of the icon at zoom level 0
-                        int maxPixelSize = 35000;   //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
-                        Log.d("TBR:", "Exponent: " + Math.pow(2,(mZoomLevel-14)));
-                        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(mZoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
-
-                        if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
-                            relativePixelSize = maxPixelSize;
-
-                        Log.d("TBR:", "Relative Pixel size: " + relativePixelSize);
-                        plotNavAidsUpdate(relativePixelSize);
+                        // Switch back to preferred map type after "forced" change due to zoom
+                        if (mMapTypeChangedByZoom) {
+                            updateMapType();
+                            mMapTypeChangedByZoom = false;
+                        }
+                        plotNavAids();
                     }
                 }
             });
@@ -359,37 +355,49 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     }
 
     private void plotNavAids() {
-        // Plot VOR navigation aids on the map
-        // Use customized markers for this - hopefully resizeable
-        // Still need to keep a record and update them instead of re-creating I think
-
-        for (int i=0;i<vorList.size();i++) {
-            Marker m= mMap.addMarker(new MarkerOptions()
-                    .title(vorList.get(i).getName())
-                    .snippet(Double.toString(vorList.get(i).getPosition().latitude)+", "+
-                             Double.toString(vorList.get(i).getPosition().latitude))
-                    .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue)));
-            mNavAidMarkers.add(m);
-            Log.d("TBR:", "VOR Name "+m.getTitle()+" ID: "+m.getId());
+        // Plot VOR navigation aids on the map as customized markers
+        if (mNavAidMarkers.size()==0) {
+            // Create all NavAids markers and keep record in an ArrayList
+            for (int i = 0; i < vorList.size(); i++) {
+                Marker m = mMap.addMarker(new MarkerOptions()
+                        .title(vorList.get(i).getName())
+                        .snippet(String.format("%.4f", vorList.get(i).getPosition().latitude) + ", " +
+                                String.format("%.4f", vorList.get(i).getPosition().latitude))
+                        .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue)));
+                mNavAidMarkers.add(m);
+                Log.d("TBR:", "VOR Name " + m.getTitle() + " ID: " + m.getId());
+            }
+        } else {
+            // Update size of each NavAidMarker relative to zoom level
+            for (Marker m : mNavAidMarkers) {
+                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_vor_blue")));
+            }
         }
     }
 
 
-    private void plotNavAidsUpdate(int size) {
-        // Plot VOR navigation aids on the map
+    public Bitmap resizeMapIcons(String iconName){
 
-        // Use customized markers for this - hopefully resizeable
-        for (Marker m : mNavAidMarkers) {
-            m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_vor_blue",size,size)));
+        // Try to get the sizing right
+        // At ZoomLevel 12 60px
 
-        }
-    }
+        // At Zoomlevel  12 100px ... not more than that
+        // 13.9  233  seems OK
 
-    public Bitmap resizeMapIcons(String iconName,int width, int height){
+        double pixelSizeAtZoom14 = 250; //the size of the icon at zoom level 0
+        int maxPixelSize = 150;       //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
+        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(mZoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
+
+        if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
+            relativePixelSize = maxPixelSize;
+
+        Log.d("TBR:", "Rel pixel size: "+relativePixelSize);
+
+        // Create bitmap from drawable and size it.. if it makes sense
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
-        if ((width >0)&&(height>0)) {
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
-        return resizedBitmap;
+        if (relativePixelSize>0) {
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, relativePixelSize, relativePixelSize, false);
+            return resizedBitmap;
         } else {
             return imageBitmap;
         }
