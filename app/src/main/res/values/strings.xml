@@ -13,9 +13,9 @@
     <string name="zoomSummary">Preferred zoom level</string>
     <string name="startTitle">Start location</string>
     <string name="startSummary">Preferred start location</string>
-    <string name="navaids_title"><![CDATA[>Navigational Aids]]></string>
-    <string name="navaids_summary">Select if you prefer to have navigational aids on the map</string>
+    <string name="AD_title">Aerodrome Icons</string>
+    <string name="navaids_title">Navigational Icons</string>
+    <string name="AD_summary">Select if you prefer to have Aerodrome icons on the map</string>
+    <string name="navaids_summary">Select if you prefer to have navigational icons on the map</string>
     <string name="preferences">Preferences</string>
-
-
 </resources>

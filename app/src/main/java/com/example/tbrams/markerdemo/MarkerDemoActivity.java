@@ -84,6 +84,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private final NavAids navaids = NavAids.get(this);
     private final List<NavAid> vorList = navaids.getList();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
+    private boolean mHideADicons = false;
+    private boolean mHideNavAidIcons = false;
+
 
     private final Aerodromes aerodromes = Aerodromes.get(this);
     private final List<Aerodrome> ADList = aerodromes.getList();
@@ -113,6 +116,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        updatePreferenceFlags();
 
 
         mVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
@@ -227,7 +231,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                 public void onCameraIdle() {
                     CameraPosition cameraPosition = mMap.getCameraPosition();
                     mZoomLevel=cameraPosition.zoom;
-                    Log.d("TBR:", "Camera Idle, zoomlevel: "+ mZoomLevel);
+                    Log.d("TBR:", "Camera Idle Listener, zoomlevel: "+ mZoomLevel);
 
                     writePreferenceChanges();
 
@@ -240,7 +244,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                             updateMapType();
                             mMapTypeChangedByZoom = false;
                         }
+
+                        // Update both Aerodromes and Navaid icons was well
                         plotNavAids();
+                        plotAerodromes();
                     }
                 }
             });
@@ -375,33 +382,73 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     }
 
+
+
+    /*
+     * Plot Aerodrome icons on the map with customized markers
+     * All markers are initially created and filed away in the mADMarkers list. Everything is
+     * Offset 50% in both directions, so they will center on the position of the AD.
+     *
+     * When the markers are already done, all we need to do is resize the icon depending on
+     * the Zoom level.
+     *
+     * For zoom levels above 14 it seems there is n need for this functionality as the native
+     * airport markers start to appear in Google Maps.
+     *
+     *
+     */
     private void plotAerodromes() {
-        // Plot Aerodromes on the map as customized markers
-        String iconName="ic_device_airplanemode_on";
-        int    iconInt= R.drawable.ic_device_airplanemode_on;
-        if (mADMarkers.size()==0) {
+
+        // Create the markers if not alrady there
+        String iconName = "ic_device_airplanemode_on";
+        int iconInt = R.drawable.ic_device_airplanemode_on;
+        if (mADMarkers.size() == 0) {
             // Create all AD markers and keep record in an ArrayList
             for (int i = 0; i < ADList.size(); i++) {
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .title(ADList.get(i).getIcaoName())
                         .snippet(ADList.get(i).getName())
                         .position(ADList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
+
+                m.setAnchor(0.5f, .5f);
                 mADMarkers.add(m);
-                Log.d("TBR:", "AD Name " + m.getTitle() + " ID: " + m.getId());
+            }
+        }
+
+
+
+        if (mHideADicons || mZoomLevel > 14) {
+            for (Marker m : mADMarkers) {
+                m.setVisible(false);
             }
         } else {
+
             // Update size of each ADMarker relative to zoom level
             for (Marker m : mADMarkers) {
-                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
+                m.setVisible(true);
+         //       m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
             }
         }
     }
 
+
+ /*
+ * Plot NavAid icons on the map with customized markers
+ * All markers are initially created and filed away in the m list. Everything is
+ * Offset 50% in both directions, so they will center on the position of the AD.
+ *
+ * When the markers are already done, all we need to do is resize the icon depending on
+ * the Zoom level.
+ *
+ * For zoom levels above 16 ??? the map type will be changed to Hybrid and there is no longer need
+ * for this marker.
+ *
+ */
     private void plotNavAids() {
-        // Plot VOR navigation aids on the map as customized markers
-        String iconName="ic_device_gps_fixed";
-        int    iconInt= R.drawable.ic_device_gps_fixed;
-        if (mNavAidMarkers.size()==0) {
+
+        String iconName = "ic_device_gps_fixed";
+        int iconInt = R.drawable.ic_device_gps_fixed;
+        if (mNavAidMarkers.size() == 0) {
             // Create all NavAids markers and keep record in an ArrayList
             for (int i = 0; i < vorList.size(); i++) {
                 Marker m = mMap.addMarker(new MarkerOptions()
@@ -409,17 +456,42 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                         .snippet(String.format("%.4f", vorList.get(i).getPosition().latitude) + ", " +
                                 String.format("%.4f", vorList.get(i).getPosition().longitude))
                         .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
+
+                m.setAnchor(.5f, .5f);
                 mNavAidMarkers.add(m);
-                Log.d("TBR:", "VOR Name " + m.getTitle() + " ID: " + m.getId());
             }
-        } else {
+        }
+
+
+        if (mHideNavAidIcons || mZoomLevel >16) {
+            // Preference off for AD markers - hide them
+            for (Marker m : mNavAidMarkers) {
+                m.setVisible(false);
+            }
+       } else {
             // Update size of each NavAidMarker relative to zoom level
             for (Marker m : mNavAidMarkers) {
-                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
+                m.setVisible(true);
+              //  m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
             }
         }
     }
 
+
+
+    private Dimension getDimensions(String iconName) {
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Dimension d = new Dimension();
+        d.w=imageBitmap.getWidth();
+        d.h=imageBitmap.getHeight();
+
+        return d;
+    }
+
+
+    private static class Dimension {
+        int w,h;
+    }
 
     public Bitmap resizeMapIcons(String iconName){
 
@@ -717,15 +789,19 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
         } else if (requestCode == SETTINGS_RESULT) {
-            // A preference has been changed
+            // A preference has been changed - update the member variables and refresh the display
 
-            // If we need to do something, like if the NAVAIDs has been toggled - this is the place
-            // TODO: Navaids display update
+            updatePreferenceFlags();
 
             updateMapType();
             updateZoom();
         }
 
+    }
+
+    private void updatePreferenceFlags() {
+        mHideADicons = ! mSharedPrefs.getBoolean("ADs", true);
+        mHideNavAidIcons = ! mSharedPrefs.getBoolean("navAids", true);
     }
 
 

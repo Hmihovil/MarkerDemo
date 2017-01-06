@@ -33,7 +33,11 @@
             android:name=".NavPagerActivity">
         </activity>
         <activity
-            android:name=".MarkerPreferenceActivity">
+            android:name=".MarkerPreferenceActivity"
+            android:parentActivityName=".MarkerDemoActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.tbrams.markerdemo.MarkerDemoActivity"/>
         </activity>
         <activity
             android:name=".GlobalNavValActivity">

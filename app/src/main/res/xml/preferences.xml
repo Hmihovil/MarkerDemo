@@ -22,4 +22,9 @@
         android:title="@string/navaids_title"
         android:summary="@string/navaids_summary"
         android:defaultValue="true"/>
-    </PreferenceScreen>
+    <CheckBoxPreference
+        android:key="ADs"
+        android:title="@string/AD_title"
+        android:summary="@string/AD_summary"
+        android:defaultValue="true"/>
+</PreferenceScreen>
