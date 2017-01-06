@@ -4,11 +4,13 @@ package com.example.tbrams.markerdemo.data;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Aerodrome {
+    private String icaoName;
     private String name;
     private LatLng position;
 
-    public Aerodrome(String name, String position) {
-        this.name = name;
+    public Aerodrome(String name, String fullname, String position) {
+        this.icaoName = name;
+        this.name = fullname;
         this.position = convertVFG(position);
     }
 
@@ -28,6 +30,13 @@ public class Aerodrome {
         this.position = position;
     }
 
+    public String getIcaoName() {
+        return icaoName;
+    }
+
+    public void setIcaoName(String icaoName) {
+        this.icaoName = icaoName;
+    }
 
     // Convert format used in VFG Denmark ADC to internal location form
     // For example "57 05 34.04N 009 50 56.99E"

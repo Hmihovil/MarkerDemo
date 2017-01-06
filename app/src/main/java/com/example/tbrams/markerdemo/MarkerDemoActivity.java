@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.data.Aerodrome;
+import com.example.tbrams.markerdemo.data.Aerodromes;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
@@ -78,9 +80,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     private final List<MarkerObject> markerList = markerLab.getMarkers();
+
     private final NavAids navaids = NavAids.get(this);
     private final List<NavAid> vorList = navaids.getList();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
+
+    private final Aerodromes aerodromes = Aerodromes.get(this);
+    private final List<Aerodrome> ADList = aerodromes.getList();
+    private final List<Marker> mADMarkers = new ArrayList<>();
 
 
     private final static List<Marker> midpointList = new ArrayList<>();
@@ -211,6 +218,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
             plotNavAids();
+            
+            plotAerodromes();
 
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -252,12 +261,24 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     Log.d("TBR:","Marker Id: "+marker.getId());
                     Log.d("TBR:","Marker pos: "+marker.getPosition());
 
+
+                    // check if a NavAid has been clicked
                     for (Marker m : mNavAidMarkers) {
                         if (marker.getId().equals(m.getId())) {
                             Log.d("TBR:","NavAid marker clicked");
                             return null;
                         }
                     }
+
+                    // check if an Aerodrome has been clicked
+                    for (Marker m : mADMarkers) {
+                        if (marker.getId().equals(m.getId())) {
+                            Log.d("TBR:","AD marker clicked");
+                            return null;
+                        }
+                    }
+
+
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
 
                     TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
@@ -354,23 +375,47 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     }
 
+    private void plotAerodromes() {
+        // Plot Aerodromes on the map as customized markers
+        String iconName="ic_device_airplanemode_on";
+        int    iconInt= R.drawable.ic_device_airplanemode_on;
+        if (mADMarkers.size()==0) {
+            // Create all AD markers and keep record in an ArrayList
+            for (int i = 0; i < ADList.size(); i++) {
+                Marker m = mMap.addMarker(new MarkerOptions()
+                        .title(ADList.get(i).getIcaoName())
+                        .snippet(ADList.get(i).getName())
+                        .position(ADList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
+                mADMarkers.add(m);
+                Log.d("TBR:", "AD Name " + m.getTitle() + " ID: " + m.getId());
+            }
+        } else {
+            // Update size of each ADMarker relative to zoom level
+            for (Marker m : mADMarkers) {
+                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
+            }
+        }
+    }
+
     private void plotNavAids() {
         // Plot VOR navigation aids on the map as customized markers
+        String iconName="ic_device_gps_fixed";
+        int    iconInt= R.drawable.ic_device_gps_fixed;
         if (mNavAidMarkers.size()==0) {
             // Create all NavAids markers and keep record in an ArrayList
             for (int i = 0; i < vorList.size(); i++) {
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .title(vorList.get(i).getName())
                         .snippet(String.format("%.4f", vorList.get(i).getPosition().latitude) + ", " +
-                                String.format("%.4f", vorList.get(i).getPosition().latitude))
-                        .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue)));
+                                String.format("%.4f", vorList.get(i).getPosition().longitude))
+                        .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
                 mNavAidMarkers.add(m);
                 Log.d("TBR:", "VOR Name " + m.getTitle() + " ID: " + m.getId());
             }
         } else {
             // Update size of each NavAidMarker relative to zoom level
             for (Marker m : mNavAidMarkers) {
-                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_vor_blue")));
+                m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
             }
         }
     }
@@ -384,7 +429,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // At Zoomlevel  12 100px ... not more than that
         // 13.9  233  seems OK
 
-        double pixelSizeAtZoom14 = 250; //the size of the icon at zoom level 0
+        double pixelSizeAtZoom14 = 500; //the size of the icon at zoom level 0
         int maxPixelSize = 150;       //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
         int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(mZoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
 
@@ -727,7 +772,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         TextView tv = (TextView) findViewById(R.id.editText1);
         // check for help request
         if (String.valueOf(tv.getText()).matches(":help")) {
-            tv.setError("Special commands:\n:Navaids - list navaids\nStill not implemented\nAnd this not either...");
+            tv.setError("Special commands:\n:Navaids - list navaids\n" +
+                    ":ad - list installed aerodromes");
             tv.setText("");
             return;
         }
@@ -737,6 +783,17 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             String miniHelp="Valid names:\n";
             for (NavAid n : vorList) {
                 miniHelp += n.getName() + "\n";
+            }
+            tv.setError(miniHelp);
+            tv.setText("");
+            return;
+        }
+
+        // check if special command aerodromes
+        if (String.valueOf(tv.getText()).matches(":ad")) {
+            String miniHelp="Installed Aerodromes:\n";
+            for (Aerodrome n : ADList) {
+                miniHelp += n.getIcaoName() + "\n";
             }
             tv.setError(miniHelp);
             tv.setText("");
@@ -754,6 +811,15 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                 return;
             }
         }
+
+        // Check existing AD names - they are (probably) not in Google Places
+        for (Aerodrome n : ADList) {
+            if (n.getIcaoName().equals(mSearchedFor)) {
+                placeAndZoomOnMarker(n.getPosition(), mZoomLevel);
+                return;
+            }
+        }
+
 
         // Look up location name
         LatLng position = searchLocation((String) mSearchedFor);
