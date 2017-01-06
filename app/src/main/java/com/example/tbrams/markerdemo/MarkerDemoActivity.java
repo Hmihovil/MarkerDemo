@@ -725,6 +725,25 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.editText1);
+        // check for help request
+        if (String.valueOf(tv.getText()).matches(":help")) {
+            tv.setError("Special commands:\n:Navaids - list navaids\nStill not implemented\nAnd this not either...");
+            tv.setText("");
+            return;
+        }
+
+        // check if special command :navaids
+        if (String.valueOf(tv.getText()).matches(":navaids")) {
+            String miniHelp="Valid names:\n";
+            for (NavAid n : vorList) {
+                miniHelp += n.getName() + "\n";
+            }
+            tv.setError(miniHelp);
+            tv.setText("");
+            return;
+        }
+
+
         mSearchedFor = tv.getText().toString();
         tv.setText("");
 
