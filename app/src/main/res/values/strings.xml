@@ -18,4 +18,9 @@
     <string name="AD_summary">Select if you prefer to have Aerodrome icons on the map</string>
     <string name="navaids_summary">Select if you prefer to have navigational icons on the map</string>
     <string name="preferences">Preferences</string>
+    <string name="settings">Settings</string>
+    <string name="resetDb">Reset DB</string>
+    <string name="clearDb">Clear DB</string>
+    <string name="seedDb">Load DB</string>
+    <string name="resetDbSummary">Reset the entire Database</string>
 </resources>
