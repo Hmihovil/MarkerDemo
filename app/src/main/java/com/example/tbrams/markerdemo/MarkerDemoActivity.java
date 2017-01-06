@@ -3,6 +3,8 @@ package com.example.tbrams.markerdemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -33,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
@@ -52,7 +55,9 @@ import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
 import static com.google.maps.android.SphericalUtil.computeHeading;
 import static com.google.maps.android.SphericalUtil.interpolate;
 
-public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+public class MarkerDemoActivity extends AppCompatActivity implements
+        OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener {
 
     private static final int REQUEST_M_ID=1;
     private static final int REQUEST_GLOBAL_VARS=2;
@@ -74,6 +79,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
     private final List<MarkerObject> markerList = markerLab.getMarkers();
     private final NavAids navaids = NavAids.get(this);
     private final List<NavAid> vorList = navaids.getList();
+    private final List<Marker> mNavAidMarkers = new ArrayList<>();
+
 
     private final static List<Marker> midpointList = new ArrayList<>();
     private static Polyline polyline;
@@ -174,9 +181,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
      * Called by getMapAsync when ready
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap map) {
 
-        mMap = googleMap;
+        mMap = map;
 
         // Check map type preference and update the map here
         updateMapType();
@@ -189,44 +196,49 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
             e.printStackTrace();
         }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,mZoomLevel));
-
-
-
-
-
-
-        // Disable the navigation toolbar that will otherwise pop up after setting a marker
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-
-        // Plot VOR navigation aids on the map
-        for (int i=0;i<vorList.size();i++) {
-            LatLng vorPos = vorList.get(i).getPosition();
-            GroundOverlayOptions newarkMap = new GroundOverlayOptions()
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue))
-                    .position(vorPos, 240f, 240f);
-
-            mMap.addGroundOverlay(newarkMap);
-        }
-
-
-
-        // TODO: consider making the nav aids icons visible at all zooms here, for now just change to
-        // hybrid above zoom level 16
-        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-                CameraPosition cameraPosition = mMap.getCameraPosition();
-                if(cameraPosition.zoom > 16.0) {
-                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                } else {
-                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-            }
-        });
 
 
         if (mMap!=null) {
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,mZoomLevel));
+
+            // Disable the navigation toolbar that will otherwise pop up after setting a marker
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+            // Enable my location button though
+
+
+            //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+            plotNavAids();
+
+
+            mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                @Override
+                public void onCameraIdle() {
+                    CameraPosition cameraPosition = mMap.getCameraPosition();
+                    mZoomLevel=cameraPosition.zoom;
+
+                    Log.d("TBR:", "Camera Idle, zoomlevel: "+ mZoomLevel);
+
+                    writePreferenceChanges();
+
+                    if(mZoomLevel> 16.0) {
+                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    } else {
+                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        double pixelSizeAtZoom14 = 200; //the size of the icon at zoom level 0
+                        int maxPixelSize = 35000;   //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
+                        Log.d("TBR:", "Exponent: " + Math.pow(2,(mZoomLevel-14)));
+                        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(mZoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
+
+                        if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
+                            relativePixelSize = maxPixelSize;
+
+                        Log.d("TBR:", "Relative Pixel size: " + relativePixelSize);
+                        plotNavAidsUpdate(relativePixelSize);
+                    }
+                }
+            });
 
 
             // This is where the Way Point data is shown and can be edited if clicked
@@ -239,6 +251,17 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
                 @Override
                 public View getInfoContents(Marker marker) {
+                    Log.d("TBR:", "Marker "+marker.getTitle());
+                    Log.d("TBR:","Marker snippet: "+marker.getSnippet());
+                    Log.d("TBR:","Marker Id: "+marker.getId());
+                    Log.d("TBR:","Marker pos: "+marker.getPosition());
+
+                    for (Marker m : mNavAidMarkers) {
+                        if (marker.getId().equals(m.getId())) {
+                            Log.d("TBR:","NavAid marker clicked");
+                            return null;
+                        }
+                    }
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
 
                     TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
@@ -322,15 +345,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         });
 
 
-        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-                CameraPosition cameraPosition = mMap.getCameraPosition();
-                mZoomLevel=cameraPosition.zoom;
-
-                writePreferenceChanges();
-            }
-        });
 
         LatLng startPos=null;
         try {
@@ -342,6 +356,43 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos,mZoomLevel));
 
+    }
+
+    private void plotNavAids() {
+        // Plot VOR navigation aids on the map
+        // Use customized markers for this - hopefully resizeable
+        // Still need to keep a record and update them instead of re-creating I think
+
+        for (int i=0;i<vorList.size();i++) {
+            Marker m= mMap.addMarker(new MarkerOptions()
+                    .title(vorList.get(i).getName())
+                    .snippet(Double.toString(vorList.get(i).getPosition().latitude)+", "+
+                             Double.toString(vorList.get(i).getPosition().latitude))
+                    .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_vor_blue)));
+            mNavAidMarkers.add(m);
+            Log.d("TBR:", "VOR Name "+m.getTitle()+" ID: "+m.getId());
+        }
+    }
+
+
+    private void plotNavAidsUpdate(int size) {
+        // Plot VOR navigation aids on the map
+
+        // Use customized markers for this - hopefully resizeable
+        for (Marker m : mNavAidMarkers) {
+            m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_vor_blue",size,size)));
+
+        }
+    }
+
+    public Bitmap resizeMapIcons(String iconName,int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        if ((width >0)&&(height>0)) {
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
+        } else {
+            return imageBitmap;
+        }
     }
 
     private void updateMapType() {
@@ -367,7 +418,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         mZoomLevel = (float) Double.parseDouble(mSharedPrefs.getString("zoomLevel","10."));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(mZoomLevel), 1000, null);
     }
-
 
 
     /*
@@ -796,6 +846,5 @@ public class MarkerDemoActivity extends AppCompatActivity implements OnMapReadyC
         editor.apply();
 
     }
-
 
 }
