@@ -725,10 +725,19 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.editText1);
-        String searchedFor = tv.getText().toString();
+        mSearchedFor = tv.getText().toString();
         tv.setText("");
 
-        LatLng position = searchLocation((String) searchedFor);
+        // Check existing NavAid names - they are not in Google Places
+        for (NavAid n : vorList) {
+            if (n.getName().equals(mSearchedFor)) {
+                placeAndZoomOnMarker(n.getPosition(), mZoomLevel);
+                return;
+            }
+        }
+
+        // Look up location name
+        LatLng position = searchLocation((String) mSearchedFor);
         placeAndZoomOnMarker(position, mZoomLevel);
 
     }
