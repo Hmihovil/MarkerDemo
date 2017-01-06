@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class NavAid {
     private String name;
+    private int    max_range;
+    private int    max_alt;
     private LatLng position;
 
     public LatLng getPosition() {
@@ -47,6 +49,34 @@ public class NavAid {
         }
         return dd+mm/60+ss/3600;
     }
+
+    public int getMax_range() {
+        return max_range;
+    }
+
+    public void setMax_range(int max_range) {
+        this.max_range = max_range;
+    }
+
+    public int getMax_alt() {
+        return max_alt;
+    }
+
+    public void setMax_alt(int max_alt) {
+        this.max_alt = max_alt;
+    }
+
+
+    @Override
+    public String toString() {
+        return "NavAid{" +
+                "name='" + name + '\'' +
+                ", max_range=" + max_range +
+                ", max_alt=" + max_alt +
+                ", position=" + position +
+                '}';
+    }
+
 }
 
 

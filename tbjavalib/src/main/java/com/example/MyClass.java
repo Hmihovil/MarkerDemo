@@ -2,19 +2,22 @@ package com.example;
 
 public class MyClass {
     public static void main(String[] args){
+       System.out.println(convertVFG("57 05 34.04N 009 50 56.99E"));
+    }
 
-        MagneticModel mM = new MagneticModel();
-        mM.setLocation(55.32,	10.57);
+    // For example "57 05 34.04N 009 50 56.99E"
+    static String convertVFG(String input) {
+        String[] parts=input.split(" ");
+        parts[2]=parts[2].substring(0,5);
+        parts[5]=parts[5].substring(0,5);
+        for (int i = 0; i < parts.length; i++) {
+            System.out.println("part "+i+": "+parts[i]);
+        }
 
-        System.out.println("Declination is: "+mM.getDeclination());
-        System.out.println("Inclination is: "+mM.getInclination());
-        System.out.println("Z Field vector Downwards: "+mM.getFieldVectorDownwards());
-        System.out.println("Y Field vector Eastern: "+mM.getFieldVectorEastern());
-        System.out.println("X Field vector Northen is: "+mM.getFieldVectorNorthern());
-        System.out.println("Field Strength is: "+mM.getFieldStrength());
-        System.out.println("Horizontal Field strength is: "+mM.getHorizontalFieldStrength());
-        System.out.println("Grivation is: "+mM.getGrivation());
+        Double lat = Double.parseDouble(parts[0])+Double.parseDouble(parts[1])/60+Double.parseDouble(parts[2])/3600;
+        Double lon = Double.parseDouble(parts[3])+Double.parseDouble(parts[4])/60+Double.parseDouble(parts[5])/3600;
 
+        return "("+lat+", "+lon+")";
     }
 }
 
