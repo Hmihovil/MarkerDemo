@@ -53,6 +53,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
+import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
 import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
 import static com.google.maps.android.SphericalUtil.computeHeading;
 import static com.google.maps.android.SphericalUtil.interpolate;
@@ -114,6 +116,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         // make sure we have default values by running this first time a user launches the app
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Get trip and wp index from extra arguments
+        String tripId = getIntent().getStringExtra(TRIP_KEY);
+        String wpId     = getIntent().getStringExtra(WP_KEY);
+        Log.d("TBR:","Received Trip id: " + tripId+" and wp id: "+wpId);
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         updatePreferenceFlags();
@@ -308,7 +315,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     TextView tvDist = (TextView) v.findViewById(R.id.textDist);
                     TextView tvHead = (TextView) v.findViewById(R.id.textHeading);
                     tvDist.setText(String.format("%.1f nm", dist));
-                    tvHead.setText(String.format("%.0f ˚", heading));
+                    tvHead.setText(String.format("%.0f ", heading)+DEGREES);
 
                     return v;
 

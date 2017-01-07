@@ -31,7 +31,7 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Get trip id from intent extra storage
-        mId = getIntent().getExtras().getString(TripAdapter.ITEM_KEY);
+        mId = getIntent().getExtras().getString(TripAdapter.TRIP_KEY);
         if (mId == null) {
             Log.d("TBR:", "DetailActivity received a null id from extras");
         }

@@ -16,12 +16,11 @@ import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
+import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
 
 
 public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
-    public static final String ITEM_ID_KEY = "item_id_key";
-    public static final String ITEM_KEY = "item_key";
 
     private List<WpItem> mWpList;
     private Context    mContext;
@@ -141,7 +140,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
                 Toast.makeText(mContext, "We are in Trip Selection mode", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(mContext, MarkerDemoActivity.class);
-                intent.putExtra(ITEM_KEY, wp.getTripIndex());
+                intent.putExtra(TRIP_KEY, wp.getTripIndex());
                 intent.putExtra(WP_KEY, wp.getWpId());
                 Log.d("TBR","Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
                 mContext.startActivity(intent);
