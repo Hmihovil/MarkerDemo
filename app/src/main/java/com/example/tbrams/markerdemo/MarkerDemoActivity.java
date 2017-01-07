@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.Aerodromes;
@@ -105,6 +106,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private Object mSearchedFor;
     private String mTripId;
     private String mWpId;
+    private boolean mPlanUpdated=false;
 
 
     @Override
@@ -114,15 +116,30 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    public void onBackPressed() {
+        super.onBackPressed();
 
-        Log.d("TBR:", "OnPause called");
+        Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
+
+        // if trip has been updated we should offer to save it here
+        if (mPlanUpdated) {
+            Toast.makeText(this, "Something was changed ... offer save to DB", Toast.LENGTH_SHORT).show();
+            // Do something...
+
+        }
+
+        // Clean up ...
         mMap.clear();
         markerList.clear();
         midpointList.clear();
         polyline.remove();
         polyline=null;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
     }
 
     @Override
@@ -288,7 +305,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
                 @Override
                 public View getInfoContents(Marker marker) {
-                    Log.d("TBR:", "Marker "+marker.getTitle());
+                    Log.d("TBR:", "Marker title: "+marker.getTitle());
                     Log.d("TBR:","Marker snippet: "+marker.getSnippet());
                     Log.d("TBR:","Marker Id: "+marker.getId());
                     Log.d("TBR:","Marker pos: "+marker.getPosition());
@@ -305,7 +322,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     // check if an Aerodrome has been clicked
                     for (Marker m : mADMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d("TBR:","AD marker clicked");
+                            Log.d("TBR:","Aerodrome marker clicked");
                             return null;
                         }
                     }
@@ -386,6 +403,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
+                
+                mPlanUpdated = true;
+
                 mVib.vibrate(50);
                 updateMarkerInfo(marker);
                 updatePolyline();
@@ -751,7 +771,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
     /*
-     * This is where we will get to when another activity is terminated. We shou;ld be able
+     * This is where we will get to when another activity is terminated. We should be able
      * to process a markerIndex along with a code indicating how we are supposed to act on it
      */
     @Override
@@ -760,61 +780,78 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         if (requestCode == REQUEST_M_ID) {
 
+            // This is for handling results after showing the Waypoint Info Screen
+            
             if (data!=null) {
                 int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
                 Log.d("TBR:", "onActivityResult: Received markerIndex:"+markerIndex);
+                
+                Marker m=null;
+                switch (resultCode) {
+                    case InfoEditFragment.ACTION_CANCEL:
+                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_CANCEL");
+                        m=markerList.get(markerIndex).getMarker();
+                        gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+                        break;
 
-                if (resultCode == InfoEditFragment.ACTION_UPDATE || resultCode==InfoEditFragment.ACTION_CANCEL) {
-                    Marker m=markerList.get(markerIndex).getMarker();
-                    gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+                    case NavPagerActivity.ACTION_UPDATE:
+                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_UPDATE");
+                        m=markerList.get(markerIndex).getMarker();
+                        gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+                        mPlanUpdated=true;
+                        break;
+                    
+                    
+                    case InfoEditFragment.ACTION_DELETE:
+                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_DELETE");
 
-                } else if (resultCode == InfoEditFragment.ACTION_DELETE ) {
+                        // Prepare for undoing later by storing both marker and position in track
+                        mUndoDeleteIndex = markerIndex;
+                        mUndoDeleteMarker = new MarkerObject();
+                        mUndoDeleteMarker = markerList.get(markerIndex);
 
-                    // This is for handling results after showing the Waypoint Info Screen
+                        // Delete physical marker and then the MarkerObject
+                        markerList.get(markerIndex).getMarker().remove();
+                        markerList.remove(markerIndex);
+                        updatePolyline();
 
-                    // Prepare for undoing later by storing both marker and position in track
-                    mUndoDeleteIndex = markerIndex;
-                    mUndoDeleteMarker = new MarkerObject();
-                    mUndoDeleteMarker = markerList.get(markerIndex);
-
-                    // Delete physical marker and then the MarkerObject
-                    markerList.get(markerIndex).getMarker().remove();
-                    markerList.remove(markerIndex);
-                    updatePolyline();
-
-                    // Make a snackbar message offering undo
-                    Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
-                            .setAction("Undo", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    int previousIndex = mUndoDeleteIndex-1;
-                                    if (previousIndex>=0) {
-                                        addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
-                                    } else {
-                                        addMarker(mUndoDeleteMarker.getMarker().getPosition());
+                        // Make a snackbar message offering undo
+                        Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
+                                .setAction("Undo", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        int previousIndex = mUndoDeleteIndex-1;
+                                        if (previousIndex>=0) {
+                                            addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
+                                        } else {
+                                            addMarker(mUndoDeleteMarker.getMarker().getPosition());
+                                        }
+                                        // reset undo variables
+                                        mUndoDeleteMarker=null;
+                                        mUndoDeleteIndex=-1;
                                     }
-                                    // reset undo variables
-                                    mUndoDeleteMarker=null;
-                                    mUndoDeleteIndex=-1;
-                                }
-                            })
-                            .setActionTextColor(Color.RED)
-                            .show();
+                                })
+                                .setActionTextColor(Color.RED)
+                                .show();
+
+                        break;
                 }
             }
         } else if (requestCode == REQUEST_GLOBAL_VARS) {
 
             // This is for handling results after getting global navigation variables
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d("TBR:","Result OK received from GlobalNavValFragment");
+            
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    Log.d("TBR:","Result OK received from GlobalNavValFragment");
 
-                Intent intent = DetailPagerActivity.newIntent(this, currentMarkerIndex);
-                startActivity(intent);
-
-
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                Log.d("TBR:", "Result Cancelled from GlobalNavValFragment");
-
+                    Intent intent = DetailPagerActivity.newIntent(this, currentMarkerIndex);
+                    startActivity(intent);
+                    break;
+                
+                case Activity.RESULT_CANCELED:
+                    Log.d("TBR:", "Result Cancelled from GlobalNavValFragment");
+                    break;
             }
 
 
@@ -967,6 +1004,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
      */
     private void addMarker(LatLng loc) {
 
+        mPlanUpdated = true;
+
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
 
@@ -989,6 +1028,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
      *
      */
     private void addMarker(LatLng loc, int afterThis) {
+
+        mPlanUpdated = true;
 
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);

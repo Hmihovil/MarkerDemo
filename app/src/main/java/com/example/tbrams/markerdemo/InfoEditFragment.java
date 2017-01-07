@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.VIBRATOR_SERVICE;
+import static com.example.tbrams.markerdemo.NavPagerActivity.setSomethingUpdated;
 
 public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
-    public static final int ACTION_UPDATE = 1;
     public static final int ACTION_DELETE = 2;
     public static final int ACTION_CANCEL = 3;
 
@@ -60,6 +61,9 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
+
+        Log.d("TBR:", "InfoEditFragment, received markerIndex from fragment arguments: "+markerIndex);
+
         final MarkerObject mo =markerList.get(markerIndex);
 
         // Update Edit Text fields with marker provided info
@@ -74,7 +78,12 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    mo.setText(String.valueOf(eTit.getText()));
+                    if (eTit.getText()!=null) {
+                        if (mo.getText().equals(String.valueOf(eTit.getText()))) {
+                            setSomethingUpdated();
+                            mo.setText(String.valueOf(eTit.getText()));
+                        }
+                    }
                 }
             }
         });
@@ -143,11 +152,13 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     }
 
 
+
     /*
      * Helper function used to send results back to the main activity where it can
      * be processed in the onActivityResult method
      */
     private void sendResult(int resultCode, int markerIndex) {
+
         Intent intent = new Intent();
         intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         getActivity().setResult(resultCode, intent);
@@ -178,6 +189,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             // update physical markers
             markerList.get(markerIndex).getMarker().setTitle(titleString);
             markerList.get(markerIndex).getMarker().setSnippet(snippetString);
+
+            setSomethingUpdated();
 
         } else if (view == btnDelete) {
             sendResult(ACTION_DELETE, markerIndex);
