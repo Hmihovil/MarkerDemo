@@ -26,5 +26,4 @@
     <string name="db_mode">Maintenance</string>
     <string name="trip_mode">Trip selection</string>
     <string name="label_mode">"Mode: "</string>
-    <string name="mode_toggle">"Mode updated to "</string>
 </resources>

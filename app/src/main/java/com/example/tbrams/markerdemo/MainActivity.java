@@ -23,6 +23,8 @@ import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
+import static com.example.tbrams.markerdemo.MarkerDemoActivity.getCurrentTripId;
+
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_WRITE = 101;
 
@@ -55,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get a handle to the database helper and prepare the database
         mDataSource = new DataSource(this);
-        mDataSource.open();
 
         // Get a reference to the layout for the recyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.rvItems);
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void populateDatabase() {
         // Delete and recreate both tables
+        mDataSource.open();
         mDataSource.resetDB();
 
         for (int i = 0; i < mTripSampleList.size(); i++) {
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
                 mDataSource.addFullTrip(tripName, wpList);
             }
+        mDataSource.close();
     }
 
 
@@ -93,9 +96,11 @@ public class MainActivity extends AppCompatActivity {
      * @return: none
      */
     private void displayTrips(String filter) {
+        mDataSource.open();
         mListFromDB  = mDataSource.getAllTrips(filter);
-        mTripAdapter = new TripAdapter(this, mListFromDB);
+        mDataSource.close();
 
+        mTripAdapter = new TripAdapter(this, mListFromDB);
         mRecyclerView.setAdapter(mTripAdapter);
     }
 
@@ -103,13 +108,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mDataSource.close();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mDataSource.open();
+        mTripAdapter = null;
+        displayTrips(null);
     }
 
 
@@ -136,12 +141,17 @@ public class MainActivity extends AppCompatActivity {
                 //                    click on wp -> you selected, long click -> delete wp
 
                 mDbMaintenance = !mDbMaintenance;
-                Toast.makeText(this, getString(R.string.mode_toggle)+(mDbMaintenance ?R.string.db_mode:R.string.trip_mode), Toast.LENGTH_SHORT).show();
-                mMenuHandle.getItem(0).setTitle(R.string.label_mode+(mDbMaintenance ?R.string.db_mode:R.string.trip_mode));
+                String newTitle =getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode));
+                Toast.makeText(this, newTitle, Toast.LENGTH_SHORT).show();
+
+                Log.d("TBR:", "Menu title will be changed to: "+newTitle);
+
+                mMenuHandle.getItem(0).setTitle(newTitle);
                 return true;
 
             case R.id.action_import:
                 // First flush the tables
+                mDataSource.open();
                 mDataSource.resetDB();
 
                 // then get the items from the imported trips and save in DB
@@ -155,12 +165,14 @@ public class MainActivity extends AppCompatActivity {
                 List<WpItem> wpItems = JSONHelper.importWpsFromJSON(this);
                 mDataSource.seedWpTable(wpItems);
                 Log.i("TBR", "Restored Wp Data written to DB");
+                mDataSource.close();
 
                 return true;
 
             case R.id.action_export:
 
                 // Get all WPs from database for export
+                mDataSource.open();
                 List<WpItem> wps = mDataSource.getAllWps(null);
                 if (JSONHelper.exportWpsToJSON(this, wps)) {
                     Log.i("TBR", "WP data exported");
@@ -174,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.e("TBR", "Trips data export failed");
                 }
+                mDataSource.close();
                 return true;
 
 

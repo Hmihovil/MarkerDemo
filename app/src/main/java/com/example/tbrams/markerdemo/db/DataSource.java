@@ -84,12 +84,13 @@ public class DataSource {
     }
 
 
+
     /*
      * deleteTrip
      * This function will erase a trip from the Trip table and
      * also the associated way points from the WP table
      *
-     * @params: id  - Trip Id
+     * @params:  TripItem to be deleted
      * @Returns: none
      */
     public void deleteTrip(TripItem trip) {
@@ -106,7 +107,51 @@ public class DataSource {
                 new String[] { trip.getTripId() });
     }
 
+    /*
+     * deleteTrip
+     * This function will erase a trip from the Trip table and
+     * also the associated way points from the WP table
+     *
+     * @params:  String  - Trip Id
+     * @Returns: none
+     */
+    public void deleteTrip(String tripId) {
+        // Get a list of all associated WPs
+        List<WpItem> allWps = getAllWps(tripId);
 
+        // delete them one by one and do not waste time on re-calculating trip distance
+        for (WpItem wp : allWps) {
+            deleteWp(wp, false);
+        }
+
+        // Finally delete the trip from the Trip Table
+        mDb.delete(TripTable.TABLE_NAME, TripTable.COLUMN_ID + " = ?",
+                new String[] { tripId });
+    }
+
+
+    /*
+     * getTripName
+     *
+     * Lookup and return a String with a single tripname given the tripId as a String
+     */
+    public String getTripName(String tripId) {
+        Cursor cursor = null;
+        String tripName = "";
+        try{
+            cursor = mDb.rawQuery("SELECT tripName FROM Trips WHERE tripId=?", new String[] {tripId});
+
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                tripName = cursor.getString(cursor.getColumnIndex("tripName"));
+            }
+
+            return tripName;
+
+        } finally {
+            cursor.close();
+        }
+    }
 
     /*
      * getTripCount
@@ -147,7 +192,7 @@ public class DataSource {
     }
 
 
-    public void addFullTrip(String name, List<WpItem> wps) {
+    public TripItem addFullTrip(String name, List<WpItem> wps) {
         TripItem trip = new TripItem(null, name, getDate(), null);
 
         double dist=0.;
@@ -164,7 +209,7 @@ public class DataSource {
         // Update trip with total distance and write to DB
         trip.setTripDistance(dist);
 
-        createTrip(trip);
+        return createTrip(trip);
     }
 
     /*

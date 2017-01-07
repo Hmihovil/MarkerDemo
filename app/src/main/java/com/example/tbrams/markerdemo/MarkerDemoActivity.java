@@ -34,6 +34,7 @@ import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -104,9 +105,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private Vibrator mVib;
     private Object mSearchedFor;
-    private String mTripId;
+    private static String mTripId;
     private String mWpId;
     private boolean mPlanUpdated=false;
+    DataSource      mDataSource;
+    List<WpItem>    mListforDB;
+
 
 
     @Override
@@ -121,10 +125,60 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
 
-        // if trip has been updated we should offer to save it here
+        // if trip is new or has been updated we should offer to save it here
+
+        // FOR NOW, JUST CONSIDER UPDATES UNTIL WE GOT IT RIGHT
+
         if (mPlanUpdated) {
             Toast.makeText(this, "Something was changed ... offer save to DB", Toast.LENGTH_SHORT).show();
             // Do something...
+
+            // Get a handle to the database helper and prepare the database
+            mDataSource = new DataSource(this);
+            mDataSource.open();
+
+
+            // get the trip name somehow, the remove existing trip
+
+            String tripName = mDataSource.getTripName(mTripId);
+            Log.d("TBR:", "TripName: "+tripName);
+
+            // mDataSource.DeleteTrip(id) and all the previous waypoints
+            mDataSource.deleteTrip(mTripId);
+            Log.d("TBR:", "Trip deleted along with Waypoints");
+
+
+            // create a list with populated WpItems ... mapped from the MarkerItem list
+            //mListFromDB = mDataSource.getAllWps(id);
+
+            mListforDB = new ArrayList<>();
+            for (int i = 0; i < markerList.size(); i++) {
+                MarkerObject mo=markerList.get(i);
+                WpItem wp = new WpItem(
+                        mo.getMyId(),
+                        mo.getText(),
+                        mo.getMarker().getPosition().latitude,
+                        mo.getMarker().getPosition().longitude,
+                        mo.getDist(),
+                        (int) mo.getALT(),
+                        null,                       // Trip ID ... will be set when adding trip?
+                        i);
+
+
+                Log.d("TBR:", "#"+i+" wp.getWpName: "+wp.getWpName());
+                mListforDB.add(wp);
+            }
+
+
+            // then createTrip like this
+            TripItem ti = new TripItem();
+            ti =  mDataSource.addFullTrip(tripName, mListforDB);
+            mDataSource.close();
+            Log.d("TBR", "Data updated in DB");
+
+            // update the current trip id, so we can show related wp's
+            mTripId = ti.getTripId();
+
 
         }
 
@@ -141,6 +195,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         super.onPause();
 
     }
+
+
+    public static String getCurrentTripId(){
+        return mTripId;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -798,6 +858,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                         Log.d("TBR:","OnActivityResult, resultCode: ACTION_UPDATE");
                         m=markerList.get(markerIndex).getMarker();
                         gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+
+                        // We need to request save on exit unless we want to lose changes
                         mPlanUpdated=true;
                         break;
                     
@@ -834,6 +896,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                                 .setActionTextColor(Color.RED)
                                 .show();
 
+                        // We need to request save on exit unless we want to lose changes
+                        mPlanUpdated=true;
                         break;
                 }
             }

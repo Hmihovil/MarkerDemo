@@ -5,18 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
+import static com.example.tbrams.markerdemo.MarkerDemoActivity.getCurrentTripId;
+
 
 @SuppressWarnings("FieldCanBeLocal")
 public class DetailActivity extends AppCompatActivity {
-
-    private TextView tvName;
 
     DataSource   mDataSource;
     List<WpItem> mListFromDB;
@@ -36,21 +35,32 @@ public class DetailActivity extends AppCompatActivity {
             Log.d("TBR:", "DetailActivity received a null id from extras");
         }
 
+        Log.d("TBR:", "DetailActivity, received TRIP_KEY:"+mId);
+
         // Get a reference to the recyclerView and make sure we have defined
         // a LayoutManager ... otherwise it will crash
         mRecyclerView = (RecyclerView) findViewById(R.id.rvItems);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        displayWps(mId);
+        displayWps();
     }
 
 
-    private void displayWps(String id) {
+    private void displayWps() {
 
         // Get the WP data ready for display
         mDataSource = new DataSource(this);
         mDataSource.open();
-        mListFromDB = mDataSource.getAllWps(id);
+        mListFromDB = mDataSource.getAllWps(mId);
+
+        // If the Database has been recently updated, in some cases the ID will no longer
+        // produce results. In that case we have reserved a new ID in the OnActionResult
+        // handler, that we can use
+        if (mListFromDB.size()==0) {
+            mListFromDB = mDataSource.getAllWps(getCurrentTripId());
+        }
+
+        mDataSource.close();
 
         if (mWpAdapter==null) {
             // create an adapter and initiate it with the available data
@@ -71,7 +81,9 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        displayWps(mId);
+
+        mWpAdapter = null;
+        displayWps();
     }
 
 

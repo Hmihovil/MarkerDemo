@@ -37,7 +37,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         // Get a handle to the database helper and prepare the database
         mDataSource = new DataSource(mContext);
-        mDataSource.open();
     }
 
 
@@ -107,11 +106,31 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         @Override
         public void onClick(View view) {
 
-            TripItem trip= mTrips.get(this.getAdapterPosition());
-            Intent intent = new Intent(mContext, DetailActivity.class);
-            intent.putExtra(TRIP_KEY, trip.getTripId());
-            Log.d("TBR","Passing id: "+trip.getTripId());
-            mContext.startActivity(intent);
+
+            Log.d("TBR", "ViewHolder Clicked");
+
+            TripItem trip = mTrips.get(this.getAdapterPosition());
+
+            if (MainActivity.isThisDbMaintenance()) {
+
+                // DB Maintenance mode:
+                // Start Detailview and show the waypoints
+
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                intent.putExtra(TRIP_KEY, trip.getTripId());
+                Log.d("TBR", "Passing id: " + trip.getTripId());
+                mContext.startActivity(intent);
+            } else {
+
+                // Trip Selection Mode:
+                // Start MarkerDemoActivity with map at WP 0
+
+                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
+                intent.putExtra(TRIP_KEY, trip.getTripId());
+                intent.putExtra(WP_KEY, "");
+                Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
+                mContext.startActivity(intent);
+            }
         }
 
 
@@ -127,6 +146,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             if (MainActivity.isThisDbMaintenance()) {
 
+                // Maintenance Mode:
                 // Remove from the list and update the listview
                 mTrips.remove(this.getAdapterPosition());
                 notifyDataSetChanged();
@@ -134,18 +154,20 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 Toast.makeText(mContext, "You deleted " + trip.getTripName(), Toast.LENGTH_SHORT).show();
 
                 // Drop from database
+                mDataSource.open();
                 mDataSource.deleteTrip(trip);
+                mDataSource.close();
 
                 return false;
 
             } else {
 
-                // Trip Selection Mode - Start this trip at WP 0
+                // Trip Selection Mode:
+                // Start DetailActivity and Show the waypoints
 
-                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
+                Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
-                intent.putExtra(WP_KEY, "");
-                Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
+                Log.d("TBR", "Passing id: " + trip.getTripId());
                 mContext.startActivity(intent);
 
                 return false;

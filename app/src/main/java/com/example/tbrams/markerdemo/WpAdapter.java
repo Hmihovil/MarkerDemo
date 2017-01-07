@@ -35,7 +35,6 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
         // Get a handle to the database helper and prepare the database
         mDataSource = new DataSource(mContext);
-        mDataSource.open();
     }
 
 
@@ -122,10 +121,12 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
             if (MainActivity.isThisDbMaintenance()) {
 
                 // Drop from database and make sure trip distance is updated
+                mDataSource.open();
                 mDataSource.deleteWp(wp, true);
                 Toast.makeText(mContext, "You deleted "+wp.getWpName(), Toast.LENGTH_SHORT).show();
 
                 List<WpItem> newList = mDataSource.getAllWps(wp.getTripIndex());
+                mDataSource.close();
                 mWpList = newList;
 
                 // Update display
