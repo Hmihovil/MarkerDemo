@@ -54,7 +54,7 @@ public class DetailActivity extends AppCompatActivity {
 
         if (mWpAdapter==null) {
             // create an adapter and initiate it with the available data
-            mWpAdapter = new WpAdapter(this, mListFromDB);
+            mWpAdapter = new WpAdapter(MainActivity.getContext(), mListFromDB);
             mRecyclerView.setAdapter(mWpAdapter);
         } else {
             // It is already on screen, we just need to refresh

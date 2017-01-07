@@ -32,6 +32,8 @@ import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.data.Pejling;
+import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.dbModel.WpItem;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -101,6 +103,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private Vibrator mVib;
     private Object mSearchedFor;
+    private String mTripId;
 
 
     @Override
@@ -118,9 +121,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Get trip and wp index from extra arguments
-        String tripId = getIntent().getStringExtra(TRIP_KEY);
+        mTripId = getIntent().getStringExtra(TRIP_KEY);
         String wpId     = getIntent().getStringExtra(WP_KEY);
-        Log.d("TBR:","Received Trip id: " + tripId+" and wp id: "+wpId);
+        Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+wpId);
+
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         updatePreferenceFlags();
@@ -377,15 +381,18 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
 
-        LatLng startPos=null;
-        try {
-            startPos = searchLocation(mSharedPrefs.getString("startLocation", "Copenhagen, Denmark"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mTripId != null) {
+            loadTripFromDb(mTripId);
+        } else {
+            LatLng startPos=null;
+            try {
+                startPos = searchLocation(mSharedPrefs.getString("startLocation", "Copenhagen, Denmark"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos,mZoomLevel));
         }
-
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos,mZoomLevel));
 
     }
 
@@ -1031,6 +1038,53 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putString("zoomLevel", String.format(Locale.US, "%.1f",mZoomLevel));
         editor.apply();
+
+    }
+
+    private void loadTripFromDb(String tripId) {
+        // Get a handle to the database helper and prepare the database
+        DataSource dataSource = new DataSource(MainActivity.getContext());
+        dataSource.open();
+
+        // copy trip details from database into marker array etc ...
+        List<WpItem> ListFromDB = dataSource.getAllWps(tripId);
+        dataSource.close();
+
+        // In this version map between WpItem og MarkerObject ... we probably need to store the
+        // MarkerObject in the DB when we get furhter down the road
+
+        for (WpItem wp : ListFromDB) {
+
+            String name = wp.getWpName();
+            Log.d("TBR:", "getWpName: "+name);
+            Log.d("TBR:", "getWpId: "+wp.getWpId());
+            Log.d("TBR:", "getWpAltitude: "+wp.getWpAltitude());
+            Log.d("TBR:", "getWpDistance: "+wp.getWpDistance());
+            Log.d("TBR:", "getWpLat: "+wp.getWpLat());
+            Log.d("TBR:", "getWpLon: "+wp.getWpLon());
+
+            MarkerOptions options = new MarkerOptions()
+                    .draggable(true)
+                    .position(new LatLng(wp.getWpLat(), wp.getWpLon()));
+
+            Marker m = mMap.addMarker(options);
+            m.setTitle(name);
+
+            ArrayList<Pejling> pejlinger = new ArrayList<>();
+            pejlinger = nearestVORs(m);
+
+            MarkerObject mo = new MarkerObject(m, name, null, pejlinger);
+
+            mo.setMyId(wp.getWpId());      // WP id
+            mo.setALT(wp.getWpAltitude()); // WP Alt
+            mo.setDist(wp.getWpDistance()); // Dist
+
+
+            markerList.add(mo);
+        }
+        updatePolyline();
+        updateNavinfo();
+
 
     }
 

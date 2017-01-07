@@ -1,6 +1,7 @@
 package com.example.tbrams.markerdemo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,11 +36,15 @@ public class MainActivity extends AppCompatActivity {
     private boolean mPermissionGranted;
     private static boolean mDbMaintenance=false;
     private Menu    mMenuHandle;
+    private static Context mContext;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mContext = this;
+
         setContentView(R.layout.activity_main);
 
         // Need this for import/export
@@ -60,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public static Context getContext() {
+        return mContext;
+    }
 
     private void populateDatabase() {
         // Delete and recreate both tables

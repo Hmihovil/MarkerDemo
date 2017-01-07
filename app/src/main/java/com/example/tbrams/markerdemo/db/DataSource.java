@@ -344,6 +344,8 @@ public class DataSource {
             wp.setWpDistance(cursor.getDouble(cursor.getColumnIndex(WpTable.COLUMN_DIST)));
             wp.setTripIndex(cursor.getString(cursor.getColumnIndex(WpTable.COLUMN_TRIP_ID)));
             wp.setWpSequenceNumber(cursor.getInt(cursor.getColumnIndex(WpTable.COLUMN_SEQUENCE_NUMBER)));
+            wp.setWpLat(cursor.getDouble(cursor.getColumnIndex(WpTable.COLUMN_LAT)));
+            wp.setWpLon(cursor.getDouble(cursor.getColumnIndex(WpTable.COLUMN_LON)));
             wps.add(wp);
         }
         cursor.close();

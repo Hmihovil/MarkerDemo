@@ -7,9 +7,11 @@ import android.os.Parcelable;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class MarkerObject implements Parcelable {
     private Integer myIndex;
+    private String myId;       // WpId
     private String myText;
     private String mySnippet;
     private Marker myMarker;
@@ -145,6 +147,18 @@ public class MarkerObject implements Parcelable {
     // Navigational getters & setters
 
 
+    public String getMyId() {
+        return myId;
+    }
+
+    public void setMyId(String myId) {
+        if (myId==null) {
+            this.myId = UUID.randomUUID().toString();
+        } else {
+            this.myId = myId;
+        }
+    }
+
     public double getTAS() {return mTAS;}
     public double getMIN_ALT() {return mMIN_ALT;}
     public double getALT() {return mALT;}
@@ -215,8 +229,10 @@ public class MarkerObject implements Parcelable {
         mETO = 0;
     }
 
+    public void setALT(double ALT) { mALT = ALT; }
 
     public MarkerObject(Marker marker, String text, String snippet, ArrayList<Pejling> pejlinger){
+        setMyId(null);
         myIndex  = null;
         myMarker = null;
         mPejlinger = null;
@@ -246,6 +262,7 @@ public class MarkerObject implements Parcelable {
     }
 
     public MarkerObject() {
+        setMyId(null);
         myIndex  = null;
         myMarker = null;
         mPejlinger = null;
