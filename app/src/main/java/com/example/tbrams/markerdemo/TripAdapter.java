@@ -123,18 +123,25 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         public boolean onLongClick(View view) {
             Log.d("TBR", "ViewHolder Long Clicked");
 
-            TripItem trip= mTrips.get(this.getAdapterPosition());
+            TripItem trip = mTrips.get(this.getAdapterPosition());
 
-            // Remove from the list and update the listview
-            mTrips.remove(this.getAdapterPosition());
-            notifyDataSetChanged();
+            if (MainActivity.isThisDbMaintenance()) {
 
-            Toast.makeText(mContext, "You deleted "+trip.getTripName(), Toast.LENGTH_SHORT).show();
+                // Remove from the list and update the listview
+                mTrips.remove(this.getAdapterPosition());
+                notifyDataSetChanged();
 
-            // Drop from database
-            mDataSource.deleteTrip(trip);
+                Toast.makeText(mContext, "You deleted " + trip.getTripName(), Toast.LENGTH_SHORT).show();
 
-            return false;
+                // Drop from database
+                mDataSource.deleteTrip(trip);
+
+                return false;
+
+            } else {
+                Toast.makeText(mContext, "We are in trip selection mode", Toast.LENGTH_SHORT).show();
+                return true;  // All set, do not handle any more events due to this
+            }
         }
     }
 }

@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView    mRecyclerView;
     TripAdapter     mTripAdapter;
     private boolean mPermissionGranted;
-    private boolean mDbMaintenance=false;
+    private static boolean mDbMaintenance=false;
     private Menu    mMenuHandle;
 
 
@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
             mPermissionGranted=checkPermissions();
         }
 
-
-        // Update mode in the menu system
-        mMenuHandle.getItem(0).setTitle(getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode)));
 
         // Get a handle to the database helper and prepare the database
         mDataSource = new DataSource(this);
@@ -112,6 +109,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenuHandle = menu;
         getMenuInflater().inflate(R.menu.db_menu, menu);
+
+        // Update mode in the menu system
+        mMenuHandle.getItem(0).setTitle(getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode)));
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -236,6 +238,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public static boolean isThisDbMaintenance() {
+        return mDbMaintenance;
+    }
 
 }
 
