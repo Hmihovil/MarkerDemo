@@ -26,4 +26,5 @@
     <string name="db_mode">Maintenance</string>
     <string name="trip_mode">Trip selection</string>
     <string name="label_mode">"Mode: "</string>
+    <string name="type_a_short_name_for_a_new_trip_or_nbrowse_your_previous_routes">Type a short name for a new trip, or\nbrowse your previous routes</string>
 </resources>

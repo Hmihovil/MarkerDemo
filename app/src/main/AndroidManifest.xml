@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.example.tbrams.markerdemo">
 
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -33,8 +32,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
 
-        <activity
-            android:name=".NavPagerActivity">
+        <activity android:name=".NavPagerActivity">
         </activity>
         <activity
             android:name=".MarkerPreferenceActivity"
@@ -43,27 +41,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.tbrams.markerdemo.MarkerDemoActivity"/>
         </activity>
-        <activity
-            android:name=".GlobalNavValActivity">
+        <activity android:name=".GlobalNavValActivity">
         </activity>
-        <activity
-            android:name=".DetailPagerActivity">
+        <activity android:name=".DetailPagerActivity">
         </activity>
-
-        <activity
-            android:name=".ETOActivity">
+        <activity android:name=".ETOActivity">
         </activity>
-        <activity android:name=".TimeActivity"></activity>
+        <activity android:name=".TimeActivity"/>
         <activity android:name=".TalkActivity"/>
         <activity
             android:name=".MarkerDemoActivity"
             android:label="@string/title_activity_marker_demo">
         </activity>
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".DetailActivity"
@@ -71,6 +61,13 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
+        </activity>
+        <activity android:name=".FrontActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 
