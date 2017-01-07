@@ -17,10 +17,11 @@ import com.google.android.gms.maps.model.Marker;
 
 import java.util.List;
 
+import static com.example.tbrams.markerdemo.InfoEditFragment.EXTRA_MARKER_ID;
+
 
 public class NavPagerActivity extends AppCompatActivity {
 
-    private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     public static final int ACTION_UPDATE = 1;
 
     private ViewPager mViewPager;
@@ -36,22 +37,21 @@ public class NavPagerActivity extends AppCompatActivity {
     }
 
 
-    public static void setSomethingUpdated() {
+    public static void setSomethingUpdated(boolean flag) {
         Log.d("TBR:","NavpagerActivity, setSomethingUpdated called");
-        mSomethingUpdated = true;
+        mSomethingUpdated = flag;
     }
-
 
     /*
      * Helper function used to send results back to the main activity where it can
      * be processed in the onActivityResult method
      */
     private void sendResult(int resultCode, int markerIndex) {
+        Log.d("TBR", "NavPagerActivity, SedResult called");
 
         Intent intent = new Intent();
         intent.putExtra(EXTRA_MARKER_ID, markerIndex);
         setResult(resultCode, intent);
-
     }
 
 
@@ -68,17 +68,19 @@ public class NavPagerActivity extends AppCompatActivity {
         Log.d("TBR:","NavPagerActivity, onBackPressed called");
 
         int count = getFragmentManager().getBackStackEntryCount();
+        Log.d("TBR:","NavPagerActivity, count: "+count);
 
         if (count == 0) {
+            if (mSomethingUpdated) sendResult(ACTION_UPDATE, 0);
             super.onBackPressed();
 
-            if (mSomethingUpdated)
-                sendResult(ACTION_UPDATE, 0);
         } else {
+            Log.d("TBR:", "popping Backstack");
             getFragmentManager().popBackStack();
         }
 
     }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

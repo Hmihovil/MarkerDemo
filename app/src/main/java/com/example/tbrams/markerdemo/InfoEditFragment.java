@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,16 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.VIBRATOR_SERVICE;
+import static com.example.tbrams.markerdemo.NavPagerActivity.ACTION_UPDATE;
 import static com.example.tbrams.markerdemo.NavPagerActivity.setSomethingUpdated;
 
 public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
-    public static final int ACTION_DELETE = 2;
-    public static final int ACTION_CANCEL = 3;
+    public static final int    ACTION_DELETE = 2;
+    public static final int    ACTION_CANCEL = 3;
 
-    private int markerIndex = -1;
-    private Button btnUpdate, btnDelete, btnCancel;
+    private int      markerIndex = -1;
+    private Button   btnUpdate, btnDelete, btnCancel;
     private Vibrator mVib;
 
 
@@ -79,8 +82,10 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     if (eTit.getText()!=null) {
-                        if (mo.getText().equals(String.valueOf(eTit.getText()))) {
-                            setSomethingUpdated();
+                        Log.d("TBR:", "InfoEditFrament, focus lost in text field");
+                        if (!mo.getText().equals(String.valueOf(eTit.getText()))) {
+                            Log.d("TBR:", "Something updated in text");
+                            setSomethingUpdated(true);
                             mo.setText(String.valueOf(eTit.getText()));
                         }
                     }
@@ -190,13 +195,14 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             markerList.get(markerIndex).getMarker().setTitle(titleString);
             markerList.get(markerIndex).getMarker().setSnippet(snippetString);
 
-            setSomethingUpdated();
+            setSomethingUpdated(true);
 
         } else if (view == btnDelete) {
             sendResult(ACTION_DELETE, markerIndex);
 
 
         } else if (view == btnCancel) {
+            setSomethingUpdated(false);
             sendResult(ACTION_CANCEL, markerIndex);
 
 
