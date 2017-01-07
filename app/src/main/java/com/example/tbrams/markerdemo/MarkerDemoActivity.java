@@ -104,12 +104,25 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private Vibrator mVib;
     private Object mSearchedFor;
     private String mTripId;
+    private String mWpId;
 
 
     @Override
     protected void onResume() {
         super.onResume();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Log.d("TBR:", "OnPause called");
+        mMap.clear();
+        markerList.clear();
+        midpointList.clear();
+        polyline.remove();
+        polyline=null;
     }
 
     @Override
@@ -122,8 +135,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
-        String wpId     = getIntent().getStringExtra(WP_KEY);
-        Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+wpId);
+        mWpId   = getIntent().getStringExtra(WP_KEY);
+
+        Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+ mWpId);
 
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1056,6 +1070,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         for (WpItem wp : ListFromDB) {
 
             String name = wp.getWpName();
+            LatLng location = new LatLng(wp.getWpLat(), wp.getWpLon());
+
             Log.d("TBR:", "getWpName: "+name);
             Log.d("TBR:", "getWpId: "+wp.getWpId());
             Log.d("TBR:", "getWpAltitude: "+wp.getWpAltitude());
@@ -1065,7 +1081,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
             MarkerOptions options = new MarkerOptions()
                     .draggable(true)
-                    .position(new LatLng(wp.getWpLat(), wp.getWpLon()));
+                    .position(location);
 
             Marker m = mMap.addMarker(options);
             m.setTitle(name);
@@ -1079,12 +1095,17 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             mo.setALT(wp.getWpAltitude()); // WP Alt
             mo.setDist(wp.getWpDistance()); // Dist
 
+            // If a specfic way point was selected - keep a reference when found
+            if (!mWpId.equals("")) {
+                if (mWpId.equals(wp.getWpId())) {
+                    gotoLocation(location, ZOOM_OVERVIEW);
+                }
+            }
 
             markerList.add(mo);
         }
         updatePolyline();
         updateNavinfo();
-
 
     }
 

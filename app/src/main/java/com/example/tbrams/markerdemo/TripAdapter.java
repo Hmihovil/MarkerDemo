@@ -144,7 +144,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
                 Intent intent = new Intent(mContext, MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
-                intent.putExtra(WP_KEY, 0);
+                intent.putExtra(WP_KEY, "");
                 Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
                 mContext.startActivity(intent);
 
