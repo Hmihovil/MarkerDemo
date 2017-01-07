@@ -20,6 +20,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
     public static final String ITEM_ID_KEY = "item_id_key";
     public static final String ITEM_KEY = "item_key";
+    public static final String WP_ID_KEY = "wp_id_key";
+    public static final String WP_KEY = "wp_key";
 
     private List<TripItem>  mTrips;
     private Context         mContext;
@@ -139,8 +141,17 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 return false;
 
             } else {
-                Toast.makeText(mContext, "We are in trip selection mode", Toast.LENGTH_SHORT).show();
-                return true;  // All set, do not handle any more events due to this
+
+                // Trip Selection Mode - Start this trip at WP 0
+
+                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
+                intent.putExtra(ITEM_KEY, trip.getTripId());
+                intent.putExtra(WP_KEY, 0);
+                Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
+                mContext.startActivity(intent);
+
+                return false;
+
             }
         }
     }

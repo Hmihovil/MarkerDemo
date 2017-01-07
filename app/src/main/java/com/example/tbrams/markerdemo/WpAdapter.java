@@ -1,8 +1,10 @@
 package com.example.tbrams.markerdemo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,8 @@ import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
+
+import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
 
 
 public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
@@ -116,18 +120,34 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
             // First get a copy of the item to be deleted
             WpItem wp= mWpList.get(this.getAdapterPosition());
 
-            // Drop from database and make sure trip distance is updated
-            mDataSource.deleteWp(wp, true);
-            Toast.makeText(mContext, "You deleted "+wp.getWpName(), Toast.LENGTH_SHORT).show();
+            if (MainActivity.isThisDbMaintenance()) {
 
+                // Drop from database and make sure trip distance is updated
+                mDataSource.deleteWp(wp, true);
+                Toast.makeText(mContext, "You deleted "+wp.getWpName(), Toast.LENGTH_SHORT).show();
 
-            List<WpItem> newList = mDataSource.getAllWps(wp.getTripIndex());
-            mWpList = newList;
+                List<WpItem> newList = mDataSource.getAllWps(wp.getTripIndex());
+                mWpList = newList;
 
-            // Update display
-            notifyDataSetChanged();
+                // Update display
+                notifyDataSetChanged();
 
-            return false;
+                return false;
+
+            } else {
+
+                // Trip Selection
+
+                Toast.makeText(mContext, "We are in Trip Selection mode", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
+                intent.putExtra(ITEM_KEY, wp.getTripIndex());
+                intent.putExtra(WP_KEY, wp.getWpId());
+                Log.d("TBR","Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
+                mContext.startActivity(intent);
+
+                return false;
+            }
         }
     }
 }
