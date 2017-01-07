@@ -30,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
     DataSource      mDataSource;
     List<TripItem>  mListFromDB;
-    RecyclerView mRecyclerView;
+    RecyclerView    mRecyclerView;
     TripAdapter     mTripAdapter;
     private boolean mPermissionGranted;
+    private boolean mDbMaintenance=false;
+    private Menu    mMenuHandle;
 
 
     @Override
@@ -45,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
             mPermissionGranted=checkPermissions();
         }
 
+
+        // Update mode in the menu system
+        mMenuHandle.getItem(0).setTitle(getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode)));
 
         // Get a handle to the database helper and prepare the database
         mDataSource = new DataSource(this);
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mMenuHandle = menu;
         getMenuInflater().inflate(R.menu.db_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -113,7 +119,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // Show the settings screen - not in this version though...
+                // Toggle usage mode between dabtabase maintenance and select trip mode
+                // In select trip: click on trip -> WP inspection, long click -> select trip
+                //                 click on wp -> you selected, long click -> Nothing
+                // In db maintenance: Click on trip -> WP inspection, long click -> delete trip
+                //                    click on wp -> you selected, long click -> delete wp
+
+                mDbMaintenance = !mDbMaintenance;
+                Toast.makeText(this, getString(R.string.mode_toggle)+(mDbMaintenance ?R.string.db_mode:R.string.trip_mode), Toast.LENGTH_SHORT).show();
+                mMenuHandle.getItem(0).setTitle(R.string.label_mode+(mDbMaintenance ?R.string.db_mode:R.string.trip_mode));
                 return true;
 
             case R.id.action_import:

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MarkerDemo</string>
     <string name="title_activity_marker_demo">Marker Demo</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Toggle mode</string>
     <string name="location_label">Location:</string>
     <string name="normal">Normal</string>
     <string name="satellite">Satellite</string>
@@ -23,4 +23,8 @@
     <string name="clearDb">Clear DB</string>
     <string name="seedDb">Load DB</string>
     <string name="resetDbSummary">Reset the entire Database</string>
+    <string name="db_mode">Maintenance</string>
+    <string name="trip_mode">Trip selection</string>
+    <string name="label_mode">"Mode: "</string>
+    <string name="mode_toggle">"Mode updated to "</string>
 </resources>
