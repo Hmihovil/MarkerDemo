@@ -8,13 +8,12 @@ import java.util.List;
 public class MarkerLab {
     private static MarkerLab sMarkerLab;
     private List<MarkerObject> mMarkerlist;
+    private String             mTripName;
+
 
     private MarkerLab(Context context) {
         mMarkerlist = new ArrayList<>();
-    }
-
-    public List<MarkerObject> getMarkers() {
-        return mMarkerlist;
+        mTripName   = new String();
     }
 
     public static MarkerLab getMarkerLab(Context context){
@@ -23,4 +22,12 @@ public class MarkerLab {
         }
         return sMarkerLab;
     }
+
+    public List<MarkerObject> getMarkers() {
+        return mMarkerlist;
+    }
+    public String getTripName() { return mTripName; }
+    public void setTripName(String name) { this.mTripName = name; }
+
+
 }

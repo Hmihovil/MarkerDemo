@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 
@@ -24,6 +25,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     private List<TripItem>  mTrips;
     private Context         mContext;
     private DataSource mDataSource;
+    private final MarkerLab markerLab;
+    private String tripName;
 
 
 
@@ -33,6 +36,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
      */
     public TripAdapter(Context context, List<TripItem> trips) {
         this.mContext = context;
+        markerLab = MarkerLab.getMarkerLab(mContext);
+        tripName = markerLab.getTripName();
+
         this.mTrips = trips;
 
         // Get a handle to the database helper and prepare the database
@@ -106,9 +112,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         @Override
         public void onClick(View view) {
 
-
-            Log.d("TBR", "ViewHolder Clicked");
-
             TripItem trip = mTrips.get(this.getAdapterPosition());
 
             if (MainActivity.isThisDbMaintenance()) {
@@ -125,6 +128,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 // Trip Selection Mode:
                 // Start MarkerDemoActivity with map at WP 0
 
+                markerLab.setTripName(trip.getTripName());
+                Log.d("TBR:","Tripadaptor - tripName set in Singleton: "+markerLab.getTripName());
+
                 Intent intent = new Intent(mContext, MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
                 intent.putExtra(WP_KEY, "");
@@ -135,12 +141,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
 
 
-        /*
-         * This is the severe action - delete the Trip
-         */
         @Override
         public boolean onLongClick(View view) {
-            Log.d("TBR", "ViewHolder Long Clicked");
 
             TripItem trip = mTrips.get(this.getAdapterPosition());
 
@@ -162,14 +164,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             } else {
 
-                // Trip Selection Mode:
-                // Start DetailActivity and Show the waypoints
-
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                intent.putExtra(TRIP_KEY, trip.getTripId());
-                Log.d("TBR", "Passing id: " + trip.getTripId());
-                mContext.startActivity(intent);
-
+                // Trip Selection Mode guide the user
+                Toast.makeText(mContext, "Change to Maintenance mode if you want to delete something", Toast.LENGTH_SHORT).show();
                 return false;
 
             }

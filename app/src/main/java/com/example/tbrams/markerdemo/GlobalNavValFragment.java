@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.tbrams.markerdemo.data.GlobalNavValData;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
+import com.google.android.gms.vision.text.Text;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class GlobalNavValFragment extends Fragment {
     private EditText editTextTAS;
     private EditText editTextALT;
     private EditText editTextWIND;
+    private TextView tripTextField;
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
@@ -37,10 +39,17 @@ public class GlobalNavValFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        Log.d("TBR:","GlobalNavFragment - tripName: "+markerLab.getTripName());
+
+
         v= inflater.inflate(R.layout.global_nav_val_fragment,container, false);
+
         editTextTAS = (EditText) v.findViewById(R.id.editTextTAS);
         editTextALT = (EditText) v.findViewById(R.id.editTextALT);
         editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
+        tripTextField = (TextView) v.findViewById(R.id.globalTripNameTextView);
+
+        tripTextField.setText(markerLab.getTripName());
 
         // Make sure the keyboard is committing on the last field instead of moving to next
         editTextWIND.setImeOptions(EditorInfo.IME_ACTION_DONE);

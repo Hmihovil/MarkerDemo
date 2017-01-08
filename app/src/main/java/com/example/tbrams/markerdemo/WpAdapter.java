@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
+import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
@@ -25,7 +27,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
     private List<WpItem> mWpList;
     private Context    mContext;
     private DataSource mDataSource;
-
+    private String tripName;
 
     // Constructor
     // Keep context reference and a copy of the data list
@@ -102,10 +104,23 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
         @Override
         public void onClick(View view) {
-            // First get a copy of the item to be deleted
+
             WpItem wp= mWpList.get(this.getAdapterPosition());
 
-            Toast.makeText(mContext, "You selected "+wp.getWpName(), Toast.LENGTH_SHORT).show();
+            if (MainActivity.isThisDbMaintenance()) {
+      //          Toast.makeText(mContext, "You selected "+wp.getWpName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Long press to delete this Way Point", Toast.LENGTH_SHORT).show();
+            } else {
+
+                // Trip selection mode - start the map with focus on this WP
+
+                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
+                intent.putExtra(TRIP_KEY, wp.getTripIndex());
+                intent.putExtra(WP_KEY, wp.getWpId());
+                Log.d("TBR","Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
+                mContext.startActivity(intent);
+            }
+
         }
 
 
@@ -136,15 +151,9 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
             } else {
 
-                // Trip Selection
+                // Trip Selection - guide the user
 
-                Toast.makeText(mContext, "We are in Trip Selection mode", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(mContext, MarkerDemoActivity.class);
-                intent.putExtra(TRIP_KEY, wp.getTripIndex());
-                intent.putExtra(WP_KEY, wp.getWpId());
-                Log.d("TBR","Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
-                mContext.startActivity(intent);
+                Toast.makeText(mContext, "Change mode to Maintenance, if you want to delete something", Toast.LENGTH_SHORT).show();
 
                 return false;
             }

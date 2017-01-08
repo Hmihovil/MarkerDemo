@@ -141,7 +141,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             // get the trip name somehow, the remove existing trip
 
             String tripName = mDataSource.getTripName(mTripId);
-            Log.d("TBR:", "TripName: "+tripName);
+            Log.d("TBR:", "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
 
             // mDataSource.DeleteTrip(id) and all the previous waypoints
             mDataSource.deleteTrip(mTripId);
@@ -216,6 +216,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         mWpId   = getIntent().getStringExtra(WP_KEY);
 
         Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+ mWpId);
+        Log.d("TBR:","MarkerDemoActivity, onCreate>  tripName from markerLab: "+markerLab.getTripName());
+
 
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);

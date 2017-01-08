@@ -9,8 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
+import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
+
+import java.util.List;
 
 import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 
@@ -47,6 +51,12 @@ public class FrontActivity extends AppCompatActivity {
 
                 Log.d("TBR","Trip ID after insert: "+ trip.getTripId());
 
+                // Save tripname in markerLab singleton storage
+                MarkerLab markerLab = MarkerLab.getMarkerLab(getApplicationContext());
+                String tripName = markerLab.getTripName();
+                tripName = name;
+
+                // Start MarkerDemoActivity with tripID extra argument
                 Intent intent = new Intent(getApplicationContext(), MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
                 Log.d("TBR","FrontActivity -> MarkerDemoActivity with TripId: "+trip.getTripId());
