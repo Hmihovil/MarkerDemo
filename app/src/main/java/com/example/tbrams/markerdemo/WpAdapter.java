@@ -3,6 +3,7 @@ package com.example.tbrams.markerdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,21 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
     private DataSource mDataSource;
     private String tripName;
 
+    private static View mRootView;
+
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        // I need to change the backgroundcolor of the RecycleView when in Maintenance mode.
+        // To do that I have to get a copy of the recyclerView itself so I can access the
+        // rootView on that
+
+        mRootView = recyclerView.getRootView();
+    }
+
+
     // Constructor
     // Keep context reference and a copy of the data list
     public WpAdapter(Context context, List<WpItem> wps) {
@@ -51,10 +67,20 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
         View view = inflater.inflate(R.layout.list_element, parent, false);
         WpAdapter.ViewHolder viewHolder = new WpAdapter.ViewHolder(view);
 
+        updateBackgroundColor();
+
         return viewHolder;
     }
 
+    public static void updateBackgroundColor() {
 
+        if (MainActivity.isThisDbMaintenance()) {
+            mRootView.getBackground().setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.DARKEN);
+        } else {
+            if (mRootView.getBackground()!=null)
+                mRootView.getBackground().clearColorFilter();
+        }
+    }
 
     /*
      * Get the object at the indicated position in the list of objects

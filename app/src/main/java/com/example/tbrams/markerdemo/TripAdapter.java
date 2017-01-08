@@ -30,7 +30,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     private String tripName;
 
     private View mBackgroundView=null;
-    static View mRootView;
+    private static View mRootView;
 
 
     @Override
@@ -73,6 +73,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         mBackgroundView = parent.findViewById(R.id.activity_main);
 
         ViewHolder viewHolder = new ViewHolder(itemView);
+
+        updateBackgroundColor();
+
         return viewHolder;
     }
 
@@ -93,8 +96,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         } else {
             holder.itemView.setBackgroundColor(Color.parseColor("#A4A4A4"));
         }
-
-        updateBackgroundColor();
 
     }
 

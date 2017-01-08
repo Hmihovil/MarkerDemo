@@ -9,7 +9,7 @@
 
 
     <TextView
-        android:text="@string/type_a_short_name_for_a_new_trip_or_nbrowse_your_previous_routes"
+        android:text="@string/short_name_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/frontTextInstruction"

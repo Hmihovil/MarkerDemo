@@ -132,10 +132,6 @@ public class MainActivity extends AppCompatActivity {
         mMenuHandle = menu;
         getMenuInflater().inflate(R.menu.db_menu, menu);
 
-        // Update mode in the menu system
-        mMenuHandle.getItem(0).setTitle(getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode)));
-
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -150,12 +146,6 @@ public class MainActivity extends AppCompatActivity {
                 //                    click on wp -> you selected, long click -> delete wp
 
                 mDbMaintenance = !mDbMaintenance;
-                String newTitle =getString(R.string.label_mode)+(mDbMaintenance ?getString(R.string.db_mode):getString(R.string.trip_mode));
-                Toast.makeText(this, newTitle, Toast.LENGTH_SHORT).show();
-
-                Log.d("TBR:", "Menu title will be changed to: "+newTitle);
-
-                mMenuHandle.getItem(0).setTitle(newTitle);
                 updateTitle();
                 TripAdapter.updateBackgroundColor();
 
@@ -279,9 +269,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateTitle() {
         if (isThisDbMaintenance())
-            setTitle("Marintenance mode: "+"Select a route");
+            setTitle(getString(R.string.title_maintenance));
         else
-            setTitle("Select a route");
+            setTitle(getString(R.string.title_trip));
     }
 }
 

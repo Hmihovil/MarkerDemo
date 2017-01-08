@@ -47,9 +47,6 @@ public class GlobalNavValFragment extends Fragment {
         editTextTAS = (EditText) v.findViewById(R.id.editTextTAS);
         editTextALT = (EditText) v.findViewById(R.id.editTextALT);
         editTextWIND = (EditText) v.findViewById(R.id.editTextWIND);
-        tripTextField = (TextView) v.findViewById(R.id.globalTripNameTextView);
-
-        tripTextField.setText(markerLab.getTripName());
 
         getActivity().setTitle(markerLab.getTripName());
 

@@ -38,7 +38,7 @@ public class DetailActivity extends AppCompatActivity {
 
         markerLab= MarkerLab.getMarkerLab(getApplicationContext());
         if (MainActivity.isThisDbMaintenance()) {
-            setTitle("Maintenance Mode: "+markerLab.getTripName());
+            setTitle(R.string.title_maintenance);
         } else {
             setTitle(markerLab.getTripName());
         }
