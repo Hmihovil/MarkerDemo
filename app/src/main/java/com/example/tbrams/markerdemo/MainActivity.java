@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static boolean mDbMaintenance=false;
     private Menu    mMenuHandle;
     private static Context mContext;
+    public static View mBackgroundView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         updateTitle();
 
         setContentView(R.layout.activity_main);
+
+        mBackgroundView = findViewById(R.id.activity_main);
 
         // Need this for import/export
         if (!mPermissionGranted) {
@@ -154,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
                 mMenuHandle.getItem(0).setTitle(newTitle);
                 updateTitle();
+                TripAdapter.updateBackgroundColor();
+
                 return true;
 
             case R.id.action_import:

@@ -29,7 +29,20 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     private final MarkerLab markerLab;
     private String tripName;
 
+    private View mBackgroundView=null;
+    static View mRootView;
 
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        // I need to change the backgroundcolor of the RecycleView when in Maintenance mode.
+        // To do that I have to get a copy of the recyclerView itself so I can access the
+        // rootView on that
+
+        mRootView = recyclerView.getRootView();
+    }
 
     /*
      * constructor
@@ -56,6 +69,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View itemView = inflater.inflate(R.layout.list_element, parent, false);
 
+
+        mBackgroundView = parent.findViewById(R.id.activity_main);
+
         ViewHolder viewHolder = new ViewHolder(itemView);
         return viewHolder;
     }
@@ -78,6 +94,18 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
             holder.itemView.setBackgroundColor(Color.parseColor("#A4A4A4"));
         }
 
+        updateBackgroundColor();
+
+    }
+
+    public static void updateBackgroundColor() {
+
+        if (MainActivity.isThisDbMaintenance()) {
+            mRootView.getBackground().setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.DARKEN);
+        } else {
+            if (mRootView.getBackground()!=null)
+                mRootView.getBackground().clearColorFilter();
+        }
     }
 
 
