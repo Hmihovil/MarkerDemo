@@ -114,96 +114,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
-
-        // if trip is new or has been updated we should offer to save it here
-
-        // FOR NOW, JUST CONSIDER UPDATES UNTIL WE GOT IT RIGHT
-
-        if (mPlanUpdated) {
-            Toast.makeText(this, "Something was changed ... offer save to DB", Toast.LENGTH_SHORT).show();
-            // Do something...
-
-            // Get a handle to the database helper and prepare the database
-            mDataSource = new DataSource(this);
-            mDataSource.open();
-
-
-            // get the trip name somehow, the remove existing trip
-
-            String tripName = mDataSource.getTripName(mTripId);
-            Log.d("TBR:", "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
-
-            // mDataSource.DeleteTrip(id) and all the previous waypoints
-            mDataSource.deleteTrip(mTripId);
-            Log.d("TBR:", "Trip deleted along with Waypoints");
-
-
-            // create a list with populated WpItems ... mapped from the MarkerItem list
-            //mListFromDB = mDataSource.getAllWps(id);
-
-            mListforDB = new ArrayList<>();
-            Log.d("TBR:", "Creating WpItems from markerList");
-            for (int i = 0; i < markerList.size(); i++) {
-                MarkerObject mo=markerList.get(i);
-                WpItem wp = new WpItem(
-                        mo.getMyId(),
-                        mo.getText(),
-                        mo.getMarker().getPosition().latitude,
-                        mo.getMarker().getPosition().longitude,
-                        mo.getDist(),
-                        (int) mo.getALT(),
-                        null,                       // Trip ID ... will be set when adding trip?
-                        i);
-
-
-                Log.d("TBR:", "#"+i+" wp.getWpName: "+wp.getWpName());
-                mListforDB.add(wp);
-            }
-
-
-            // then createTrip like this
-            TripItem ti = new TripItem();
-            ti =  mDataSource.addFullTrip(tripName, mListforDB);
-            mDataSource.close();
-            Log.d("TBR", "Data updated in DB");
-
-            // update the current trip id, so we can show related wp's
-            mTripId = ti.getTripId();
-
-
-        }
-
-        // Clean up ...
-        mMap.clear();
-        markerList.clear();
-        midpointList.clear();
-        polyline.remove();
-        polyline=null;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
-
-
-    public static String getCurrentTripId(){
-        return mTripId;
-    }
-
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_marker_demo);
@@ -214,11 +124,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
         mWpId   = getIntent().getStringExtra(WP_KEY);
-
         Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+ mWpId);
-        Log.d("TBR:","MarkerDemoActivity, onCreate>  tripName from markerLab: "+markerLab.getTripName());
 
-
+        this.setTitle(markerLab.getTripName());
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         updatePreferenceFlags();
@@ -1235,6 +1143,96 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         updatePolyline();
         updateNavinfo();
 
+    }
+
+
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
+
+        // if trip is new or has been updated we should offer to save it here
+
+        // FOR NOW, JUST CONSIDER UPDATES UNTIL WE GOT IT RIGHT
+
+        if (mPlanUpdated) {
+            Toast.makeText(this, "Something was changed ... offer save to DB", Toast.LENGTH_SHORT).show();
+            // Do something...
+
+            // Get a handle to the database helper and prepare the database
+            mDataSource = new DataSource(this);
+            mDataSource.open();
+
+
+            // get the trip name somehow, the remove existing trip
+
+            String tripName = mDataSource.getTripName(mTripId);
+            Log.d("TBR:", "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
+
+            // mDataSource.DeleteTrip(id) and all the previous waypoints
+            mDataSource.deleteTrip(mTripId);
+            Log.d("TBR:", "Trip deleted along with Waypoints");
+
+
+            // create a list with populated WpItems ... mapped from the MarkerItem list
+            //mListFromDB = mDataSource.getAllWps(id);
+
+            mListforDB = new ArrayList<>();
+            Log.d("TBR:", "Creating WpItems from markerList");
+            for (int i = 0; i < markerList.size(); i++) {
+                MarkerObject mo=markerList.get(i);
+                WpItem wp = new WpItem(
+                        mo.getMyId(),
+                        mo.getText(),
+                        mo.getMarker().getPosition().latitude,
+                        mo.getMarker().getPosition().longitude,
+                        mo.getDist(),
+                        (int) mo.getALT(),
+                        null,                       // Trip ID ... will be set when adding trip?
+                        i);
+
+
+                Log.d("TBR:", "#"+i+" wp.getWpName: "+wp.getWpName());
+                mListforDB.add(wp);
+            }
+
+
+            // then createTrip like this
+            TripItem ti = new TripItem();
+            ti =  mDataSource.addFullTrip(tripName, mListforDB);
+            mDataSource.close();
+            Log.d("TBR", "Data updated in DB");
+
+            // update the current trip id, so we can show related wp's
+            mTripId = ti.getTripId();
+
+
+        }
+
+        // Clean up ...
+        mMap.clear();
+        markerList.clear();
+        midpointList.clear();
+        polyline.remove();
+        polyline=null;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public static String getCurrentTripId(){
+        return mTripId;
     }
 
 }

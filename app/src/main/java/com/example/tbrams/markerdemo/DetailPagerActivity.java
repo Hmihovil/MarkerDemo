@@ -22,7 +22,7 @@ public class DetailPagerActivity extends AppCompatActivity {
     private static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     private ViewPager mViewPager;
     private List<MarkerObject> markerList;
-
+    MarkerLab markerLab = MarkerLab.getMarkerLab(this);
 
     public static Intent newIntent(Context packageContext, int markerIndex) {
         Intent intent = new Intent(packageContext, DetailPagerActivity.class);
@@ -35,6 +35,8 @@ public class DetailPagerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_info_pager);
+
+        this.setTitle(markerLab.getTripName());
 
         // Get markerIndex from arguments
         int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);

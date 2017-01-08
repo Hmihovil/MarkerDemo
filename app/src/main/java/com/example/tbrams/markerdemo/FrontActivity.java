@@ -43,6 +43,7 @@ public class FrontActivity extends AppCompatActivity {
                     return;
                 }
 
+                // Name is OK, use it for constructor and keep it handing in markerlab
                 TripItem trip = new TripItem(null,name,null, null);
                 DataSource datasource = new DataSource(getApplicationContext());
                 datasource.open();
@@ -53,8 +54,7 @@ public class FrontActivity extends AppCompatActivity {
 
                 // Save tripname in markerLab singleton storage
                 MarkerLab markerLab = MarkerLab.getMarkerLab(getApplicationContext());
-                String tripName = markerLab.getTripName();
-                tripName = name;
+                markerLab.setTripName(trip.getTripName());
 
                 // Start MarkerDemoActivity with tripID extra argument
                 Intent intent = new Intent(getApplicationContext(), MarkerDemoActivity.class);

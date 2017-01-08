@@ -3,6 +3,7 @@ package com.example.tbrams.markerdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -119,6 +120,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 // DB Maintenance mode:
                 // Start Detailview and show the waypoints
 
+                markerLab.setTripName(trip.getTripName());
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
                 Log.d("TBR", "Passing id: " + trip.getTripId());
@@ -166,7 +168,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
                 // Trip Selection Mode guide the user
                 Toast.makeText(mContext, "Change to Maintenance mode if you want to delete something", Toast.LENGTH_SHORT).show();
-                return false;
+                return false;  // carry on to map view
 
             }
         }

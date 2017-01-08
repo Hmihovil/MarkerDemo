@@ -35,6 +35,8 @@ public class ETOFragment extends Fragment {
         final EditText editETO = (EditText) v.findViewById(R.id.editETO);
         mTime = new Time();
 
+        getActivity().setTitle(markerLab.getTripName());
+
 
         // OK Button
         final Button btnOK = (Button) v.findViewById(R.id.btnOK);

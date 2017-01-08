@@ -1,11 +1,15 @@
 package com.example.tbrams.markerdemo;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
@@ -22,12 +26,22 @@ public class DetailActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     WpAdapter    mWpAdapter;
     String       mId;
+    MarkerLab markerLab;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        markerLab= MarkerLab.getMarkerLab(getApplicationContext());
+        if (MainActivity.isThisDbMaintenance()) {
+            setTitle("Maintenance Mode: "+markerLab.getTripName());
+        } else {
+            setTitle(markerLab.getTripName());
+        }
 
         // Get trip id from intent extra storage
         mId = getIntent().getExtras().getString(TripAdapter.TRIP_KEY);

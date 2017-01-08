@@ -51,6 +51,8 @@ public class GlobalNavValFragment extends Fragment {
 
         tripTextField.setText(markerLab.getTripName());
 
+        getActivity().setTitle(markerLab.getTripName());
+
         // Make sure the keyboard is committing on the last field instead of moving to next
         editTextWIND.setImeOptions(EditorInfo.IME_ACTION_DONE);
         editTextWIND.setOnEditorActionListener(new TextView.OnEditorActionListener() {

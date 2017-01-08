@@ -61,6 +61,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        getActivity().setTitle(markerLab.getTripName());
+
         mTime=new Time();
 
         v = inflater.inflate(R.layout.time_fragment_layout, container, false);

@@ -3,6 +3,8 @@ package com.example.tbrams.markerdemo;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -13,8 +15,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
@@ -40,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
     private Menu    mMenuHandle;
     private static Context mContext;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mContext = this;
+        updateTitle();
 
         setContentView(R.layout.activity_main);
 
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         displayTrips(null);
 
     }
+
 
     public static Context getContext() {
         return mContext;
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         mTripAdapter = new TripAdapter(this, mListFromDB);
         mRecyclerView.setAdapter(mTripAdapter);
+
     }
 
 
@@ -147,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("TBR:", "Menu title will be changed to: "+newTitle);
 
                 mMenuHandle.getItem(0).setTitle(newTitle);
+                updateTitle();
                 return true;
 
             case R.id.action_import:
@@ -264,5 +271,12 @@ public class MainActivity extends AppCompatActivity {
         return mDbMaintenance;
     }
 
+
+    private void updateTitle() {
+        if (isThisDbMaintenance())
+            setTitle("Marintenance mode: "+"Select a route");
+        else
+            setTitle("Select a route");
+    }
 }
 

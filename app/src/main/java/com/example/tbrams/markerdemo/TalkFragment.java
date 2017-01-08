@@ -44,6 +44,8 @@ public class TalkFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        getActivity().setTitle(markerLab.getTripName());
+
         // Get marker id from argument bundle
         segmentIndex = (int) getArguments().getSerializable(EXTRA_SEGMENT_ID);
         Log.d("TBR:","TalkFragment/onCreateView - intent/segmentIndex: "+segmentIndex);
