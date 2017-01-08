@@ -9,6 +9,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.dbModel.TripItem;
+
+import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
+
 public class FrontActivity extends AppCompatActivity {
 
     @Override
@@ -28,16 +33,23 @@ public class FrontActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d("TBR", "Create");
 
-                if (!String.valueOf(editName.getText()).matches("^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$")) {
+                String name =String.valueOf(editName.getText());
+                if (!name.matches("^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$")) {
                     editName.setError("You need to provide a proper description");
                     return;
                 }
 
+                TripItem trip = new TripItem(null,name,null, null);
+                DataSource datasource = new DataSource(getApplicationContext());
+                datasource.open();
+                trip = datasource.createTrip(trip);
+                datasource.close();
+
+                Log.d("TBR","Trip ID after insert: "+ trip.getTripId());
 
                 Intent intent = new Intent(getApplicationContext(), MarkerDemoActivity.class);
-//                intent.putExtra(TRIP_KEY, trip.getTripId());
-//                intent.putExtra(WP_KEY, "");
-//                Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
+                intent.putExtra(TRIP_KEY, trip.getTripId());
+                Log.d("TBR","FrontActivity -> MarkerDemoActivity with TripId: "+trip.getTripId());
                 startActivity(intent);
 
             }

@@ -152,6 +152,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             //mListFromDB = mDataSource.getAllWps(id);
 
             mListforDB = new ArrayList<>();
+            Log.d("TBR:", "Creating WpItems from markerList");
             for (int i = 0; i < markerList.size(); i++) {
                 MarkerObject mo=markerList.get(i);
                 WpItem wp = new WpItem(
@@ -1068,11 +1069,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
      */
     private void addMarker(LatLng loc) {
 
-        mPlanUpdated = true;
-
-        MarkerOptions options = createMarkerOptions(loc);
-        Marker marker = mMap.addMarker(options);
-
+        Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
         pejlinger = nearestVORs(marker);
@@ -1093,10 +1090,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
      */
     private void addMarker(LatLng loc, int afterThis) {
 
-        mPlanUpdated = true;
-
-        MarkerOptions options = createMarkerOptions(loc);
-        Marker marker = mMap.addMarker(options);
+        Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
         pejlinger=nearestVORs(marker);
@@ -1106,6 +1100,33 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         markerList.add(afterThis+1, mo);
         updatePolyline();
         updateNavinfo();
+    }
+
+
+    /*
+     * createMapMarker
+     * Establish MarkerOptions and create Google Maps Marker and make surethe title is safe.
+     * Before returning set the mPlanUpdated flag as this is a change we need to save upon
+     * editing
+     *
+     * Used by both addMarker functions internally
+     *
+     * Params  Latlng location of the marker
+     * Returns Marker Freshly baked marker
+     */
+    private Marker createMapMarker(LatLng loc) {
+        MarkerOptions options = createMarkerOptions(loc);
+        Marker marker = mMap.addMarker(options);
+
+        if (marker.getTitle()==null) {
+            // This happens sometimes when a location name cannot be found
+            marker.setTitle("Unknown location");
+        }
+
+        // Flag that we need to save upon exiting the program
+        mPlanUpdated = true;
+
+        return marker;
     }
 
 
@@ -1162,7 +1183,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private void loadTripFromDb(String tripId) {
         // Get a handle to the database helper and prepare the database
-        DataSource dataSource = new DataSource(MainActivity.getContext());
+        DataSource dataSource = new DataSource(getApplicationContext());
         dataSource.open();
 
         // copy trip details from database into marker array etc ...
