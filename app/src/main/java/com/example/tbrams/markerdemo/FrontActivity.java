@@ -38,7 +38,7 @@ public class FrontActivity extends AppCompatActivity {
                 Log.d("TBR", "Create");
 
                 String name =String.valueOf(editName.getText());
-                if (!name.matches("^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$")) {
+                if (!name.matches("^[0-9A-Za-z\\s]{1,}[\\.\\,\\-\\_]{0,1}[A-Za-z\\s\\?\\-\\_0-9]{0,}$")) {
                     editName.setError("You need to provide a proper description");
                     return;
                 }

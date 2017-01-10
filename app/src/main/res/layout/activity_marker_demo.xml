@@ -30,7 +30,9 @@
         app:layout_constraintTop_toTopOf="@+id/map"
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/map"
-        android:layout_marginStart="8dp">
+        android:layout_marginStart="8dp"
+        android:paddingStart="4dp"
+        android:paddingLeft="4dp">
 
         <requestFocus
             tools:layout_conversion_absoluteX="99dp"

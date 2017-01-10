@@ -229,13 +229,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
             // Disable the navigation toolbar that will otherwise pop up after setting a marker
             mMap.getUiSettings().setMapToolbarEnabled(false);
+
             // Enable my location button though
-
-
             //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
             plotNavAids();
-            
             plotAerodromes();
 
 
@@ -276,11 +274,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
                 @Override
                 public View getInfoContents(Marker marker) {
-                    Log.d("TBR:", "Marker title: "+marker.getTitle());
-                    Log.d("TBR:","Marker snippet: "+marker.getSnippet());
-                    Log.d("TBR:","Marker Id: "+marker.getId());
-                    Log.d("TBR:","Marker pos: "+marker.getPosition());
-
 
                     // check if a NavAid has been clicked
                     for (Marker m : mNavAidMarkers) {
@@ -314,14 +307,31 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     tvLng.setText("Lon: " +String.format("%.4f", latLng.longitude));
 
                     int markerIndex=getIndexById(marker.getId());
-                    MarkerObject mo = markerList.get(markerIndex);
-                    double dist = mo.getDist();
-                    double heading = mo.getTT();
+
+                    // Default values negative - we will substitute this with NA in the text later
+                    double dist    = -999;
+                    double heading = -999;
+                    if ((markerIndex+1)<markerList.size()) {
+                        // Get heading and distance from next WP, unless this was the last in the list
+                        MarkerObject mo = markerList.get(markerIndex+1);
+                        dist = mo.getDist();
+                        heading = mo.getTT();
+                    }
 
                     TextView tvDist = (TextView) v.findViewById(R.id.textDist);
                     TextView tvHead = (TextView) v.findViewById(R.id.textHeading);
-                    tvDist.setText(String.format("%.1f nm", dist));
-                    tvHead.setText(String.format("%.0f ", heading)+DEGREES);
+
+                    if (dist<0) {
+                        tvDist.setText("NA");
+                    } else {
+                        tvDist.setText(String.format("%.1f nm", dist));
+                    }
+
+                    if (heading<0) {
+                        tvHead.setText("Heading NA");
+                    } else {
+                        tvHead.setText(String.format("Heading %.0f ", heading)+DEGREES);
+                    }
 
                     return v;
 
@@ -386,19 +396,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
 
+        // We will always have a trip ID because at this point a trip will exist in the database
+        // double check to be sure though.
+
         if (mTripId != null) {
             loadTripFromDb(mTripId);
-        } else {
-            LatLng startPos=null;
-            try {
-                startPos = searchLocation(mSharedPrefs.getString("startLocation", "Copenhagen, Denmark"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos,mZoomLevel));
         }
-
     }
 
 
@@ -461,7 +464,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
  * When the markers are already done, all we need to do is resize the icon depending on
  * the Zoom level.
  *
- * For zoom levels above 16 ??? the map type will be changed to Hybrid and there is no longer need
+ * For zoom levels above 16 the map type will be changed to Hybrid and there is no longer need
  * for this marker.
  *
  */
@@ -807,6 +810,15 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                                 .setActionTextColor(Color.RED)
                                 .show();
 
+                        // Set camera on previous WP if there is one
+                        if ((markerIndex-1)>=0) {
+                            gotoLocation(markerList.get(markerIndex-1).getMarker().getPosition(), ZOOM_OVERVIEW);
+                        } else {
+                            // Otherwise use the preferred start location
+                            gotoPreferredStartLocation();
+                        }
+
+
                         // We need to request save on exit unless we want to lose changes
                         mPlanUpdated=true;
                         break;
@@ -839,6 +851,17 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             updateZoom();
         }
 
+    }
+
+    private void gotoPreferredStartLocation() {
+        LatLng position = null;
+        try {
+            position = searchLocation(mSharedPrefs.getString("startPlace", "Roskilde airport, Denmark"));
+            gotoLocation(position, mZoomLevel);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updatePreferenceFlags() {
@@ -890,7 +913,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         TextView tv = (TextView) findViewById(R.id.editText1);
         // check for help request
         if (String.valueOf(tv.getText()).matches(":help")) {
-            tv.setError("Special commands:\n:Navaids - list navaids\n" +
+            tv.setError("Special commands:\n:navaids - list navaids\n" +
                     ":ad - list installed aerodromes");
             tv.setText("");
             return;
@@ -1091,6 +1114,13 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     }
 
+
+    /*
+     *  Open the database and get all way points into our local markerList by mapping each
+     *  of the database WpItems into the local MarkerObjects and then adding them to the
+     *  ArrayList.
+     *
+     */
     private void loadTripFromDb(String tripId) {
         // Get a handle to the database helper and prepare the database
         DataSource dataSource = new DataSource(getApplicationContext());
@@ -1137,8 +1167,18 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     gotoLocation(location, ZOOM_OVERVIEW);
                 }
             }
-
             markerList.add(mo);
+        }
+
+        // Now if we did not get a starting point, we will just use the first one ... or the
+        // preferred starting point if there are no points
+        if (mWpId.equals("")) {
+            if (markerList.size()>0){
+                gotoLocation(markerList.get(0).getMarker().getPosition(), ZOOM_OVERVIEW);
+            } else {
+                // Otherwise use the preferred start location
+                gotoPreferredStartLocation();
+            }
         }
         updatePolyline();
         updateNavinfo();

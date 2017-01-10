@@ -238,61 +238,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         }
 
-
-        /* OLD MODEL HEREAFTER ...
-        if (view.getId()==R.id.buttonNext) {
-
-            // NEXT Button
-
-            if (segmentIndex<markerList.size()-1) {
-                segmentIndex++;
-                updateFields();
-
-                talkBtn.setEnabled(false);
-                nextBtn.setEnabled(false);
-
-            }
-
-        } else if (view.getId()==R.id.buttonTalk ) {
-
-            // TALK Button
-
-            Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
-            startActivity(intent);
-
-            if (segmentIndex<markerList.size()-1) {
-                nextBtn.setEnabled(true);
-            }
-
-        } else if (view.getId()==R.id.buttonTime) {
-
-            // TIME Button
-
-            // for testing I will hardcode time stamp to be like:
-            int time = 8;
-
-            toWP.setATO(time);    // set ATO to the "actual" time
-            Log.d("TBR:", "ATO set to "+time+" for "+toWP.getText());
-
-            // Calculate and time difference
-            double timeDifference = toWP.getETO()-toWP.getATO();
-            Log.d("TBR:", "Diff from estimate is: "+timeDifference+" for "+toWP.getText());
-
-            if (segmentIndex<markerList.size()-2) {
-                // We have a next segment
-                MarkerObject thenWP = markerList.get(segmentIndex+2);
-                double reto = thenWP.getETO() - timeDifference;
-                thenWP.setRETO(reto);
-                Log.d("TBR:", "RETO set to: " + reto + thenWP.getText());
-            }
-            Log.d("TBR:", "Dumping ETO/RETO for all markers here");
-            for (int i=1;i<markerList.size();i++){
-                Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
-            }
-
-            talkBtn.setEnabled(true);
-        }
-        */
     }
 
 
@@ -309,13 +254,13 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     updateFields();
                 }
                 tvCommand.setText("TURN: Heading "+String.format("%03d",(int)toWP.getMH())+"˚");
-                checkBtn.setText("DONE");
+                checkBtn.setText("ON COURSE");
                 break;
 
             case C_ARRIVED:
                 tvCommand.setText("Arrived at destination "+String.format("%03d",(int)toWP.getATO()));
                 checkBtn.setEnabled(false);
-                checkBtn.setText("DONE");
+                checkBtn.setText("GOOD JOB");
                 break;
 
             case C_TIME:
@@ -326,6 +271,16 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             case C_TALK:
                 tvCommand.setText(mCommandList.get(cmd));
                 checkBtn.setText("READ");
+                break;
+
+            case C_TRACK:
+                tvCommand.setText(mCommandList.get(cmd));
+                checkBtn.setText("TRACK OK");
+                break;
+
+            case C_READY:
+                tvCommand.setText(mCommandList.get(cmd));
+                checkBtn.setText("TAKE OFF");
                 break;
 
             default:
