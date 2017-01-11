@@ -470,11 +470,34 @@ public class MarkerDemoActivity extends AppCompatActivity implements
  */
     private void plotNavAids() {
 
-        String iconName = "ic_device_gps_fixed";
-        int iconInt = R.drawable.ic_device_gps_fixed;
+        String iconName;
+        int iconInt=R.drawable.ic_device_gps_blue;
         if (mNavAidMarkers.size() == 0) {
             // Create all NavAids markers and keep record in an ArrayList
             for (int i = 0; i < vorList.size(); i++) {
+                 switch (vorList.get(i).getType()){
+                     case NavAid.VOR:
+                         iconInt=R.drawable.ic_device_gps_blue;
+                         break;
+                     case NavAid.VORDME:
+                         iconInt=R.drawable.ic_device_gps_green;
+                         break;
+                     case NavAid.DME:
+                         iconInt=R.drawable.ic_device_gps_purple;
+                         break;
+                     case NavAid.NDB:
+                         iconInt=R.drawable.ic_device_gps_black;
+                         break;
+                     case NavAid.TACAN:
+                         iconInt=R.drawable.ic_device_gps_red;
+                         break;
+                     case NavAid.VORTAC:
+                         iconInt=R.drawable.ic_device_gps_orange;
+                         break;
+                 }
+
+
+
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .title(vorList.get(i).getName())
                         .snippet(String.format("%.4f", vorList.get(i).getPosition().latitude) + ", " +
@@ -880,8 +903,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         switch (id) {
             case R.id.mapPreferences:
                 // Launch the PreferenceActivity
-                Intent i = new Intent(this, MarkerPreferenceActivity.class);
-                startActivityForResult(i,SETTINGS_RESULT);
+                Intent preferenceIntent = new Intent(this, MarkerPreferenceActivity.class);
+                startActivityForResult(preferenceIntent, SETTINGS_RESULT);
+                break;
+
+            case R.id.importNavAids:
+                // Launch GoogleSheetsActivity
+                Intent sheetsIntent = new Intent(this, GoogleSheetActivity.class);
+                startActivity(sheetsIntent);
                 break;
         }
 

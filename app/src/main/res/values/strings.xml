@@ -30,4 +30,5 @@
     <string name="global_text">Please enter the key performance metrics\nfor this trip</string>
     <string name="title_maintenance">Maintenance mode</string>
     <string name="title_trip">Select a route</string>
+    <string name="title_activity_google_sheet">GoogleSheetActivity</string>
 </resources>

@@ -23,15 +23,18 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
     compile 'com.google.android.gms:play-services:10.0.1'
     compile 'com.android.support:support-v4:25.0.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
     compile 'com.google.maps.android:android-maps-utils:0.4.4'
-    testCompile 'junit:junit:4.12'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'pub.devrel:easypermissions:0.2.1'
+    compile('com.google.api-client:google-api-client-android:1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    compile('com.google.apis:google-api-services-sheets:v4-rev38-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
 }
