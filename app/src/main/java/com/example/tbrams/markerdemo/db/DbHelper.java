@@ -18,12 +18,14 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TripTable.SQL_CREATE);
         db.execSQL(WpTable.SQL_CREATE);
+        db.execSQL(NavAidTable.SQL_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL(TripTable.SQL_DELETE);
         db.execSQL(WpTable.SQL_DELETE);
+        db.execSQL(NavAidTable.SQL_DELETE);
         onCreate(db);
     }
 

@@ -3,8 +3,6 @@ package com.example.tbrams.markerdemo;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -18,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.tbrams.markerdemo.data.MarkerLab;
+import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
@@ -27,16 +25,16 @@ import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
-import static com.example.tbrams.markerdemo.MarkerDemoActivity.getCurrentTripId;
-
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_WRITE = 101;
 
     List<String>       mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList   = SampleDataProvider.sWpListsForTrips;
+    List<NavAid> mNavAidListsSample = SampleDataProvider.sNavAidList;
 
     DataSource      mDataSource;
     List<TripItem>  mListFromDB;
+    List<NavAid>    mNavAidsListFromDB;
     RecyclerView    mRecyclerView;
     TripAdapter     mTripAdapter;
     private boolean mPermissionGranted;
@@ -83,12 +81,19 @@ public class MainActivity extends AppCompatActivity {
         mDataSource.open();
         mDataSource.resetDB();
 
+        // For each trip we have in the Sample provider, get all related WP's as well and add it all to the DB
         for (int i = 0; i < mTripSampleList.size(); i++) {
                 String tripName = mTripSampleList.get(i);
                 List<WpItem> wpList = mWpSampleList.get(i);
 
                 mDataSource.addFullTrip(tripName, wpList);
-            }
+        }
+
+        // Copy all navaids form the dataProvider to the Database
+        for (NavAid na : mNavAidListsSample) {
+            mDataSource.createNavAid(na);
+        }
+
         mDataSource.close();
     }
 
@@ -100,17 +105,19 @@ public class MainActivity extends AppCompatActivity {
      * matching object for each row returned and feed that to the TripAdapter that will
      * be used for the List.
      *
+     * Also for data maintenance purposes, get a fresh list of NavAids from the database at this point
+     *
      * @args:   filter
      * @return: none
      */
     private void displayTrips(String filter) {
         mDataSource.open();
         mListFromDB  = mDataSource.getAllTrips(filter);
+        mNavAidsListFromDB = mDataSource.getAllNavAids(null);
         mDataSource.close();
 
         mTripAdapter = new TripAdapter(this, mListFromDB);
         mRecyclerView.setAdapter(mTripAdapter);
-
     }
 
 
@@ -134,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onCreateOptionsMenu(menu);
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -159,14 +168,21 @@ public class MainActivity extends AppCompatActivity {
                 // then get the items from the imported trips and save in DB
                 List<TripItem> tripItems = JSONHelper.importTripsFromJSON(this);
                 mDataSource.seedTripTable(tripItems);
-                Log.i("TBR", "Restored Trip Data written to DB");
+                Log.i("TBR", "Restored JSON Trip Data written to DB");
 
-                // Update list display
+                // Update list display - show them all
                 displayTrips(null);
 
+                // need to re-open datasource, because displayTrips closes it
+                mDataSource.open();
                 List<WpItem> wpItems = JSONHelper.importWpsFromJSON(this);
                 mDataSource.seedWpTable(wpItems);
-                Log.i("TBR", "Restored Wp Data written to DB");
+                Log.i("TBR", "Restored JSON WP Data written to DB");
+
+                List<NavAid> naList = JSONHelper.importNavAidsFromJSON(this);
+                mDataSource.seedNavAidTable(naList);
+                Log.i("TBR", "Restored JSON NavAid Data written to DB");
+
                 mDataSource.close();
 
                 return true;
@@ -177,18 +193,26 @@ public class MainActivity extends AppCompatActivity {
                 mDataSource.open();
                 List<WpItem> wps = mDataSource.getAllWps(null);
                 if (JSONHelper.exportWpsToJSON(this, wps)) {
-                    Log.i("TBR", "WP data exported");
+                    Log.i("TBR", "WP data exported in JSONB format");
                 } else {
                     Log.e("TBR", "WP data export failed");
                 }
 
 
                 if (JSONHelper.exportTripsToJSON(this, mListFromDB)) {
-                    Toast.makeText(this, "Database Exported", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Trip data Exported in JSONB format", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("TBR", "Trips data export failed");
                 }
+
+
+                if (JSONHelper.exportNavAidsToJSON(this, mNavAidsListFromDB)) {
+                    Toast.makeText(this, "NavAid data Exported in JSONB format", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("TBR", "NavAid data export failed");
+                }
                 mDataSource.close();
+
                 return true;
 
 

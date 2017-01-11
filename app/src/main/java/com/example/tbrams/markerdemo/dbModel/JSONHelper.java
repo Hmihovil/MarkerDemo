@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.tbrams.markerdemo.data.NavAid;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -17,10 +18,7 @@ import java.util.List;
 public class JSONHelper {
     public static final String FILE_NAME_TRIPS = "trips.json";
     public static final String FILE_NAME_WPS = "wps.json";
-    public static final String TAG = "JSONHelper";
-
-
-
+    public static final String FILE_NAME_NAVAIDS="navaids.json";
 
     /*
      * Export Trip data to external storage in JSON format by wrapping trip data in the
@@ -97,6 +95,42 @@ public class JSONHelper {
 
 
     /*
+     * Export NavAid data to external storage in JSON format by wrapping trip data in the
+     * NavAidDataItem class structure and encode using Gson.
+     */
+    public static boolean exportNavAidsToJSON(Context context, List<NavAid> list) {
+
+        NavAidDataItems navAidDataItems = new NavAidDataItems();
+        navAidDataItems.setDataItems(list);
+
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(navAidDataItems);
+        Log.i("TBR", "NavAids export to JSON " + jsonString);
+
+        FileOutputStream fileOutputStream = null;
+        File file=new File(Environment.getExternalStorageDirectory(), FILE_NAME_NAVAIDS);
+
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(jsonString.getBytes());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /*
      * Import Table data in Json format from external storage using Gson to arrange everything
      * into the TripDataItems data structure.
      */
@@ -168,6 +202,43 @@ public class JSONHelper {
 
 
     /*
+     * Import NavAid data in Json format from external storage using Gson to arrange everything
+     * into the NavAids List data structure.
+     */
+
+    public static List<NavAid> importNavAidsFromJSON(Context context) {
+
+        FileReader reader = null;
+
+        try {
+            File file=new File(Environment.getExternalStorageDirectory(), FILE_NAME_NAVAIDS);
+            reader = new FileReader(file);
+
+            Gson gson = new Gson();
+            NavAidDataItems dataItems = gson.fromJson(reader, NavAidDataItems.class);
+            return dataItems.getDataItems();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+        return null;
+    }
+
+
+
+
+
+    /*
      * Class structure used by Gson for Trip data
      */
     static class TripDataItems {
@@ -197,6 +268,22 @@ public class JSONHelper {
 
         public void setDataItems(List<WpItem> wpItems) {
             this.dataItems = wpItems;
+        }
+    }
+
+
+    /*
+     * Class structure used by Gson for NavAids
+     */
+    static class NavAidDataItems {
+        List<NavAid> navAids;
+
+        public List<NavAid> getDataItems() {
+            return navAids;
+        }
+
+        public void setDataItems(List<NavAid> naList) {
+            this.navAids = naList;
         }
     }
 }

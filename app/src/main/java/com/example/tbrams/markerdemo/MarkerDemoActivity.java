@@ -109,7 +109,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private String mWpId;
     private boolean mPlanUpdated=false;
     DataSource      mDataSource;
-    List<WpItem>    mListforDB;
 
 
 
@@ -1230,6 +1229,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     public void onBackPressed() {
         super.onBackPressed();
 
+        List<WpItem> listForDB;
+
+
         Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
 
         // if trip is new or has been updated we should offer to save it here
@@ -1237,15 +1239,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // FOR NOW, JUST CONSIDER UPDATES UNTIL WE GOT IT RIGHT
 
         if (mPlanUpdated) {
-            Toast.makeText(this, "Something was changed ... offer save to DB", Toast.LENGTH_SHORT).show();
-            // Do something...
+            Toast.makeText(this, "Saving to DB", Toast.LENGTH_SHORT).show();
 
             // Get a handle to the database helper and prepare the database
             mDataSource = new DataSource(this);
             mDataSource.open();
 
 
-            // get the trip name somehow, the remove existing trip
+            // get the trip name somehow, then remove existing trip
 
             String tripName = mDataSource.getTripName(mTripId);
             Log.d("TBR:", "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
@@ -1256,9 +1257,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
             // create a list with populated WpItems ... mapped from the MarkerItem list
-            //mListFromDB = mDataSource.getAllWps(id);
 
-            mListforDB = new ArrayList<>();
+            listForDB = new ArrayList<>();
             Log.d("TBR:", "Creating WpItems from markerList");
             for (int i = 0; i < markerList.size(); i++) {
                 MarkerObject mo=markerList.get(i);
@@ -1274,13 +1274,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
                 Log.d("TBR:", "#"+i+" wp.getWpName: "+wp.getWpName());
-                mListforDB.add(wp);
+                listForDB.add(wp);
             }
 
 
             // then createTrip like this
-            TripItem ti = new TripItem();
-            ti =  mDataSource.addFullTrip(tripName, mListforDB);
+            TripItem ti =  mDataSource.addFullTrip(tripName, listForDB);
             mDataSource.close();
             Log.d("TBR", "Data updated in DB");
 

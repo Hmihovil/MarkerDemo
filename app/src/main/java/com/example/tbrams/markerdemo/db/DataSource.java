@@ -10,8 +10,10 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,11 +51,14 @@ public class DataSource {
         mDbOpenHelper.close();
     }
 
+
     public void resetDB() {
         mDb.execSQL(TripTable.SQL_DELETE);
-        mDb.execSQL(WpTable.SQL_DELETE);
         mDb.execSQL(TripTable.SQL_CREATE);
+        mDb.execSQL(WpTable.SQL_DELETE);
         mDb.execSQL(WpTable.SQL_CREATE);
+        mDb.execSQL(NavAidTable.SQL_DELETE);
+        mDb.execSQL(NavAidTable.SQL_CREATE);
     }
 
 
@@ -397,6 +402,98 @@ public class DataSource {
 
         return wps;
     }
+
+
+
+    // ================  NavAidsTable ==========================
+
+
+
+    /*
+     * createNavAid
+     * This is the function responsible for inserting data into the NavAid Table. Will be returning
+     * the same object in case we need to check if something has been changed.
+     *
+     * @Args: NavAid Object
+     *
+     * @Return: NavAid object
+     *
+     */
+    public NavAid createNavAid(NavAid na) {
+        ContentValues values = na.toContentValues();
+
+        mDb.insert(NavAidTable.TABLE_NAME, null, values);
+        return na;
+    }
+
+    /*
+     * seedNavAidTable
+     * Insert all NavAid objects into the NavAids table in the database
+     *
+     * @Args: List of NavAid objects
+     *
+     * @Return: none
+     *
+     */
+    public void seedNavAidTable(List<NavAid> navAidList) {
+        if (navAidList.size()>0) {
+            for (NavAid na : navAidList) {
+                try {
+                    createNavAid(na);
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /*
+     * getAllNavAids
+     * Lookup matching records in the database and for each create a matching object and return
+     * a list with all of these as the result.
+     *
+     * @Args: type,     a filter - if this is null all rows are returned from db, otherwise only
+     *                  NavAids of a certain type is returned.
+     *
+     * @Return: A list of trip NavAids
+     *
+     */
+    public List<NavAid> getAllNavAids(Integer type){
+        List<NavAid> navAids = new ArrayList<>();
+        Cursor cursor;
+
+        if (type==null) {
+            // Fetch all sorted by Name
+            cursor = mDb.query(NavAidTable.TABLE_NAME, NavAidTable.ALL_COLUMNS, null,null,null,null,NavAidTable.COLUMN_NAME);
+        } else {
+            // Pack the type in the required Array object notation before search for matching types and then sorting by name
+            String[] typeArg = {type.toString()};
+            cursor = mDb.query(NavAidTable.TABLE_NAME, NavAidTable.ALL_COLUMNS, NavAidTable.COLUMN_TYPE+"=?",typeArg, null, null, NavAidTable.COLUMN_NAME);
+        }
+
+
+        while (cursor.moveToNext()) {
+            NavAid  navAid = new NavAid();
+
+            navAid.setName(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_NAME)));
+            navAid.setIdent(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_IDENT)));
+            double lat = cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_LAT));
+            navAid.setPosition(new LatLng(lat, lon));
+            navAid.setFreq(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_FREQ)));
+            navAid.setMax_alt(cursor.getInt(cursor.getColumnIndex(NavAidTable.COLUMN_MAX_ALT)));
+            navAid.setMax_range(cursor.getInt(cursor.getColumnIndex(NavAidTable.COLUMN_MAX_DIST)));
+            navAid.setElevation(cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_ELEV)));
+
+            navAids.add(navAid);
+        }
+        cursor.close();
+
+        return navAids;
+    }
+
+
 
 
     /*

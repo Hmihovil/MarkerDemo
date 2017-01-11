@@ -1,7 +1,12 @@
 package com.example.tbrams.markerdemo.data;
 
+import android.content.ContentValues;
+
+import com.example.tbrams.markerdemo.db.NavAidTable;
+import com.example.tbrams.markerdemo.db.TripTable;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +22,7 @@ public class NavAid {
     public static final int VORTAC=6;
     public static final int LOCALIZER=7;
 
+    private String id;
     private String name;
     private String ident;
     private String freq;
@@ -34,8 +40,12 @@ public class NavAid {
         return name;
     }
 
+    public NavAid() {
+        this.id = UUID.randomUUID().toString();
+    }
 
- /*   public NavAid(String n, int what, String lat, String lng) {
+
+    /*   public NavAid(String n, int what, String lat, String lng) {
         // Convert the Lat and Lng strings to double values and use them to establish a position
 
         position = new LatLng(convert(lat), convert(lng));
@@ -45,6 +55,8 @@ public class NavAid {
 
     public NavAid(String name, String id, int kind, String latlong, String freq, String limitString, Double elevation) {
         position = parseCoordinates(latlong);
+
+        this.id = UUID.randomUUID().toString();
 
         this.name = name;
         this.ident=id;
@@ -149,13 +161,28 @@ public class NavAid {
         this.freq = freq;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Double getElevation() {
+        return elevation;
+    }
+
+    public void setElevation(Double elevation) {
+        this.elevation = elevation;
+    }
 
     /*
-     * Convert the different variation of limitations from VFG Denmark to
-     * an integer array with the FL and the NM as first and second element.
-     *
-     * Accepts Strings like "FL 500/60 NM", "20NM", "FL 500/200NM"
-     */
+         * Convert the different variation of limitations from VFG Denmark to
+         * an integer array with the FL and the NM as first and second element.
+         *
+         * Accepts Strings like "FL 500/60 NM", "20NM", "FL 500/200NM"
+         */
     private static int[] parseLimitations(String input) {
         int[] result = {0,0};
         String[] parts=input.trim().replace(" ","").split("/");
@@ -199,6 +226,24 @@ public class NavAid {
         return  dd + mm / 60. + ss / 3600.;
     }
 
+
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues(4);
+
+        values.put(NavAidTable.COLUMN_ID,   id);
+        values.put(NavAidTable.COLUMN_NAME, name);
+        values.put(NavAidTable.COLUMN_IDENT, ident);
+        values.put(NavAidTable.COLUMN_TYPE, type);
+        values.put(NavAidTable.COLUMN_LAT, position.latitude);
+        values.put(NavAidTable.COLUMN_LON, position.longitude);
+        values.put(NavAidTable.COLUMN_FREQ, freq);
+        values.put(NavAidTable.COLUMN_MAX_ALT, max_alt);
+        values.put(NavAidTable.COLUMN_MAX_DIST, max_range);
+        values.put(NavAidTable.COLUMN_ELEV, elevation);
+
+        return values;
+    }
 }
 
 
