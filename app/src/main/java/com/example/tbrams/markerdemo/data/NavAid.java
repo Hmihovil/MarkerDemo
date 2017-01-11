@@ -24,6 +24,7 @@ public class NavAid {
     private int    max_range;
     private int    max_alt;
     private LatLng position;
+    private Double elevation;
 
     public LatLng getPosition() {
         return position;
@@ -42,7 +43,7 @@ public class NavAid {
     }
 */
 
-    public NavAid(String name, String id, int kind, String latlong, String freq, String limitString) {
+    public NavAid(String name, String id, int kind, String latlong, String freq, String limitString, Double elevation) {
         position = parseCoordinates(latlong);
 
         this.name = name;
@@ -53,6 +54,11 @@ public class NavAid {
         int[] limits = parseLimitations(limitString);
         max_alt = limits[0];
         max_range=limits[1];
+
+        if (elevation!=null)
+           this.elevation = elevation;
+        else
+            this.elevation=0.0;
     }
 
 
