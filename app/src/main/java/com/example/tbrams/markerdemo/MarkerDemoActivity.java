@@ -470,7 +470,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
  */
     private void plotNavAids() {
 
-        String iconName;
+        String snippetText="invalid";
         int iconInt=R.drawable.ic_device_gps_blue;
         if (mNavAidMarkers.size() == 0) {
             // Create all NavAids markers and keep record in an ArrayList
@@ -478,21 +478,31 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                  switch (vorList.get(i).getType()){
                      case NavAid.VOR:
                          iconInt=R.drawable.ic_device_gps_blue;
+                         snippetText = "VOR";
                          break;
                      case NavAid.VORDME:
                          iconInt=R.drawable.ic_device_gps_green;
+                         snippetText = "VOR/DME";
                          break;
                      case NavAid.DME:
                          iconInt=R.drawable.ic_device_gps_purple;
+                         snippetText = "DME";
                          break;
                      case NavAid.NDB:
                          iconInt=R.drawable.ic_device_gps_black;
+                         snippetText = "NDB";
                          break;
                      case NavAid.TACAN:
                          iconInt=R.drawable.ic_device_gps_red;
+                         snippetText = "TACAN";
                          break;
                      case NavAid.VORTAC:
                          iconInt=R.drawable.ic_device_gps_orange;
+                         snippetText = "VORTAC";
+                         break;
+                     case NavAid.LOCALIZER:
+                         iconInt=R.drawable.ic_device_gps_grey;
+                         snippetText = "LOCALIZER";
                          break;
                  }
 
@@ -500,8 +510,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .title(vorList.get(i).getName())
-                        .snippet(String.format("%.4f", vorList.get(i).getPosition().latitude) + ", " +
-                                String.format("%.4f", vorList.get(i).getPosition().longitude))
+                        .snippet(snippetText+" "+vorList.get(i).getFreq())
                         .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
 
                 m.setAnchor(.5f, .5f);

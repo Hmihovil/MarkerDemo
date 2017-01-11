@@ -15,8 +15,11 @@ public class NavAid {
     public static final int DME=4;
     public static final int VORDME=5;
     public static final int VORTAC=6;
+    public static final int LOCALIZER=7;
 
     private String name;
+    private String ident;
+    private String freq;
     private int    type;
     private int    max_range;
     private int    max_alt;
@@ -39,20 +42,19 @@ public class NavAid {
     }
 */
 
-//    public NavAid(String name, String id, String what, String latlong, String limitString) {
-    // work with a shorter version until we get it up an running...
-
-    public NavAid(String name, int what, String latlong) {
-        // Convert the Lat and Lng strings to double values and use them to establish a position
-
+    public NavAid(String name, String id, int kind, String latlong, String freq, String limitString) {
         position = parseCoordinates(latlong);
 
         this.name = name;
-        this.type = what;
+        this.ident=id;
+        this.type = kind;
+        this.freq = freq;
+
+        int[] limits = parseLimitations(limitString);
+        max_alt = limits[0];
+        max_range=limits[1];
     }
 
-//        max_alt = limits[0];
-//        max_range=limits[1];
 
 
     /*
@@ -112,14 +114,33 @@ public class NavAid {
         this.position = position;
     }
 
+    public String getIdent() {
+        return ident;
+    }
+
+    public void setIdent(String ident) {
+        this.ident = ident;
+    }
+
     @Override
     public String toString() {
         return "NavAid{" +
                 "name='" + name + '\'' +
+                ", ident='" + ident + '\'' +
+                ", freq='" + freq + '\'' +
+                ", type=" + type +
                 ", max_range=" + max_range +
                 ", max_alt=" + max_alt +
                 ", position=" + position +
                 '}';
+    }
+
+    public String getFreq() {
+        return freq;
+    }
+
+    public void setFreq(String freq) {
+        this.freq = freq;
     }
 
 
@@ -171,6 +192,7 @@ public class NavAid {
 
         return  dd + mm / 60. + ss / 3600.;
     }
+
 }
 
 
