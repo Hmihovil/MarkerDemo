@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +28,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_WRITE = 101;
+    private static final String TAG = "TBR:MA";
 
     List<String>       mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList   = SampleDataProvider.sWpListsForTrips;
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 // then get the items from the imported trips and save in DB
                 List<TripItem> tripItems = JSONHelper.importTripsFromJSON(this);
                 mDataSource.seedTripTable(tripItems);
-                Log.i("TBR", "Restored JSON Trip Data written to DB");
+                Log.i(TAG, "Restored JSON Trip Data written to DB");
 
                 // Update list display - show them all
                 displayTrips(null);
@@ -177,11 +179,11 @@ public class MainActivity extends AppCompatActivity {
                 mDataSource.open();
                 List<WpItem> wpItems = JSONHelper.importWpsFromJSON(this);
                 mDataSource.seedWpTable(wpItems);
-                Log.i("TBR", "Restored JSON WP Data written to DB");
+                Log.i(TAG, "Restored JSON WP Data written to DB");
 
                 List<NavAid> naList = JSONHelper.importNavAidsFromJSON(this);
                 mDataSource.seedNavAidTable(naList);
-                Log.i("TBR", "Restored JSON NavAid Data written to DB");
+                Log.i(TAG, "Restored JSON NavAid Data written to DB");
 
                 mDataSource.close();
 
@@ -193,23 +195,23 @@ public class MainActivity extends AppCompatActivity {
                 mDataSource.open();
                 List<WpItem> wps = mDataSource.getAllWps(null);
                 if (JSONHelper.exportWpsToJSON(this, wps)) {
-                    Log.i("TBR", "WP data exported in JSONB format");
+                    Log.i(TAG, "WP data exported in JSONB format");
                 } else {
-                    Log.e("TBR", "WP data export failed");
+                    Log.e(TAG, "WP data export failed");
                 }
 
 
                 if (JSONHelper.exportTripsToJSON(this, mListFromDB)) {
                     Toast.makeText(this, "Trip data Exported in JSONB format", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.e("TBR", "Trips data export failed");
+                    Log.e(TAG, "Trips data export failed");
                 }
 
 
                 if (JSONHelper.exportNavAidsToJSON(this, mNavAidsListFromDB)) {
                     Toast.makeText(this, "NavAid data Exported in JSONB format", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.e("TBR", "NavAid data export failed");
+                    Log.e(TAG, "NavAid data export failed");
                 }
                 mDataSource.close();
 
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Initiate request for permissions.
     private boolean checkPermissions() {
-        Log.d("TBR", "CheckPermissions");
+        Log.d(TAG, "CheckPermissions");
 
         if (!isExternalStorageReadable() || !isExternalStorageWritable()) {
             Toast.makeText(this, "This app only works on devices with usable external storage",
@@ -297,5 +299,8 @@ public class MainActivity extends AppCompatActivity {
         else
             setTitle(getString(R.string.title_trip));
     }
+
+
+
 }
 

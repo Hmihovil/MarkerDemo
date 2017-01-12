@@ -13,6 +13,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -65,7 +66,8 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 
 public class MarkerDemoActivity extends AppCompatActivity implements
         OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        AlartDialogFragment.SimpleDialogListener {
 
     private static final int REQUEST_M_ID=1;
     private static final int REQUEST_GLOBAL_VARS=2;
@@ -74,6 +76,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private static final float ZOOM_OVERVIEW = 10.0f;
 
     private static final String DEGREES="\u00B0";
+    private static final String TAG = "TBR:MDA" ;
 
     private  MarkerObject mUndoDeleteMarker = null;
     private  int mUndoDeleteIndex= -1;
@@ -123,7 +126,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
         mWpId   = getIntent().getStringExtra(WP_KEY);
-        Log.d("TBR:","Received Trip id: " + mTripId +" and wp id: "+ mWpId);
+        Log.d(TAG,"Received Trip id: " + mTripId +" and wp id: "+ mWpId);
 
         this.setTitle(markerLab.getTripName());
 
@@ -189,7 +192,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                                 Intent intent = new Intent(MarkerDemoActivity.this, GlobalNavValActivity.class);
                                 startActivityForResult(intent, REQUEST_GLOBAL_VARS);
 
-                                Log.d("TBR:", "GlobalNavValActivity Started...");
+                                Log.d(TAG, "GlobalNavValActivity Started...");
                             }
                         }).show();
             }
@@ -241,7 +244,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                 public void onCameraIdle() {
                     CameraPosition cameraPosition = mMap.getCameraPosition();
                     mZoomLevel=cameraPosition.zoom;
-                    Log.d("TBR:", "Camera Idle Listener, zoomlevel: "+ mZoomLevel);
+                    Log.d(TAG, "Camera Idle Listener, zoomlevel: "+ mZoomLevel);
 
                     writePreferenceChanges();
 
@@ -277,7 +280,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     // check if a NavAid has been clicked
                     for (Marker m : mNavAidMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d("TBR:","NavAid marker clicked");
+                            Log.d(TAG,"NavAid marker clicked");
                             return null;
                         }
                     }
@@ -285,7 +288,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     // check if an Aerodrome has been clicked
                     for (Marker m : mADMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d("TBR:","Aerodrome marker clicked");
+                            Log.d(TAG,"Aerodrome marker clicked");
                             return null;
                         }
                     }
@@ -563,7 +566,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
             relativePixelSize = maxPixelSize;
 
-        Log.d("TBR:", "Rel pixel size: "+relativePixelSize);
+        Log.d(TAG, "Rel pixel size: "+relativePixelSize);
 
         // Create bitmap from drawable and size it.. if it makes sense
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
@@ -674,7 +677,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private void updatePolyline() {
         if (polyline==null) {
-            Log.d("TBR:", "UpdatePolyLine: ==null");
+            Log.d(TAG, "UpdatePolyLine: ==null");
             PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
             polyline = mMap.addPolyline(lineOptions);
         }
@@ -789,18 +792,18 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             
             if (data!=null) {
                 int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
-                Log.d("TBR:", "onActivityResult: Received markerIndex:"+markerIndex);
+                Log.d(TAG, "onActivityResult: Received markerIndex:"+markerIndex);
                 
                 Marker m=null;
                 switch (resultCode) {
                     case InfoEditFragment.ACTION_CANCEL:
-                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_CANCEL");
+                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_CANCEL");
                         m=markerList.get(markerIndex).getMarker();
                         gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
                         break;
 
                     case NavPagerActivity.ACTION_UPDATE:
-                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_UPDATE");
+                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_UPDATE");
                         m=markerList.get(markerIndex).getMarker();
                         gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
 
@@ -810,7 +813,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     
                     
                     case InfoEditFragment.ACTION_DELETE:
-                        Log.d("TBR:","OnActivityResult, resultCode: ACTION_DELETE");
+                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_DELETE");
 
                         // Prepare for undoing later by storing both marker and position in track
                         mUndoDeleteIndex = markerIndex;
@@ -861,14 +864,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             
             switch (resultCode) {
                 case Activity.RESULT_OK:
-                    Log.d("TBR:","Result OK received from GlobalNavValFragment");
+                    Log.d(TAG,"Result OK received from GlobalNavValFragment");
 
                     Intent intent = DetailPagerActivity.newIntent(this, currentMarkerIndex);
                     startActivity(intent);
                     break;
                 
                 case Activity.RESULT_CANCELED:
-                    Log.d("TBR:", "Result Cancelled from GlobalNavValFragment");
+                    Log.d(TAG, "Result Cancelled from GlobalNavValFragment");
                     break;
             }
 
@@ -1175,12 +1178,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             String name = wp.getWpName();
             LatLng location = new LatLng(wp.getWpLat(), wp.getWpLon());
 
-            Log.d("TBR:", "getWpName: "+name);
-            Log.d("TBR:", "getWpId: "+wp.getWpId());
-            Log.d("TBR:", "getWpAltitude: "+wp.getWpAltitude());
-            Log.d("TBR:", "getWpDistance: "+wp.getWpDistance());
-            Log.d("TBR:", "getWpLat: "+wp.getWpLat());
-            Log.d("TBR:", "getWpLon: "+wp.getWpLon());
+            Log.d(TAG, "getWpName: "+name);
+            Log.d(TAG, "getWpId: "+wp.getWpId());
+            Log.d(TAG, "getWpAltitude: "+wp.getWpAltitude());
+            Log.d(TAG, "getWpDistance: "+wp.getWpDistance());
+            Log.d(TAG, "getWpLat: "+wp.getWpLat());
+            Log.d(TAG, "getWpLon: "+wp.getWpLon());
 
             MarkerOptions options = new MarkerOptions()
                     .draggable(true)
@@ -1227,74 +1230,20 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
 
-        List<WpItem> listForDB;
-
-
-        Log.d("TBR", "MarkerDemoActivity, onBackPressed called");
+        Log.d(TAG, "MarkerDemoActivity, onBackPressed called");
 
         // if trip is new or has been updated we should offer to save it here
 
         // FOR NOW, JUST CONSIDER UPDATES UNTIL WE GOT IT RIGHT
 
         if (mPlanUpdated) {
-            Toast.makeText(this, "Saving to DB", Toast.LENGTH_SHORT).show();
-
-            // Get a handle to the database helper and prepare the database
-            mDataSource = new DataSource(this);
-            mDataSource.open();
-
-
-            // get the trip name somehow, then remove existing trip
-
-            String tripName = mDataSource.getTripName(mTripId);
-            Log.d("TBR:", "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
-
-            // mDataSource.DeleteTrip(id) and all the previous waypoints
-            mDataSource.deleteTrip(mTripId);
-            Log.d("TBR:", "Trip deleted along with Waypoints");
-
-
-            // create a list with populated WpItems ... mapped from the MarkerItem list
-
-            listForDB = new ArrayList<>();
-            Log.d("TBR:", "Creating WpItems from markerList");
-            for (int i = 0; i < markerList.size(); i++) {
-                MarkerObject mo=markerList.get(i);
-                WpItem wp = new WpItem(
-                        mo.getMyId(),
-                        mo.getText(),
-                        mo.getMarker().getPosition().latitude,
-                        mo.getMarker().getPosition().longitude,
-                        mo.getDist(),
-                        (int) mo.getALT(),
-                        null,                       // Trip ID ... will be set when adding trip?
-                        i);
-
-
-                Log.d("TBR:", "#"+i+" wp.getWpName: "+wp.getWpName());
-                listForDB.add(wp);
-            }
-
-
-            // then createTrip like this
-            TripItem ti =  mDataSource.addFullTrip(tripName, listForDB);
-            mDataSource.close();
-            Log.d("TBR", "Data updated in DB");
-
-            // update the current trip id, so we can show related wp's
-            mTripId = ti.getTripId();
-
-
+            showSaveDataDialog();
+        } else {
+            cleanUp();
+            super.onBackPressed();
         }
 
-        // Clean up ...
-        mMap.clear();
-        markerList.clear();
-        midpointList.clear();
-        polyline.remove();
-        polyline=null;
     }
 
     @Override
@@ -1312,4 +1261,101 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         return mTripId;
     }
 
+
+
+    private void showSaveDataDialog() {
+        AlartDialogFragment simpleDialog = AlartDialogFragment.newInstance(
+                "Plan has changed\nDo you want to save?",
+                R.drawable.ic_map_marker,
+                "Yes", "No");
+
+        // Use setCancelable() to make the dialog non-cancelable
+        simpleDialog.setCancelable(false);
+        simpleDialog.show(getSupportFragmentManager(), "TB AlartDialogFragment");
+    }
+
+
+    // These three event listeners are required by the SimpleDialogListener model
+    // we will know the response to the dialog this way...
+
+    @Override
+    public void onPositiveResult(DialogFragment dlg) {
+        Log.i(TAG, "Dialog Positive Result");
+
+        List<WpItem> listForDB;
+
+        Toast.makeText(this, "Saving to DB", Toast.LENGTH_SHORT).show();
+
+        // Get a handle to the database helper and prepare the database
+        mDataSource = new DataSource(this);
+        mDataSource.open();
+
+
+        // get the trip name somehow, then remove existing trip
+
+        String tripName = mDataSource.getTripName(mTripId);
+        Log.d(TAG, "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
+
+        // mDataSource.DeleteTrip(id) and all the previous waypoints
+        mDataSource.deleteTrip(mTripId);
+        Log.d(TAG, "Trip deleted along with Waypoints");
+
+
+        // create a list with populated WpItems ... mapped from the MarkerItem list
+
+        listForDB = new ArrayList<>();
+        Log.d(TAG, "Creating WpItems from markerList");
+        for (int i = 0; i < markerList.size(); i++) {
+            MarkerObject mo=markerList.get(i);
+            WpItem wp = new WpItem(
+                    mo.getMyId(),
+                    mo.getText(),
+                    mo.getMarker().getPosition().latitude,
+                    mo.getMarker().getPosition().longitude,
+                    mo.getDist(),
+                    (int) mo.getALT(),
+                    null,                       // Trip ID ... will be set when adding trip?
+                    i);
+
+
+            Log.d(TAG, "Building listForDB #"+i+" wp.getWpName: "+wp.getWpName());
+            listForDB.add(wp);
+        }
+
+
+        // then createTrip like this
+        TripItem ti =  mDataSource.addFullTrip(tripName, listForDB);
+        mDataSource.close();
+        Log.d(TAG, "Data updated in DB");
+
+        // update the current trip id, so we can show related wp's
+        mTripId = ti.getTripId();
+
+        cleanUp();
+
+        super.onBackPressed();
+
+    }
+
+    @Override
+    public void onNegativeResult(DialogFragment dlg) {
+        Log.i(TAG, "Dialog Negative Result");
+        cleanUp();
+        super.onBackPressed();
+
+    }
+
+    @Override
+    public void onNeutralResult(DialogFragment dlg) {
+        Log.i(TAG, "Dialog Neutral Result");
+    }
+
+    private void cleanUp() {
+
+        mMap.clear();
+        markerList.clear();
+        midpointList.clear();
+        polyline.remove();
+        polyline=null;
+    }
 }

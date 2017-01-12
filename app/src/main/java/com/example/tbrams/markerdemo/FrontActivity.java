@@ -1,6 +1,7 @@
 package com.example.tbrams.markerdemo;
 
 import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,15 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
-import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
-
-import java.util.List;
 
 import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 
 public class FrontActivity extends AppCompatActivity {
+
+    public static final String TAG="TBR:FA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +30,13 @@ public class FrontActivity extends AppCompatActivity {
         final Button createBtn = (Button) findViewById(R.id.frontCreateBtn);
         final Button browseBtn = (Button) findViewById(R.id.frontBrowseBtn);
 
+
         String name = editName.getText().toString();
 
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TBR", "Create");
+                Log.d(TAG, "Create");
 
                 String name =String.valueOf(editName.getText());
                 if (!name.matches("^[0-9A-Za-z\\s]{1,}[\\.\\,\\-\\_]{0,1}[A-Za-z\\s\\?\\-\\_0-9]{0,}$")) {
@@ -50,7 +51,7 @@ public class FrontActivity extends AppCompatActivity {
                 trip = datasource.createTrip(trip);
                 datasource.close();
 
-                Log.d("TBR","Trip ID after insert: "+ trip.getTripId());
+                Log.d(TAG,"Trip ID after insert: "+ trip.getTripId());
 
                 // Save tripname in markerLab singleton storage
                 MarkerLab markerLab = MarkerLab.getMarkerLab(getApplicationContext());
@@ -59,7 +60,7 @@ public class FrontActivity extends AppCompatActivity {
                 // Start MarkerDemoActivity with tripID extra argument
                 Intent intent = new Intent(getApplicationContext(), MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
-                Log.d("TBR","FrontActivity -> MarkerDemoActivity with TripId: "+trip.getTripId());
+                Log.d(TAG,"FrontActivity -> MarkerDemoActivity with TripId: "+trip.getTripId());
                 startActivity(intent);
 
             }
@@ -68,11 +69,12 @@ public class FrontActivity extends AppCompatActivity {
         browseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TBR", "Browse existing trips...");
+                Log.d(TAG, "Browse existing trips...");
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
             }
         });
 
     }
+
 }
