@@ -216,7 +216,10 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         updateMapType();
         updateZoom();
 
-        LatLng position = null;
+        // In rare cases the lookup will time out and we will end up with a null position vairable. For that reason,
+        // I have set the default backup position to be
+        LatLng position = new LatLng(55.74015, 11.96788);  // Skibby!
+
         try {
             position = searchLocation(mSharedPrefs.getString("startPlace", "Roskilde airport, Denmark"));
         } catch (IOException e) {
