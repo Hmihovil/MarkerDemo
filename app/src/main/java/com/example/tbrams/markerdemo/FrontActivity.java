@@ -1,7 +1,12 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.db.DataSource;
@@ -23,6 +29,8 @@ public class FrontActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "onCreate: ");
         setContentView(R.layout.front_page);
 
         final EditText editName = (EditText) findViewById(R.id.frontTripName);
@@ -31,20 +39,14 @@ public class FrontActivity extends AppCompatActivity {
         final Button browseBtn = (Button) findViewById(R.id.frontBrowseBtn);
 
 
-        String name = editName.getText().toString();
-
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "Create");
 
-                String name =String.valueOf(editName.getText());
-                if (!name.matches("^[0-9A-Za-z\\s]{1,}[\\.\\,\\-\\_]{0,1}[A-Za-z\\s\\?\\-\\_0-9]{0,}$")) {
-                    editName.setError("You need to provide a proper description");
-                    return;
-                }
+                String name = editName.getText().toString();
 
-                // Name is OK, use it for constructor and keep it handing in markerlab
+                // Any name is OK, use it for constructor and keep it handing in markerlab
                 TripItem trip = new TripItem(null,name,null, null);
                 DataSource datasource = new DataSource(getApplicationContext());
                 datasource.open();
@@ -77,4 +79,33 @@ public class FrontActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: ");
+
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (isConnected) {
+            new AlertDialog.Builder(this)
+                    .setTitle("No network")
+                    .setMessage("This application needs a network connection")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with finish()
+                            finish();
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+        }
+
+    }
 }
