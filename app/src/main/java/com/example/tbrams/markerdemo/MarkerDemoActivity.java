@@ -1176,6 +1176,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // In this version map between WpItem og MarkerObject ... we probably need to store the
         // MarkerObject in the DB when we get furhter down the road
 
+        LatLng startPoint = null;
         for (WpItem wp : ListFromDB) {
 
             String name = wp.getWpName();
@@ -1205,9 +1206,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             mo.setDist(wp.getWpDistance()); // Dist
 
             // If a specfic way point was selected - keep a reference when found
-            if (!mWpId.equals("")) {
+            if (mWpId!=null) {
                 if (mWpId.equals(wp.getWpId())) {
-                    gotoLocation(location, ZOOM_OVERVIEW);
+                    startPoint = location;
                 }
             }
             markerList.add(mo);
@@ -1215,13 +1216,16 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         // Now if we did not get a starting point, we will just use the first one ... or the
         // preferred starting point if there are no points
-        if (mWpId.equals("")) {
+        if (startPoint==null) {
             if (markerList.size()>0){
                 gotoLocation(markerList.get(0).getMarker().getPosition(), ZOOM_OVERVIEW);
             } else {
                 // Otherwise use the preferred start location
                 gotoPreferredStartLocation();
             }
+        } else {
+            gotoLocation(startPoint, ZOOM_OVERVIEW);
+
         }
         updatePolyline();
         updateNavinfo();
