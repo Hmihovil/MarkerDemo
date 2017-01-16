@@ -312,14 +312,11 @@ public class FrontActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_export) {
             Toast.makeText(getApplicationContext(), "Export action!", Toast.LENGTH_LONG).show();
             return true;
         }
 
-        // user is in notifications fragment
-        // and selected 'Mark all as Read'
         if (id == R.id.action_import) {
             Toast.makeText(getApplicationContext(), "Action Import!", Toast.LENGTH_LONG).show();
         }
@@ -327,87 +324,6 @@ public class FrontActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
-//        @Override
-//        protected void onCreate(Bundle savedInstanceState) {
-//            super.onCreate(savedInstanceState);
-//
-//            final Context context = this;
-//
-//            setContentView(R.layout.front_page);
-//
-//            final TextView txtInstr = (TextView) findViewById(R.id.frontTextInstruction);
-//            final Button createBtn = (Button) findViewById(R.id.frontCreateBtn);
-//            final Button browseBtn = (Button) findViewById(R.id.frontBrowseBtn);
-//
-//            createBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.MyAlertDialogStyle);
-//                    builder.setTitle("Title");
-//
-//                    View viewInflated = LayoutInflater.from(context).inflate(R.layout.enter_name, (ViewGroup) findViewById(android.R.id.content), false);
-//
-//                    // Set up the input
-//                    final AutoCompleteTextView input = (AutoCompleteTextView) viewInflated.findViewById(R.id.input_trip_name);
-//                    // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-//                    builder.setView(viewInflated);
-//
-//                    // Set up the buttons
-//                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            String name = input.getText().toString();
-//
-//                            // Any name is OK, use it for constructor and keep it handing in markerlab
-//                            TripItem trip = new TripItem(null, name, null, null);
-//                            DataSource datasource = new DataSource(getApplicationContext());
-//                            datasource.open();
-//                            trip = datasource.createTrip(trip);
-//                            datasource.close();
-//
-//                            Log.d(TAG, "Trip ID after insert: " + trip.getTripId());
-//
-//                            // Save tripname in markerLab singleton storage
-//                            MarkerLab markerLab = MarkerLab.getMarkerLab(getApplicationContext());
-//                            markerLab.setTripName(trip.getTripName());
-//
-//                            // Start MarkerDemoActivity with tripID extra argument
-//                            Intent intent = new Intent(getApplicationContext(), MarkerDemoActivity.class);
-//                            intent.putExtra(TRIP_KEY, trip.getTripId());
-//                            Log.d(TAG, "FrontActivity -> MarkerDemoActivity with TripId: " + trip.getTripId());
-//                            startActivity(intent);
-//                        }
-//                    });
-//                    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//
-//
-//                    builder.show();
-//
-//                }
-//            });
-//
-//
-
-
-
-//            browseBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d(TAG, "Browse existing trips...");
-//                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-
-//    }
 
 
     @Override

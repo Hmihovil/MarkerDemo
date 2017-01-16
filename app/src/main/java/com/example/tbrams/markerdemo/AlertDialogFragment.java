@@ -8,7 +8,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 
-public class AlartDialogFragment extends DialogFragment {
+public class AlertDialogFragment extends DialogFragment {
     private final String TAG = "TBR:ADF";
     private SimpleDialogListener mHost;
 
@@ -18,8 +18,8 @@ public class AlartDialogFragment extends DialogFragment {
         public void onNeutralResult(DialogFragment dlg);
     }
 
-    public static AlartDialogFragment newInstance(String title, int icon, String pos, String neg) {
-        AlartDialogFragment frag = new AlartDialogFragment();
+    public static AlertDialogFragment newInstance(String title, int icon, String pos, String neg) {
+        AlertDialogFragment frag = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("title", title);
         args.putInt("icon", icon);
@@ -45,14 +45,14 @@ public class AlartDialogFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "Positive button clicked");
-                mHost.onPositiveResult(AlartDialogFragment.this);
+                mHost.onPositiveResult(AlertDialogFragment.this);
             }
         });
         builder.setNegativeButton(neg, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(TAG, "Negative button clicked");
-                mHost.onNegativeResult(AlartDialogFragment.this);
+                mHost.onNegativeResult(AlertDialogFragment.this);
             }
         });
         return builder.create();

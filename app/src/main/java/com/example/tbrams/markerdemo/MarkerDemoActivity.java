@@ -42,10 +42,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,7 +65,7 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 public class MarkerDemoActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener,
-        AlartDialogFragment.SimpleDialogListener {
+        AlertDialogFragment.SimpleDialogListener {
 
     private static final int REQUEST_M_ID=1;
     private static final int REQUEST_GLOBAL_VARS=2;
@@ -1271,14 +1269,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
     private void showSaveDataDialog() {
-        AlartDialogFragment simpleDialog = AlartDialogFragment.newInstance(
+        AlertDialogFragment simpleDialog = AlertDialogFragment.newInstance(
                 "Plan has changed\nDo you want to save?",
                 R.drawable.ic_map_marker,
                 "Yes", "No");
 
         // Use setCancelable() to make the dialog non-cancelable
         simpleDialog.setCancelable(false);
-        simpleDialog.show(getSupportFragmentManager(), "TB AlartDialogFragment");
+        simpleDialog.show(getSupportFragmentManager(), "TB AlertDialogFragment");
     }
 
 
