@@ -24,7 +24,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.NoActionBar">
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -48,6 +48,8 @@
                 android:value="com.example.tbrams.markerdemo.MarkerDemoActivity"/>
         </activity>
         <activity android:name=".GlobalNavValActivity">
+        </activity>
+        <activity android:name=".AboutActivity" android:label="@string/activity_title_about_us" >
         </activity>
         <activity android:name=".DetailPagerActivity">
         </activity>

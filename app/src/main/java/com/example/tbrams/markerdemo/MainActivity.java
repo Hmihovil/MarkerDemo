@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         updateTitle();
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_route);
+        Log.d(TAG, "onCreate: activity_route loaded");
 
         mBackgroundView = findViewById(R.id.activity_main);
 
