@@ -75,6 +75,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private static final String DEGREES="\u00B0";
     private static final String TAG = "TBR:MDA" ;
+    public static final int AERODROME_MAX_ZOOM = 14;
+    public static final int AERODROME_MIN_ZOOM = 7;
+    public static final int NAVAID_MAX_ZOOM = 16;
+    public static final int NAVAID_MIN_ZOOM = 7;
+    public static final int ZOOM_CHANGE_MAP_TYPE = 16;
 
     private  MarkerObject mUndoDeleteMarker = null;
     private  int mUndoDeleteIndex= -1;
@@ -245,24 +250,28 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                 public void onCameraIdle() {
                     CameraPosition cameraPosition = mMap.getCameraPosition();
                     mZoomLevel=cameraPosition.zoom;
-                    Log.d(TAG, "Camera Idle Listener, zoomlevel: "+ mZoomLevel);
-
                     writePreferenceChanges();
 
-                    if(mZoomLevel> 16.0) {
+                    if(mZoomLevel> ZOOM_CHANGE_MAP_TYPE) {
+                        Log.d(TAG, "onCameraIdle: Changing to hybrid map");
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                        mHideADicons=true;
+                        mHideNavAidIcons=true;
                         mMapTypeChangedByZoom = true;
                     } else {
                         // Switch back to preferred map type after "forced" change due to zoom
                         if (mMapTypeChangedByZoom) {
+                            // Fetch the hide details variables from preferences.
+                            updatePreferenceFlags();
                             updateMapType();
                             mMapTypeChangedByZoom = false;
                         }
 
-                        // Update both Aerodromes and Navaid icons was well
-                        plotNavAids();
-                        plotAerodromes();
                     }
+                    // Update both Aerodromes and Navaid icons was well
+                    plotNavAids();
+                    plotAerodromes();
+
                 }
             });
 
@@ -444,7 +453,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
 
-        if (mHideADicons || mZoomLevel > 14 || mZoomLevel<7) {
+        if (mHideADicons || mZoomLevel > AERODROME_MAX_ZOOM || mZoomLevel< AERODROME_MIN_ZOOM) {
             for (Marker m : mADMarkers) {
                 m.setVisible(false);
             }
@@ -464,7 +473,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
  * All markers are initially created and filed away in the m list. Everything is
  * Offset 50% in both directions, so they will center on the position of the AD.
  *
- * When the markers are already done, all we need to do is resize the icon depending on
+ *
+ * Should the markers are already be created, all we need to do is resize the icon depending on
  * the Zoom level.
  *
  * For zoom levels above 16 the map type will be changed to Hybrid and there is no longer need
@@ -521,8 +531,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             }
         }
 
-
-        if (mHideNavAidIcons || mZoomLevel >16 || mZoomLevel<7) {
+        if (mHideNavAidIcons || mZoomLevel > NAVAID_MAX_ZOOM || mZoomLevel< NAVAID_MIN_ZOOM) {
             // Preference off for AD markers - hide them
             for (Marker m : mNavAidMarkers) {
                 m.setVisible(false);
