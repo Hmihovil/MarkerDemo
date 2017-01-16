@@ -37,6 +37,8 @@ import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 public class FrontActivity extends AppCompatActivity {
 
     public static final String TAG="TBR:FA";
+    private static final int SETTINGS_RESULT = 3;
+
 
     // urls to load navigation header background image
     // and profile image
@@ -151,16 +153,21 @@ public class FrontActivity extends AppCompatActivity {
     }
 
     private Fragment getHomeFragment() {
+        HomeFragment homeFragment;
         switch (navItemIndex) {
             case 0:
                 // home
-                HomeFragment homeFragment = new HomeFragment();
+                homeFragment = new HomeFragment();
                 return homeFragment;
 
 //            case 4:
-//                // settings fragment
-//                SettingsFragment settingsFragment = new SettingsFragment();
-//                return settingsFragment;
+//                // Launch the PreferenceActivity
+//                Intent preferenceIntent = new Intent(this, MarkerPreferenceActivity.class);
+//                startActivityForResult(preferenceIntent, SETTINGS_RESULT);
+//
+//                homeFragment = new HomeFragment();
+//                return homeFragment;
+
             default:
                 return new HomeFragment();
         }
@@ -216,15 +223,19 @@ public class FrontActivity extends AppCompatActivity {
                         navItemIndex = 0;
                         CURRENT_TAG = TAG_HOME;
                         break;
+
                     case R.id.nav_settings:
-                        navItemIndex = 4;
-                        CURRENT_TAG = TAG_SETTINGS;
-                        break;
+                        // launch new preference intent instead of loading fragment
+                        Intent preferenceIntent = new Intent(FrontActivity.this, MarkerPreferenceActivity.class);
+                        startActivityForResult(preferenceIntent, SETTINGS_RESULT);
+                        return true;
+
                     case R.id.nav_about:
                         // launch new intent instead of loading fragment
                         startActivity(new Intent(FrontActivity.this, AboutActivity.class));
                         drawer.closeDrawers();
                         return true;
+
                     default:
                         navItemIndex = 0;
                 }
@@ -351,5 +362,18 @@ public class FrontActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // This is where we will receive a call, when the for example the preferences has been done
+
+        if (requestCode == SETTINGS_RESULT) {
+            // A preference has been changed
+
+            Toast.makeText(this, "Preferences done...", Toast.LENGTH_SHORT).show();
+        }
     }
 }
