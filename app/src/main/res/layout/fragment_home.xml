@@ -2,7 +2,7 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context="dk.brams.android.markerdemo.HomeFragment">
+             tools:context="com.example.tbrams.markerdemo.FrontActivity">
 
     <ImageView
         android:layout_width="100dp"
