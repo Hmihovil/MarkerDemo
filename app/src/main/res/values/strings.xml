@@ -26,7 +26,7 @@
     <string name="db_mode">Maintenance</string>
     <string name="trip_mode">Trip</string>
     <string name="label_mode">"Toggle mode"</string>
-    <string name="short_name_text">Type a short name for a new trip, or\nbrowse your previous routes</string>
+    <string name="short_name_text">Route Planning</string>
     <string name="global_text">Please enter the key performance metrics\nfor this trip</string>
     <string name="title_maintenance">Maintenance mode</string>
     <string name="title_trip">Select a route</string>
