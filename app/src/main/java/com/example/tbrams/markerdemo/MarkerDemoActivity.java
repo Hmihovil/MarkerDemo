@@ -188,7 +188,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Click here when you are done adding way points", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Click here when you have weather and performance details ready", Snackbar.LENGTH_LONG)
                         .setAction("Go!", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {

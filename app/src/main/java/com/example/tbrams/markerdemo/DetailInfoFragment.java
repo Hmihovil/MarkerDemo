@@ -54,16 +54,16 @@ public class DetailInfoFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Click here when you are done adding way points", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Click here when you are at the runway", Snackbar.LENGTH_LONG)
                         .setAction("Go!", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 // If we have at least two segments, we can start the program
                                 if (markerList.size()>=3) {
-                                    Intent intent = new Intent(getActivity(), ETOActivity.class);
+                                    Intent intent = new Intent(getActivity(), TimeActivity.class);
                                     startActivity(intent);
 
-                                    Log.d("TBR:", "ETOActivity Started...");
+                                    Log.d("TBR:", "TimeActivity Started (Plan execution)...");
 
                                 }
                             }

@@ -168,7 +168,7 @@
         app:layout_constraintLeft_toRightOf="@+id/textView23"/>
 
     <Button
-        android:text="CHECK"
+        android:text="TAKE OFF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/buttonCheck"

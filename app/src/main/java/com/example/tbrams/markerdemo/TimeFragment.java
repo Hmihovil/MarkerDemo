@@ -16,11 +16,10 @@ import com.example.tbrams.markerdemo.data.MarkerObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class TimeFragment extends Fragment implements View.OnClickListener {
-
-    public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
 
     private static final int C_TIME=0;
     private static final int C_TURN=1;
@@ -28,9 +27,10 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private static final int C_TALK=3;
     private static final int C_CHECK=4;
     private static final int C_ARRIVED=5;
-    private static final int C_READY=6;
+    private static final int C_TAKEOFF=6;
     private static final int C_AFIS=7;
     private static final int C_LAND=8;
+    private static final String TAG = "TBR:TimeFragment ";
 
     private int segmentIndex = 0;
     private View v;
@@ -93,7 +93,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         updateFields();
 
         // First state
-        newCommand(C_READY);
+        newCommand(C_TAKEOFF);
 
         return v;
 
@@ -113,15 +113,15 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         toWP   = markerList.get(segmentIndex+1);
 
         // Segment Number and Total
-        tvWPnumber.setText( Integer.toString(segmentIndex+1));
-        tvWPtotal.setText( Integer.toString(markerList.size()-1));
+        tvWPnumber.setText( String.format(Locale.ENGLISH, "%d", segmentIndex+1));
+        tvWPtotal.setText( String.format(Locale.ENGLISH, "%d", markerList.size()-1));
 
         // Next WP Name
         tvNextWP.setText(toWP.getText());
 
         // Heading and Distance
-        tvHeading.setText(String.format("%03d ˚", (int) toWP.getMH()));
-        tvDistance.setText(String.format("%.1f nm", toWP.getDist()));
+        tvHeading.setText(String.format(Locale.ENGLISH, "%03d ˚", (int) toWP.getMH()));
+        tvDistance.setText(String.format(Locale.ENGLISH, "%.1f nm", toWP.getDist()));
 
         // RETO
         if (segmentIndex==0) {
@@ -129,16 +129,16 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             // We only have ETO for first destination (No ATO, hence no RETO)
             // TODO: Need some time formatting here later
 
-            tvRetoLbl.setText("ETO");
-            tvRETO.setText(String.format("%03d", (int) toWP.getETO()));
+            tvRetoLbl.setText(R.string.ETO);
+            tvRETO.setText(String.format(Locale.ENGLISH, "%03d", (int) toWP.getETO()));
         } else {
 
-            tvRetoLbl.setText("RETO");
-            tvRETO.setText(String.format("%03d", (int)toWP.getRETO()));
+            tvRetoLbl.setText(R.string.RETO);
+            tvRETO.setText(String.format(Locale.ENGLISH, "%03d", (int)toWP.getRETO()));
         }
 
         // Time difference
-        tvDiff.setText(String.format("%02d", (int)fromWP.getDiff()));
+        tvDiff.setText(String.format(Locale.ENGLISH, "%02d", (int)fromWP.getDiff()));
 
     }
 
@@ -147,7 +147,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("TBR:","onResume...");
+        Log.d(TAG,"onResume...");
 
     }
 
@@ -157,17 +157,25 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         if (view.getId()==R.id.buttonCheck) {
 
+            String zuluMinutes;
+            String zuluTime;
+
             // Process Click action depending on what state we are in
             switch (mCommand) {
                 case C_TIME:
-                    Log.d("TBR:", "C_TIME State");
+                    Log.d(TAG, "C_TIME Clicked");
 
-                    // Get zulu time in minutes and set ATO. Difference will be auto calculated
-                    String minutes = mTime.getZuluTime().split(":")[1];
-                    toWP.setATO(Double.parseDouble(minutes));
-                    Log.d("TBR:", "WP "+toWP.getText()+" ATO set to: "+minutes);
-                    Log.d("TBR:", "WP "+toWP.getText()+" DIFF found: "+toWP.getDiff());
+                    // Get zulu time in minutes and set ATO.
+                    // Unlike the Pinto board situation, difference will be auto calculated here ^_^
+                    zuluTime = mTime.getZuluTime();
+                    zuluMinutes = zuluTime.split(":")[1];
 
+                    toWP.setATO(Double.parseDouble(zuluMinutes));
+
+                    Log.d(TAG, "WP "+toWP.getText()+" ATO set to: "+zuluMinutes);
+                    Log.d(TAG, "WP "+toWP.getText()+" DIFF found: "+toWP.getDiff());
+
+                    // Check if we have more legs to navigate, otherwise make arrival statement
                     if (segmentIndex<markerList.size()-2) {
                         // This is not the final leg
                         MarkerObject thenWP = markerList.get(segmentIndex+2);
@@ -175,10 +183,10 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                         thenWP.setRETO(RETO);
 
                         // Debug
-                        Log.d("TBR:", thenWP.getText()+" RETO set to: " + RETO);
-                        Log.d("TBR:", "Dumping ETO/RETO for all markers here");
+                        Log.d(TAG, thenWP.getText()+" RETO set to: " + RETO);
+                        Log.d(TAG, "Dumping ETO/RETO for all markers here");
                         for (int i=1;i<markerList.size();i++){
-                            Log.d("TBR:", markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
+                            Log.d(TAG, markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
                         }
 
                         // We have arrived at toWP and got the time already
@@ -192,22 +200,23 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     break;
 
                 case C_TURN:
-                    Log.d("TBR:", "C_TURN State");
+                    Log.d(TAG, "C_TURN Clicked");
 
                     newCommand(C_TRACK);
                     break;
 
 
                 case C_TRACK:
-                    Log.d("TBR:", "C_TRACK State");
+                    Log.d(TAG, "C_TRACK Clicked");
 
                     newCommand(C_TALK);
                     break;
 
 
                 case C_TALK:
-                    Log.d("TBR:", "C_TALK State");
+                    Log.d(TAG, "C_TALK Clicked");
 
+                    // Launch talk activity with info on this segment
                     Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
                     startActivity(intent);
 
@@ -216,22 +225,35 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
 
                 case C_CHECK:
-                    Log.d("TBR:", "C_CHECK State");
+                    Log.d(TAG, "C_CHECK clicked");
                     newCommand(C_TIME);
                     break;
 
 
                 case C_ARRIVED:
-                    Log.d("TBR:", "C_ARRIVED State");
+                    Log.d(TAG, "C_ARRIVED clicked");
                     break;
 
-                case C_READY:
-                    Log.d("TBR:", "C_READY State");
+                case C_TAKEOFF:
+                    // Got the cleared for Take Off, record the time and update all ETO times based
+                    // on current time plus previous ETO estimate.
+
+                    Log.d(TAG, "C_TAKEOFF clicked");
+
+                    zuluTime = mTime.getZuluTime();
+                    zuluMinutes = zuluTime.split(":")[1];
+
+                    Log.d(TAG, "Zulu Time is: "+zuluTime);
+                    Log.d(TAG, "Minutes is  : "+zuluMinutes);
+
+                    // use it to generate RETOs
+                    updateETO(Double.parseDouble(zuluMinutes));
+
                     newCommand(C_TURN);
                     break;
 
                 default:
-                    Log.d("TBR:", "Unknown state: " + mCommand);
+                    Log.d(TAG, "Unknown state: " + mCommand);
                     newCommand(C_ARRIVED);
                     break;
             }
@@ -243,6 +265,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
 
     private void newCommand(int cmd) {
+
+        // we need to keep a record of the requested command for the onClick state handler
         mCommand =cmd;
         switch (cmd) {
             case C_TURN:
@@ -251,9 +275,10 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     noIncrement = false;
                 } else {
                     segmentIndex++;
-                    updateFields();
                 }
-                tvCommand.setText("TURN: Heading "+String.format("%03d",(int)toWP.getMH())+"˚");
+                updateFields();
+
+                tvCommand.setText("TURN: Heading "+String.format("%03d ˚",(int)toWP.getMH())+"˚");
                 checkBtn.setText("ON COURSE");
                 break;
 
@@ -264,6 +289,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case C_TIME:
+                // Update instruction text and make the button log time
                 tvCommand.setText(mCommandList.get(cmd));
                 checkBtn.setText("LOG");
                 break;
@@ -274,21 +300,40 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case C_TRACK:
+                // Update instruction text and make the button confirm action
                 tvCommand.setText(mCommandList.get(cmd));
                 checkBtn.setText("TRACK OK");
                 break;
 
-            case C_READY:
+            case C_CHECK:
+                // Update check instruction text and make the button confirm action
                 tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("TAKE OFF");
+                checkBtn.setText("DONE");
+                break;
+
+            case C_TAKEOFF:
+                // do nothing, but wait for the pilot to click the button
                 break;
 
             default:
+                //
                 tvCommand.setText(mCommandList.get(cmd));
                 checkBtn.setText("DONE");
                 break;
         }
 
+    }
 
+
+    /*
+     *  Update all ETOs to RETOs based on newTime parameter
+     */
+    private void updateETO(double newTime) {
+        Log.d(TAG, "updateETO("+Double.toString(newTime)+")");
+
+        for (int i = 0; i < markerList.size() ; i++) {
+            double originalTime=markerList.get(i).getETO();
+            markerList.get(i).setETO(originalTime+newTime);
+        }
     }
 }
