@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -39,10 +40,15 @@ public class DetailPagerActivity extends AppCompatActivity {
         this.setTitle(markerLab.getTripName());
 
         // Get markerIndex from arguments
-        int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
+        final int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
         Log.d("TBR:","DetailPagerActivity/onCreate - intent/markerIndex: "+markerIndex);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_nav_info_pager);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
         markerList = MarkerLab.getMarkerLab(this).getMarkers();
 
         FragmentManager fm = getSupportFragmentManager();
@@ -56,6 +62,12 @@ public class DetailPagerActivity extends AppCompatActivity {
             @Override
             public int getCount() {
                 return markerList.size()-1;
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                // Generate title based on item position
+                return markerList.get(position+1).getText();
             }
         });
 
