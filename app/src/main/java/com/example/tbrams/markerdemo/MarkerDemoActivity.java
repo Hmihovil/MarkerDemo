@@ -94,7 +94,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private final List<MarkerObject> markerList = markerLab.getMarkers();
 
     private final NavAids navaids = NavAids.get(this);
-    private final List<NavAid> vorList = navaids.getList();
+    private final List<NavAid> navAidList = navaids.getList();
+    private final List<NavAid> vorList = new ArrayList<>();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
     private boolean mHideADicons = false;
     private boolean mHideNavAidIcons = false;
@@ -125,6 +126,14 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         // make sure we have default values by running this first time a user launches the app
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Prepare a list with VOR's for navigation101
+        for (NavAid na:navAidList) {
+            if (na.getType()==NavAid.VOR || na.getType()==NavAid.VORDME) {
+                vorList.add(na);
+            }
+
+        }
 
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
@@ -487,8 +496,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         int iconInt=R.drawable.ic_device_gps_blue;
         if (mNavAidMarkers.size() == 0) {
             // Create all NavAids markers and keep record in an ArrayList
-            for (int i = 0; i < vorList.size(); i++) {
-                 switch (vorList.get(i).getType()){
+            for (int i = 0; i < navAidList.size(); i++) {
+                 switch (navAidList.get(i).getType()){
                      case NavAid.VOR:
                          iconInt=R.drawable.ic_device_gps_blue;
                          snippetText = "VOR";
@@ -522,9 +531,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
                 Marker m = mMap.addMarker(new MarkerOptions()
-                        .title(vorList.get(i).getName())
-                        .snippet(snippetText+" "+vorList.get(i).getFreq())
-                        .position(vorList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
+                        .title(navAidList.get(i).getName())
+                        .snippet(snippetText+" "+navAidList.get(i).getFreq())
+                        .position(navAidList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
 
                 m.setAnchor(.5f, .5f);
                 mNavAidMarkers.add(m);
@@ -978,7 +987,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         // check if special command :navaids
         if (String.valueOf(tv.getText()).matches(":navaids")) {
             String miniHelp="Valid names:\n";
-            for (NavAid n : vorList) {
+            for (NavAid n : navAidList) {
                 miniHelp += n.getName() + "\n";
             }
             tv.setError(miniHelp);
@@ -1002,7 +1011,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         tv.setText("");
 
         // Check existing NavAid names - they are not in Google Places
-        for (NavAid n : vorList) {
+        for (NavAid n : navAidList) {
             if (n.getName().equals(mSearchedFor)) {
                 placeAndZoomOnMarker(n.getPosition(), mZoomLevel);
                 return;
