@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -93,6 +94,12 @@ public class NavPagerActivity extends AppCompatActivity {
         Log.d("TBR:","NavPagerActivity/onCreate - received MarkerIndex via intent: "+markerIndex);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_nav_info_pager);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
+
         markerList = MarkerLab.getMarkerLab(this).getMarkers();
 
         FragmentManager fm = getSupportFragmentManager();
@@ -106,6 +113,12 @@ public class NavPagerActivity extends AppCompatActivity {
             @Override
             public int getCount() {
                 return markerList.size();
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                // Generate title based on item position, and we do not want zero as first ;-)
+                return String.format("WP %d", position+1);
             }
         });
 

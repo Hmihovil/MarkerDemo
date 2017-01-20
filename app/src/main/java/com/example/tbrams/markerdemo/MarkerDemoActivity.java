@@ -638,7 +638,13 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
 
-        Address adr = list.get(0);
+        Address adr=null;
+        if (list!=null) {
+            adr = list.get(0);
+            Log.d(TAG, "findAddress: Got adr from lookup: "+adr);
+        } else {
+            Log.d(TAG, "findAddress: Got a null from address lookup");
+        }
         return adr;
     }
 
@@ -1120,26 +1126,34 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private MarkerOptions createMarkerOptions(LatLng loc) {
         Address adr = findAddress(loc);
 
-        String text = adr.getLocality();
-        MarkerOptions options = new MarkerOptions()
-                .draggable(true)
-                .position(loc);
+        String text="";
+        String country = "";
+        if (adr!=null) {
+            text = adr.getLocality();
+            adr.getCountryName();
 
-        if (mSearchedFor=="") {
+        } else {
+            text = "GeoLookup Failed";
+        }
+
+        MarkerOptions options = new MarkerOptions()
+                    .draggable(true)
+                    .position(loc);
+
+        if (mSearchedFor == "") {
             options.title(text);
         } else {
             // Use the name from the searchfield this time instead of the location name/blank
             options.title((String) mSearchedFor);
-            mSearchedFor="";
+            mSearchedFor = "";
         }
 
-        String country = adr.getCountryName();
         if (country.length() > 0) {
             options.snippet(country);
         }
 
-        return options;
 
+        return options;
     }
 
 
