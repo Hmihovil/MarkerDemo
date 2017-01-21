@@ -2,6 +2,7 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_name_input"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -21,38 +22,35 @@
             android:hint="Name"
             android:ems="10"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:inputType="textPersonName"
             android:textSize="12sp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent"
-            android:layout_width="304dp"/>
+            card_view:layout_constraintLeft_toRightOf="@+id/textView"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_width="264dp"
+            card_view:layout_constraintBaseline_toBaselineOf="@+id/textView"/>
 
         <EditText
             android:id="@+id/wpnote_txt"
             android:hint="Note"
             android:ems="10"
-            android:layout_width="304dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:inputType="textPersonName"
             android:textSize="12sp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/wpname_txt"
-            card_view:layout_constraintTop_toBottomOf="@+id/wpname_txt"/>
+            android:layout_width="264dp"
+            card_view:layout_constraintBaseline_toBaselineOf="@+id/textView2"
+            card_view:layout_constraintLeft_toLeftOf="@+id/wpname_txt"/>
 
         <EditText
             android:id="@+id/wpalt_txt"
             android:hint="Special planning altitude"
             android:ems="10"
-            android:layout_width="304dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:inputType="textPersonName"
             android:textSize="12sp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/wpnote_txt"
-            card_view:layout_constraintTop_toBottomOf="@+id/wpnote_txt"/>
+            android:layout_width="264dp"
+            card_view:layout_constraintBaseline_toBaselineOf="@+id/textView3"
+            card_view:layout_constraintLeft_toLeftOf="@+id/wpnote_txt"/>
 
         <Button
             android:id="@+id/btn_update"
@@ -61,7 +59,7 @@
             android:layout_height="wrap_content"
             card_view:layout_constraintTop_toTopOf="@+id/btn_delete"
             card_view:layout_constraintRight_toRightOf="parent"
-            />
+            android:layout_marginEnd="8dp"/>
 
         <Button
             android:id="@+id/btn_delete"
@@ -86,6 +84,34 @@
             android:layout_marginStart="16dp"
             card_view:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginLeft="16dp"/>
+
+        <TextView
+            android:text="Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:layout_marginTop="16dp"
+            card_view:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
+
+        <TextView
+            android:text="Note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            tools:layout_editor_absoluteY="57dp"
+            tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+            android:text="Alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView3"
+            android:layout_marginTop="24dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/textView2"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
 
     </android.support.constraint.ConstraintLayout>
 

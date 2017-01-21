@@ -213,7 +213,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
             String snippetString = String.valueOf(mEditNote.getText());
             Double alt=0.0;
             if (!mEditAltitude.toString().equals("")) {
-               alt = Double.parseDouble(mEditAltitude.toString());
+                String altString = mEditAltitude.getText().toString();
+                alt = Double.parseDouble(altString);
             }
 
             // update marker data
