@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.content.Context.VIBRATOR_SERVICE;
-import static com.example.tbrams.markerdemo.NavPagerActivity.ACTION_UPDATE;
 import static com.example.tbrams.markerdemo.NavPagerActivity.setSomethingUpdated;
 
 public class InfoEditFragment extends Fragment implements View.OnClickListener {
@@ -70,7 +67,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
         // Now inflate the detailed layout for each WP - at this stage, it is a ScrollView with a number of specially formatted
         // CardViews - one updating/deleting, one for Next WP, one for VOR
-        final View v = inflater.inflate(R.layout.info_window_edit_2, container, false);
+        final View v = inflater.inflate(R.layout.info_window_edit, container, false);
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);

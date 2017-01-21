@@ -20,10 +20,9 @@
         <EditText
             android:id="@+id/wpname_txt"
             android:hint="Name"
-            android:ems="10"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textSize="12sp"
+            android:textSize="14sp"
             card_view:layout_constraintLeft_toRightOf="@+id/textView"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
@@ -33,10 +32,9 @@
         <EditText
             android:id="@+id/wpnote_txt"
             android:hint="Note"
-            android:ems="10"
+            android:textSize="14sp"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textSize="12sp"
             android:layout_width="264dp"
             card_view:layout_constraintBaseline_toBaselineOf="@+id/textView2"
             card_view:layout_constraintLeft_toLeftOf="@+id/wpname_txt"/>
@@ -44,10 +42,9 @@
         <EditText
             android:id="@+id/wpalt_txt"
             android:hint="Special planning altitude"
-            android:ems="10"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:layout_width="264dp"
             card_view:layout_constraintBaseline_toBaselineOf="@+id/textView3"
             card_view:layout_constraintLeft_toLeftOf="@+id/wpnote_txt"/>
