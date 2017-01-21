@@ -1,96 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal" >
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:contentDescription="@string/map_info"
         android:src="@drawable/ic_place_blue_24dp"
-        android:contentDescription="@string/map_info" />
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:layout_editor_absoluteY="0dp"/>
 
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/tvLocality"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:text="locality"
+        android:textIsSelectable="true"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/imageView1"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/tvLocality"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="locality"
-            android:textIsSelectable="true"
-            android:textSize="25sp"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/tvSnippet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click here to modify or delete"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/tvLocality"
+        app:layout_constraintLeft_toRightOf="@+id/imageView1"/>
 
-        <TextView
-            android:id="@+id/tvSnippet"
-            android:text="snippet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:text="Position"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:id="@+id/textPosition"
-            android:textStyle="bold"/>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/tvLat"
-                android:text="lat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:id="@+id/tvLng"
-                android:text="lon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-        </LinearLayout>
-
-        <TextView
-            android:text="Next WP"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:id="@+id/textWP"
-            android:layout_weight="1"
-            android:textStyle="bold"/>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/loWP">
-
-            <TextView
-                android:text="Distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textDist"
-                android:layout_weight="1"
-                android:width="150dp"/>
-
-            <TextView
-                android:text="Heading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textHeading"
-                android:layout_weight="1"
-                android:width="150dp"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

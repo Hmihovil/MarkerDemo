@@ -316,43 +316,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     View v = getLayoutInflater().inflate(R.layout.info_window, null);
 
                     TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
-                    TextView tvLat = (TextView) v.findViewById(R.id.tvLat);
-                    TextView tvLng = (TextView) v.findViewById(R.id.tvLng);
-                    TextView tvSnippet = (TextView) v.findViewById(R.id.tvSnippet);
-                    tvSnippet.setText(marker.getSnippet());
-
-                    LatLng latLng = marker.getPosition();
                     tvLocality.setText(marker.getTitle());
 
-                    tvLat.setText("Lat: " +String.format("%.4f", latLng.latitude));
-                    tvLng.setText("Lon: " +String.format("%.4f", latLng.longitude));
-
                     int markerIndex=getIndexById(marker.getId());
-
-                    // Default values negative - we will substitute this with NA in the text later
-                    double dist    = -999;
-                    double heading = -999;
-                    if ((markerIndex+1)<markerList.size()) {
-                        // Get heading and distance from next WP, unless this was the last in the list
-                        MarkerObject mo = markerList.get(markerIndex+1);
-                        dist = mo.getDist();
-                        heading = mo.getTT();
-                    }
-
-                    TextView tvDist = (TextView) v.findViewById(R.id.textDist);
-                    TextView tvHead = (TextView) v.findViewById(R.id.textHeading);
-
-                    if (dist<0) {
-                        tvDist.setText("NA");
-                    } else {
-                        tvDist.setText(String.format("%.1f nm", dist));
-                    }
-
-                    if (heading<0) {
-                        tvHead.setText("Heading NA");
-                    } else {
-                        tvHead.setText(String.format("Heading %.0f ", heading)+DEGREES);
-                    }
 
                     return v;
 
