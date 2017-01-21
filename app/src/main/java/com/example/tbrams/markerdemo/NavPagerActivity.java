@@ -24,6 +24,7 @@ import static com.example.tbrams.markerdemo.InfoEditFragment.EXTRA_MARKER_ID;
 public class NavPagerActivity extends AppCompatActivity {
 
     public static final int ACTION_UPDATE = 1;
+    private static final String TAG = "TBR:";
 
     private ViewPager mViewPager;
     private List<MarkerObject> markerList;
@@ -39,7 +40,7 @@ public class NavPagerActivity extends AppCompatActivity {
 
 
     public static void setSomethingUpdated(boolean flag) {
-        Log.d("TBR:","NavpagerActivity, setSomethingUpdated called");
+        Log.d(TAG,"NavpagerActivity, setSomethingUpdated called");
         mSomethingUpdated = flag;
     }
 
@@ -66,17 +67,17 @@ public class NavPagerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Log.d("TBR:","NavPagerActivity, onBackPressed called");
+        Log.d(TAG,"NavPagerActivity, onBackPressed called");
 
         int count = getFragmentManager().getBackStackEntryCount();
-        Log.d("TBR:","NavPagerActivity, count: "+count);
+        Log.d(TAG,"NavPagerActivity, BackStackEntryCount: "+count);
 
         if (count == 0) {
             if (mSomethingUpdated) sendResult(ACTION_UPDATE, 0);
             super.onBackPressed();
 
         } else {
-            Log.d("TBR:", "popping Backstack");
+            Log.d(TAG, "popping Backstack");
             getFragmentManager().popBackStack();
         }
 
@@ -86,12 +87,14 @@ public class NavPagerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Inflate the layout with SlidingTabs and a PageViewer
         setContentView(R.layout.nav_info_pager);
 
         // Get markerIndex from arguments
         int markerIndex = (int) getIntent().getSerializableExtra(EXTRA_MARKER_ID);
 
-        Log.d("TBR:","NavPagerActivity/onCreate - received MarkerIndex via intent: "+markerIndex);
+        Log.d(TAG,"NavPagerActivity/onCreate - received MarkerIndex via intent: "+markerIndex);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_nav_info_pager);
 
@@ -118,7 +121,7 @@ public class NavPagerActivity extends AppCompatActivity {
             @Override
             public CharSequence getPageTitle(int position) {
                 // Generate title based on item position, and we do not want zero as first ;-)
-                return String.format("WP %d", position+1);
+                return String.format("#%d", position+1);
             }
         });
 

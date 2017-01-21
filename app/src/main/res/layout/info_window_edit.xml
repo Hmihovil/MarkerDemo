@@ -131,7 +131,9 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3"
         app:layout_constraintLeft_toRightOf="@+id/VORname1"
         android:width="90dp"
-        android:textAlignment="viewEnd"/>
+        android:textAlignment="viewEnd"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"/>
 
     <TextView
         android:text="TextView"

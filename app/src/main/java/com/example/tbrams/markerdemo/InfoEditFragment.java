@@ -6,6 +6,7 @@ import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.example.tbrams.markerdemo.data.Pejling;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.Context.VIBRATOR_SERVICE;
 import static com.example.tbrams.markerdemo.NavPagerActivity.ACTION_UPDATE;
@@ -33,8 +35,13 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     public static final int    ACTION_DELETE = 2;
     public static final int    ACTION_CANCEL = 3;
+    private static final String TAG = "TBR:";
 
     private int      markerIndex = -1;
+    private EditText mEditName ;
+    private EditText mEditAltitude;
+    private EditText mEditNote;
+
     private Button   btnUpdate, btnDelete, btnCancel;
     private Vibrator mVib;
 
@@ -60,33 +67,48 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.info_window_edit, container, false);
+
+        // Now inflate the detailed layout for each WP - at this stage, it is a ScrollView with a number of specially formatted
+        // CardViews - one updating/deleting, one for Next WP, one for VOR
+        final View v = inflater.inflate(R.layout.info_window_edit_2, container, false);
 
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
 
-        Log.d("TBR:", "InfoEditFragment, received markerIndex from fragment arguments: "+markerIndex);
+        Log.d(TAG, "InfoEditFragment, received markerIndex from fragment arguments: "+markerIndex);
 
         final MarkerObject mo =markerList.get(markerIndex);
 
-        // Update Edit Text fields with marker provided info
-        final EditText eTit = (EditText) v.findViewById(R.id.placeText);
-        eTit.setText(mo.getText());
-        EditText eSnp = (EditText) v.findViewById(R.id.snippetText);
-        eSnp.setText(mo.getSnippet());
 
+        // Get a reference to the individual cards in the layout, so we can find the individual
+        // widgets with ease (otherwise naming might clash because there are so many)
+        CardView cardInput = (CardView) v.findViewById(R.id.card_name_input);
+        CardView cardLocation = (CardView) v.findViewById(R.id.card_location);
+        CardView cardNextLocation = (CardView) v.findViewById(R.id.card_next_location);
+        CardView cardVOR = (CardView) v.findViewById(R.id.card_vor);
+
+
+        // Setup cardInput - these are the fields we are looking to handle
+        mEditName = (EditText) cardInput.findViewById(R.id.wpname_txt);
+        mEditAltitude = (EditText) cardInput.findViewById(R.id.wpalt_txt);
+        mEditNote = (EditText) cardInput.findViewById(R.id.wpnote_txt);
+
+        // Update Edit Text fields with marker provided info
+        mEditName.setText(mo.getText());
+        mEditNote.setText(mo.getSnippet());
+        mEditAltitude.setText(Double.toString(mo.getALT()));
 
         // set a lost focus event handler to automatically update the position name
-        eTit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mEditName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    if (eTit.getText()!=null) {
-                        Log.d("TBR:", "InfoEditFrament, focus lost in text field");
-                        if (!mo.getText().equals(String.valueOf(eTit.getText()))) {
-                            Log.d("TBR:", "Something updated in text");
+                    if (mEditName.getText()!=null) {
+                        Log.d(TAG, "InfoEditFrament, focus lost in text field");
+                        if (!mo.getText().equals(String.valueOf(mEditName.getText()))) {
+                            Log.d(TAG, "Something updated in text");
                             setSomethingUpdated(true);
-                            mo.setText(String.valueOf(eTit.getText()));
+                            mo.setText(String.valueOf(mEditName.getText()));
                         }
                     }
                 }
@@ -94,35 +116,37 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         });
 
 
-        // Update Next WP fields
-        TextView WPtextLabel = (TextView) v.findViewById(R.id.textViewNextWP);
-        TextView WPtextDist = (TextView) v.findViewById(R.id.tvDistance);
-        TextView WPtextHeading = (TextView) v.findViewById(R.id.tvHeading);
+        // Next Location Card
+        TextView WPtextLabel = (TextView) cardNextLocation.findViewById(R.id.heading_label);
+        TextView WPtextDist = (TextView) cardNextLocation.findViewById(R.id.dist_txt);
+        TextView WPtextHeading = (TextView) cardNextLocation.findViewById(R.id.hdg_txt);
+
         if ((markerIndex+1)<markerList.size()) {
-            WPtextLabel.setText("Next WP: "+markerList.get(markerIndex+1).getText());
+            WPtextLabel.setText(String.format(Locale.ENGLISH, "Next WP: %s", markerList.get(markerIndex + 1).getText()));
             double dist =markerList.get(markerIndex+1).getDist();
             double heading = markerList.get(markerIndex+1).getTT();
-            WPtextDist.setText(String.format("%.1f nm", dist));
-            WPtextHeading.setText(String.format("%.0f ˚", heading));
+            WPtextDist.setText(String.format(Locale.ENGLISH, "%.1f nm", dist));
+            WPtextHeading.setText(String.format(Locale.ENGLISH, "%.0f ˚", heading));
         } else {
             WPtextLabel.setText("Final destination") ;
             WPtextDist.setText("NA");
             WPtextHeading.setText("NA");
         }
 
-        // update VOR fields for marker
+        // VOR Card
         ArrayList<Pejling> pejlinger = markerList.get(markerIndex).getPejlinger();
-        TextView VORtext1 = (TextView) v.findViewById(R.id.VORname1);
-        TextView VORrad1 = (TextView) v.findViewById(R.id.VORrad1);
-        TextView VORdist1 = (TextView) v.findViewById(R.id.VORdist1);
 
-        TextView VORtext2 = (TextView) v.findViewById(R.id.VORname2);
-        TextView VORrad2 = (TextView) v.findViewById(R.id.VORrad2);
-        TextView VORdist2 = (TextView) v.findViewById(R.id.VORdist2);
+        TextView VORtext1 = (TextView) cardVOR.findViewById(R.id.vor1_txt);
+        TextView VORrad1 = (TextView) cardVOR.findViewById(R.id.vor1rad_txt);
+        TextView VORdist1 = (TextView) cardVOR.findViewById(R.id.vor1dist_txt);
 
-        TextView VORtext3 = (TextView) v.findViewById(R.id.VORname3);
-        TextView VORrad3 = (TextView) v.findViewById(R.id.VORrad3);
-        TextView VORdist3 = (TextView) v.findViewById(R.id.VORdist3);
+        TextView VORtext2 = (TextView) cardVOR.findViewById(R.id.vor2_txt);
+        TextView VORrad2 = (TextView) cardVOR.findViewById(R.id.vor2rad_txt);
+        TextView VORdist2 = (TextView) cardVOR.findViewById(R.id.vor2dist_txt);
+
+        TextView VORtext3 = (TextView) cardVOR.findViewById(R.id.vor3_txt);
+        TextView VORrad3 = (TextView) cardVOR.findViewById(R.id.vor3rad_txt);
+        TextView VORdist3 = (TextView) cardVOR.findViewById(R.id.vor3dist_txt);
 
         VORtext1.setText(vorList.get((pejlinger.get(0).getMarkerIndex())).getName());
         VORtext2.setText(vorList.get((pejlinger.get(1).getMarkerIndex())).getName());
@@ -136,17 +160,20 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));
         VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance() / 1852.));
 
-        TextView tvLat = (TextView) v.findViewById(R.id.tvLat);
-        TextView tvLon = (TextView) v.findViewById(R.id.tvLon);
-        TextView tvVar = (TextView) v.findViewById(R.id.tvVar);
+
+
+        // Location Card
+        TextView tvLat = (TextView) cardLocation.findViewById(R.id.lat_txt);
+        TextView tvLon = (TextView) cardLocation.findViewById(R.id.lon_txt);
+        TextView tvVar = (TextView) cardLocation.findViewById(R.id.mag_txt);
 
         tvLat.setText(String.format("%.2f  °", mo.getMarker().getPosition().latitude));
         tvLon.setText(String.format("%.2f  °", mo.getMarker().getPosition().longitude));
         tvVar.setText(String.format("%.1f  °", mo.getVAR()));
 
-        btnUpdate = (Button) v.findViewById(R.id.buttonUpdate);
-        btnDelete = (Button) v.findViewById(R.id.buttonDelete);
-        btnCancel = (Button) v.findViewById(R.id.buttonCancel);
+        btnUpdate = (Button) cardInput.findViewById(R.id.btn_update);
+        btnDelete = (Button) cardInput.findViewById(R.id.btn_delete);
+        btnCancel = (Button) cardInput.findViewById(R.id.btn_cancel);
         btnUpdate.setOnClickListener(this);
         btnDelete.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
@@ -182,14 +209,17 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view == btnUpdate) {
-            EditText eTitle = (EditText)  getView().findViewById(R.id.placeText);
-            EditText eSnippet = (EditText) getView().findViewById(R.id.snippetText);
-            String titleString = String.valueOf(eTitle.getText());
-            String snippetString = String.valueOf(eSnippet.getText());
+            String titleString = String.valueOf(mEditName.getText());
+            String snippetString = String.valueOf(mEditNote.getText());
+            Double alt=0.0;
+            if (!mEditAltitude.toString().equals("")) {
+               alt = Double.parseDouble(mEditAltitude.toString());
+            }
 
             // update marker data
             markerList.get(markerIndex).setText(titleString);
             markerList.get(markerIndex).setSnippet(snippetString);
+            markerList.get(markerIndex).setALT(alt);
 
             // update physical markers
             markerList.get(markerIndex).getMarker().setTitle(titleString);
