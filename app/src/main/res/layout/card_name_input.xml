@@ -100,8 +100,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView2"
-            tools:layout_editor_absoluteY="57dp"
-            tools:layout_editor_absoluteX="16dp"/>
+            android:layout_marginTop="24dp"
+            card_view:layout_constraintTop_toBottomOf="@+id/textView"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
 
         <TextView
             android:text="Alt"
