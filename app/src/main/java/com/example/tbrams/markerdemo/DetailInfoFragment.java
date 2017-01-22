@@ -75,7 +75,6 @@ public class DetailInfoFragment extends Fragment {
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
 
-        TextView tvLegLabel = (TextView) v.findViewById(R.id.tvLegLabel);
         TextView tvFromWP = (TextView) v.findViewById(R.id.tvFromWP);
         TextView tvToWP = (TextView) v.findViewById(R.id.tvToWP);
         TextView tvDist = (TextView) v.findViewById(R.id.tvDist);
@@ -95,7 +94,6 @@ public class DetailInfoFragment extends Fragment {
 
 
         if (markerIndex<markerList.size()) {
-            tvLegLabel.setText("Leg #"+ String.format("%d", markerIndex+1));
             tvFromWP.setText(markerList.get(markerIndex).getMarker().getTitle());
             tvToWP.setText(markerList.get(markerIndex+1).getMarker().getTitle());
 

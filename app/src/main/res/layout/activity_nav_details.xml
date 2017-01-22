@@ -12,15 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:text="Leg #"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/tvLegLabel"
-            android:textSize="16dp"
-            android:textColor="@color/cast_expanded_controller_background_color"
-            android:layout_marginLeft="8dp"/>
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"

@@ -17,6 +17,7 @@ import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.List;
+import java.util.Locale;
 
 public class DetailPagerActivity extends AppCompatActivity {
 
@@ -67,7 +68,8 @@ public class DetailPagerActivity extends AppCompatActivity {
             @Override
             public CharSequence getPageTitle(int position) {
                 // Generate title based on item position
-                return markerList.get(position+1).getText();
+
+                return String.format(Locale.ENGLISH, "Leg #%d", position+1);
             }
         });
 

@@ -139,6 +139,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         // Time difference
         tvDiff.setText(String.format(Locale.ENGLISH, "%02d", (int)fromWP.getDiff()));
+        tvCommand.setText(mCommandList.get(C_TAKEOFF));
 
     }
 
@@ -278,12 +279,12 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 }
                 updateFields();
 
-                tvCommand.setText("TURN: Heading "+String.format("%03d ˚",(int)toWP.getMH())+"˚");
+                tvCommand.setText(String.format(Locale.ENGLISH, "TURN: Heading %03d˚",(int)toWP.getMH()));
                 checkBtn.setText("ON COURSE");
                 break;
 
             case C_ARRIVED:
-                tvCommand.setText("Arrived at destination "+String.format("%03d",(int)toWP.getATO()));
+                tvCommand.setText(String.format(Locale.ENGLISH, "Arrived at destination, time was: %03d",(int)toWP.getATO()));
                 checkBtn.setEnabled(false);
                 checkBtn.setText("GOOD JOB");
                 break;
