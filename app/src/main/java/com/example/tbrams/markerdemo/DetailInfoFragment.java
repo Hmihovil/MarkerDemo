@@ -103,7 +103,7 @@ public class DetailInfoFragment extends Fragment {
             tvGS.setText(String.format("%.1f kts", mo.getGS()));
             tvTT.setText(String.format("%03d ˚", (int)mo.getTT()));
             tvTH.setText(String.format("%03d ˚", (int)mo.getTH()));
-            tvWCA.setText(String.format("%03.0f ˚", mo.getWCA()));
+            tvWCA.setText(String.format("%d ˚",  (int)mo.getWCA()));
             tvVAR.setText(String.format("%.1f ˚", mo.getVAR()));
             tvMH.setText(String.format("%03d ˚", (int)mo.getMH()));
             tvTAS.setText(String.format("%.1f kts", mo.getTAS()));
@@ -123,7 +123,9 @@ public class DetailInfoFragment extends Fragment {
             String mm="";
             String ss="";
 
-            tvAccTime.setText(String.format("%03d", (int)time));
+            int hrs=(int)(time/60);
+            int min=(int)(time%60);
+            tvAccTime.setText(String.format("%02d:%02d", hrs, min));
         }
 
             return v;

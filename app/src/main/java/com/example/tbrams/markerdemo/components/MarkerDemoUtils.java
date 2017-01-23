@@ -47,6 +47,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private String mSearchedFor;
     private boolean mHideNavAidIcons = false;
     private boolean mHideADicons = false;
+    private boolean mMapTypeChangedByZoom=false;
 
 
 
@@ -394,9 +395,13 @@ public class MarkerDemoUtils extends AppCompatActivity {
         mHideADicons = hideADicons;
     }
 
+    public boolean isMapTypeChangedByZoom() { return mMapTypeChangedByZoom; }
+    public void setMapTypeChangedByZoom(boolean mapTypeChangedByZoom) {
+        mMapTypeChangedByZoom = mapTypeChangedByZoom;
+    }
 
 
-// NavAids Related
+    // NavAids Related
 
     /*
      * Plot NavAid icons on the map with customized markers

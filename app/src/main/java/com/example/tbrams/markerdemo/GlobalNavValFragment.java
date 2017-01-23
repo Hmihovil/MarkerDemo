@@ -151,12 +151,14 @@ updateModelData();            }
         GlobalNavValData gnd=new GlobalNavValData(alt,tas,wind);
         double eto=0;
         for (int i=1;i<markerList.size();i++){
-            markerList.get(i).calcGS(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
-            markerList.get(i).calcWCA(gnd.getTAS(),gnd.getWINDfrom(), gnd.getWINDkts());
+            markerList.get(i).calcGS(gnd.getTAS(), gnd.getWINDfrom(), gnd.getWINDkts());
+            markerList.get(i).calcWCA(gnd.getTAS(), gnd.getWINDfrom(), gnd.getWINDkts());
             markerList.get(i).calcIAS(gnd.getTAS(), gnd.getALT());
             markerList.get(i).calcTH();
             markerList.get(i).calcMH();
             markerList.get(i).calcTIME();
+            if (i==1) markerList.get(i).addStartTIME();
+
             // calculate the accumulated ETO time and update each marker accordingly
             eto+=markerList.get(i).getTIME();
             markerList.get(i).setETO(eto);

@@ -72,8 +72,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private static GoogleMap mMap;
     private SharedPreferences mSharedPrefs;
-    private boolean mMapTypeChangedByZoom=false;
-
 
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     private final List<MarkerObject> markerList = markerLab.getMarkers();
@@ -246,14 +244,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                         setHideADicons(true);
                         setHideNavAidIcons(true);
-                        mMapTypeChangedByZoom = true;
+                        setMapTypeChangedByZoom(true);
                     } else {
                         // Switch back to preferred map type after "forced" change due to zoom
-                        if (mMapTypeChangedByZoom) {
+                        if (isMapTypeChangedByZoom()) {
                             // Fetch the hide details variables from preferences.
                             updatePreferenceFlags();
                             updateMapType(mSharedPrefs, mMap);
-                            mMapTypeChangedByZoom = false;
+                            setMapTypeChangedByZoom(false);
                         }
 
                     }
