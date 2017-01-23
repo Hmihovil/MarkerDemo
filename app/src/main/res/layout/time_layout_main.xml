@@ -19,13 +19,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/card_name_input"/>
-
             <include layout="@layout/card_next_loc"/>
+
+            <include layout="@layout/card_time_command"/>
+
+            <include layout="@layout/card_time"/>
 
             <include layout="@layout/card_vor"/>
 
-            <include layout="@layout/card_location"/>
 
         </LinearLayout>
     </ScrollView>

@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
+import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.NavAids;
+import com.example.tbrams.markerdemo.data.Pejling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,18 +39,18 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     private int segmentIndex = 0;
     private View v;
-    private TextView tvNextWP;
-    private TextView tvWPnumber;
-    private TextView tvWPtotal;
-    private TextView tvHeading;
-    private TextView tvDistance;
-    private TextView tvRETO;
-    private TextView tvDiff;
-    private TextView tvRetoLbl;
-    private TextView tvCommand;
-    private Button checkBtn;
+    private TextView timeRetoLbl;
+    private TextView timeRetoTxt;
+    private TextView timeDiffTxt;
+    private TextView commandTxt;
+    private Button commandBtn;
+    private TextView VORtext1, VORrad1, VORdist1;
+    private TextView VORtext2, VORrad2, VORdist2;
+    private TextView VORtext3, VORrad3, VORdist3;
     private Time mTime;
     private Boolean noIncrement=true;
+
+    private TextView nextLabel, nextDist, nextHdg;
 
     private Button timeBtn, talkBtn, nextBtn;
 
@@ -53,6 +58,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private MarkerObject toWP;
     private static int mCommand;
     private List<String> mCommandList = new ArrayList();
+    NavAids navaids = NavAids.get(getActivity());
+    List<NavAid> vorList = navaids.getList();
 
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -66,18 +73,40 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         mTime=new Time();
 
-        v = inflater.inflate(R.layout.time_fragment_layout, container, false);
-        tvNextWP = (TextView) v.findViewById(R.id.textViewNextWP);
-        tvWPnumber = (TextView) v.findViewById(R.id.textViewWPnumber);
-        tvWPtotal = (TextView) v.findViewById(R.id.textViewWPtotal);
-        tvHeading = (TextView) v.findViewById(R.id.textViewMH);
-        tvDistance = (TextView) v.findViewById(R.id.textViewDist);
-        tvRETO = (TextView) v.findViewById(R.id.textViewRETO);
-        tvDiff = (TextView) v.findViewById(R.id.textViewDiff);
-        tvCommand = (TextView) v.findViewById(R.id.textViewHints);
-        tvRetoLbl = (TextView) v.findViewById(R.id.textViewRETOLabel);
-        checkBtn = (Button) v.findViewById(R.id.buttonCheck);
-        checkBtn.setOnClickListener(this);
+        v = inflater.inflate(R.layout.time_layout_main, container, false);
+
+        CardView nextLocationCard = (CardView) v.findViewById(R.id.card_next_location);
+        nextLabel = (TextView) nextLocationCard.findViewById(R.id.heading_label);
+        nextDist = (TextView) nextLocationCard.findViewById(R.id.dist_txt);
+        nextHdg = (TextView) nextLocationCard.findViewById(R.id.hdg_txt);
+
+        CardView timeCard = (CardView) v.findViewById(R.id.card_time);
+        timeRetoLbl = (TextView) timeCard.findViewById(R.id.reto_lbl);
+        timeRetoTxt = (TextView) timeCard.findViewById(R.id.reto_txt);
+        timeDiffTxt = (TextView) timeCard.findViewById(R.id.diff_txt);
+
+        CardView cmdCard = (CardView) v.findViewById(R.id.card_time_command);
+        commandTxt = (TextView) cmdCard.findViewById(R.id.command_txt);
+        commandBtn = (Button) cmdCard.findViewById(R.id.command_btn);
+        commandBtn.setOnClickListener(this);
+
+
+        CardView vorCard = (CardView) v.findViewById(R.id.card_vor);
+        VORtext1 = (TextView) vorCard.findViewById(R.id.vor1_txt);
+        VORrad1 = (TextView) vorCard.findViewById(R.id.vor1rad_txt);
+        VORdist1 = (TextView) vorCard.findViewById(R.id.vor1dist_txt);
+
+        VORtext2 = (TextView) vorCard.findViewById(R.id.vor2_txt);
+        VORrad2 = (TextView) vorCard.findViewById(R.id.vor2rad_txt);
+        VORdist2 = (TextView) vorCard.findViewById(R.id.vor2dist_txt);
+
+        VORtext3 = (TextView) vorCard.findViewById(R.id.vor3_txt);
+        VORrad3 = (TextView) vorCard.findViewById(R.id.vor3rad_txt);
+        VORdist3 = (TextView) vorCard.findViewById(R.id.vor3dist_txt);
+
+
+
+
 
         mCommandList.add("TIME");
         mCommandList.add("TURN");
@@ -112,34 +141,50 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         fromWP = markerList.get(segmentIndex);
         toWP   = markerList.get(segmentIndex+1);
 
-        // Segment Number and Total
-        tvWPnumber.setText( String.format(Locale.ENGLISH, "%d", segmentIndex+1));
-        tvWPtotal.setText( String.format(Locale.ENGLISH, "%d", markerList.size()-1));
+        ArrayList<Pejling> pejlinger = toWP.getPejlinger();
 
-        // Next WP Name
-        tvNextWP.setText(toWP.getText());
 
-        // Heading and Distance
-        tvHeading.setText(String.format(Locale.ENGLISH, "%03d ˚", (int) toWP.getMH()));
-        tvDistance.setText(String.format(Locale.ENGLISH, "%.1f nm", toWP.getDist()));
+        // Next Location Card
+        nextLabel.setText(String.format(Locale.ENGLISH, "Next WP: %s", toWP.getText()));
+        nextHdg.setText(String.format(Locale.ENGLISH, "%03d ˚", (int) toWP.getMH()));
+        nextDist.setText(String.format(Locale.ENGLISH, "%.1f nm", toWP.getDist()));
 
-        // RETO
+//        tvWPnumber.setText( String.format(Locale.ENGLISH, "%d", segmentIndex+1));
+//        tvWPtotal.setText( String.format(Locale.ENGLISH, "%d", markerList.size()-1));
+
+
+        // Time Card
         if (segmentIndex==0) {
-            // Special for first Segment
-            // We only have ETO for first destination (No ATO, hence no RETO)
+            // Special for first Segment. We only have ETO for first destination (No ATO, hence no RETO)
             // TODO: Need some time formatting here later
 
-            tvRetoLbl.setText(R.string.ETO);
-            tvRETO.setText(String.format(Locale.ENGLISH, "%03d", (int) toWP.getETO()));
+            timeRetoLbl.setText(R.string.ETO);
+            timeRetoTxt.setText(String.format(Locale.ENGLISH, "%02d", (int) toWP.getETO()));
         } else {
 
-            tvRetoLbl.setText(R.string.RETO);
-            tvRETO.setText(String.format(Locale.ENGLISH, "%03d", (int)toWP.getRETO()));
+            timeRetoLbl.setText(R.string.RETO);
+            timeRetoTxt.setText(String.format(Locale.ENGLISH, "%02d", (int)toWP.getRETO()));
         }
 
         // Time difference
-        tvDiff.setText(String.format(Locale.ENGLISH, "%02d", (int)fromWP.getDiff()));
-        tvCommand.setText(mCommandList.get(C_TAKEOFF));
+        timeDiffTxt.setText(String.format(Locale.ENGLISH, "%02d", (int)fromWP.getDiff()));
+
+
+        // Command card
+        commandTxt.setText(mCommandList.get(C_TAKEOFF));
+
+        // VOR Card
+        VORtext1.setText(vorList.get((pejlinger.get(0).getMarkerIndex())).getName());
+        VORtext2.setText(vorList.get((pejlinger.get(1).getMarkerIndex())).getName());
+        VORtext3.setText(vorList.get((pejlinger.get(2).getMarkerIndex())).getName());
+
+        VORrad1.setText(String.format("%.1f \u00B0", (pejlinger.get(0).getHeading() + 360) % 360));
+        VORrad2.setText(String.format("%.1f \u00B0", (pejlinger.get(1).getHeading() + 360) % 360));
+        VORrad3.setText(String.format("%.1f \u00B0", (pejlinger.get(2).getHeading() + 360) % 360));
+
+        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance() / 1852.));
+        VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));
+        VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance() / 1852.));
 
     }
 
@@ -156,7 +201,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (view.getId()==R.id.buttonCheck) {
+        if (view.getId()==R.id.command_btn) {
 
             String zuluMinutes;
             String zuluTime;
@@ -164,12 +209,11 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             // Process Click action depending on what state we are in
             switch (mCommand) {
                 case C_TIME:
-                    Log.d(TAG, "C_TIME Clicked");
-
                     // Get zulu time in minutes and set ATO.
                     // Unlike the Pinto board situation, difference will be auto calculated here ^_^
-                    zuluTime = mTime.getZuluTime();
+                    zuluTime    = mTime.getZuluTime();
                     zuluMinutes = zuluTime.split(":")[1];
+                    Toast.makeText(getActivity(), "Time logged: "+zuluTime, Toast.LENGTH_SHORT).show();
 
                     toWP.setATO(Double.parseDouble(zuluMinutes));
 
@@ -201,21 +245,18 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     break;
 
                 case C_TURN:
-                    Log.d(TAG, "C_TURN Clicked");
 
                     newCommand(C_TRACK);
                     break;
 
 
                 case C_TRACK:
-                    Log.d(TAG, "C_TRACK Clicked");
 
                     newCommand(C_TALK);
                     break;
 
 
                 case C_TALK:
-                    Log.d(TAG, "C_TALK Clicked");
 
                     // Launch talk activity with info on this segment
                     Intent intent = TalkActivity.newIntent(getActivity(), segmentIndex);
@@ -226,25 +267,22 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
 
                 case C_CHECK:
-                    Log.d(TAG, "C_CHECK clicked");
                     newCommand(C_TIME);
                     break;
 
 
                 case C_ARRIVED:
-                    Log.d(TAG, "C_ARRIVED clicked");
                     break;
 
                 case C_TAKEOFF:
                     // Got the cleared for Take Off, record the time and update all ETO times based
                     // on current time plus previous ETO estimate.
 
-                    Log.d(TAG, "C_TAKEOFF clicked");
 
                     zuluTime = mTime.getZuluTime();
                     zuluMinutes = zuluTime.split(":")[1];
 
-                    Log.d(TAG, "Zulu Time is: "+zuluTime);
+                    Log.d(TAG, "Takeoff Zulu Time is: "+zuluTime);
                     Log.d(TAG, "Minutes is  : "+zuluMinutes);
 
                     // use it to generate RETOs
@@ -279,37 +317,39 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                 }
                 updateFields();
 
-                tvCommand.setText(String.format(Locale.ENGLISH, "TURN: Heading %03d˚",(int)toWP.getMH()));
-                checkBtn.setText("ON COURSE");
+                commandTxt.setText(String.format(Locale.ENGLISH, "TURN: Heading %03d˚",(int)toWP.getMH()));
+                commandBtn.setText("ON COURSE");
                 break;
 
             case C_ARRIVED:
-                tvCommand.setText(String.format(Locale.ENGLISH, "Arrived at destination, time was: %03d",(int)toWP.getATO()));
-                checkBtn.setEnabled(false);
-                checkBtn.setText("GOOD JOB");
+                int hrs = (int)(toWP.getATO()/60);
+                int min = (int)(toWP.getATO()%60);
+                commandTxt.setText(String.format(Locale.ENGLISH, "Arrived at destination\nTime was: %02d:%02d",hrs, min));
+                commandBtn.setEnabled(false);
+                commandBtn.setText("GOOD JOB");
                 break;
 
             case C_TIME:
                 // Update instruction text and make the button log time
-                tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("LOG");
+                commandTxt.setText(mCommandList.get(cmd));
+                commandBtn.setText("LOG");
                 break;
 
             case C_TALK:
-                tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("READ");
+                commandTxt.setText(mCommandList.get(cmd));
+                commandBtn.setText("READ");
                 break;
 
             case C_TRACK:
                 // Update instruction text and make the button confirm action
-                tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("TRACK OK");
+                commandTxt.setText(mCommandList.get(cmd));
+                commandBtn.setText("TRACK OK");
                 break;
 
             case C_CHECK:
                 // Update check instruction text and make the button confirm action
-                tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("DONE");
+                commandTxt.setText(mCommandList.get(cmd));
+                commandBtn.setText("DONE");
                 break;
 
             case C_TAKEOFF:
@@ -318,8 +358,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
             default:
                 //
-                tvCommand.setText(mCommandList.get(cmd));
-                checkBtn.setText("DONE");
+                commandTxt.setText(mCommandList.get(cmd));
+                commandBtn.setText("DONE");
                 break;
         }
 

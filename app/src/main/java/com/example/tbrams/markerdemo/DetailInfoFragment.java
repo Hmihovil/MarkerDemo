@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
@@ -65,6 +66,8 @@ public class DetailInfoFragment extends Fragment {
 
                                     Log.d("TBR:", "TimeActivity Started (Plan execution)...");
 
+                                } else {
+                                    Toast.makeText(getActivity(), "We need at least two legs for before we can launch", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }).show();
