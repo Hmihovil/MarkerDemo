@@ -143,7 +143,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         ArrayList<Pejling> pejlinger = toWP.getPejlinger();
 
-
         // Next Location Card
         nextLabel.setText(String.format(Locale.ENGLISH, "Next WP: %s", toWP.getText()));
         nextHdg.setText(String.format(Locale.ENGLISH, "%03d ˚", (int) toWP.getMH()));
@@ -212,7 +211,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     // Get zulu time in minutes and set ATO.
                     // Unlike the Pinto board situation, difference will be auto calculated here ^_^
                     zuluTime    = mTime.getZuluTime();
-                    zuluMinutes = zuluTime.split(":")[1];
+                    String[] zStrings=zuluTime.split(":");
+                    Double zMins = Double.parseDouble(zStrings[0])*60+Integer.parseInt(zStrings[1]);
+                    zuluMinutes = zStrings[1];
                     Toast.makeText(getActivity(), "Time logged: "+zuluTime, Toast.LENGTH_SHORT).show();
 
                     toWP.setATO(Double.parseDouble(zuluMinutes));
@@ -239,7 +240,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                         newCommand(C_TURN);
 
                     } else {
-
+                        toWP.setATO(zMins);
                         newCommand(C_ARRIVED);
                     }
                     break;
@@ -337,7 +338,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
             case C_TALK:
                 commandTxt.setText(mCommandList.get(cmd));
-                commandBtn.setText("READ");
+                commandBtn.setText("TALK");
                 break;
 
             case C_TRACK:

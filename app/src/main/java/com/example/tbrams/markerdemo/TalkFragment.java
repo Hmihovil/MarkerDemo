@@ -3,6 +3,7 @@ package com.example.tbrams.markerdemo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +17,12 @@ import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.NavAids;
 
 import java.util.List;
+import java.util.Locale;
 
 
 public class TalkFragment extends Fragment {
     public static final String EXTRA_SEGMENT_ID = "com.example.tbrams.markerdemo.segment_id";
+    public static final String TAG = "TBR:TalkActivity";
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
@@ -46,34 +49,126 @@ public class TalkFragment extends Fragment {
 
         getActivity().setTitle(markerLab.getTripName());
 
-        // Get marker id from argument bundle
+        // Get segment id from argument bundle - this is increased from TimeFragment after turning
+        // to new heading
         segmentIndex = (int) getArguments().getSerializable(EXTRA_SEGMENT_ID);
-        Log.d("TBR:","TalkFragment/onCreateView - intent/segmentIndex: "+segmentIndex);
+        Log.d(TAG, "onCreateView segmentIndex: "+segmentIndex);
 
-        final View v = inflater.inflate(R.layout.talk_fragment_layout, container, false);
-        final TextView tvPositionName = (TextView) v.findViewById(R.id.textViewPositionName);
-        final TextView tvPositionTime = (TextView) v.findViewById(R.id.textViewPositionTime);
-        final TextView tvPositionAlt = (TextView) v.findViewById(R.id.textViewPositionAlt);
-        final TextView tvPositionNextName = (TextView) v.findViewById(R.id.textViewPositionNextName);
-        final TextView tvPositionNextTime = (TextView) v.findViewById(R.id.textViewPositionNextTime);
-        final TextView tvPositionNextTimeLabel = (TextView) v.findViewById(R.id.textViewPositionNextTimeLabel);
-        final TextView tvPositionNextAlt = (TextView) v.findViewById(R.id.textViewPositionNextAlt);
-        final TextView tvPositionNextAltLabel = (TextView) v.findViewById(R.id.textViewPositionNextAltLabel);
-        final TextView tvPositionThenName = (TextView) v.findViewById(R.id.textViewPositionThenName);
-        final TextView tvPositionThenNameLabel = (TextView) v.findViewById(R.id.textViewPositionThenLabel);
-        final TextView tvPositionNextLabel   = (TextView) v.findViewById(R.id.textViewExpLabel);
-        final TextView tvPositionPTLabel   = (TextView) v.findViewById(R.id.textViewPTLabel);
-        final TextView tvPositionFeetLabel   = (TextView) v.findViewById(R.id.textViewFeetLabel);
+        final View v = inflater.inflate(R.layout.talk_layout_main, container, false);
 
-        // Actual position, time and altitude
-        MarkerObject thisWP = markerList.get(segmentIndex);
-        tvPositionName.setText(thisWP.getText());
-        if (segmentIndex==0) {
-            tvPositionTime.setText(String.format("%02d", (int)thisWP.getETO()));
-        } else {
-            tvPositionTime.setText(String.format("%02d", (int)thisWP.getATO()));
+        CardView cardAt = (CardView) v.findViewById(R.id.card_talk_at);
+        final TextView atName = (TextView) cardAt.findViewById(R.id.position_txt);
+        final TextView atTime = (TextView) cardAt.findViewById(R.id.time_txt);
+        final TextView atAlt = (TextView) cardAt.findViewById(R.id.alt_txt);
+
+        CardView cardNext = (CardView) v.findViewById(R.id.card_talk_expect);
+        final TextView expName = (TextView) cardNext.findViewById(R.id.position_txt);
+        final TextView expTime = (TextView) cardNext.findViewById(R.id.time_txt);
+        final TextView expAlt = (TextView) cardNext.findViewById(R.id.alt_txt);
+
+        CardView cardThen = (CardView) v.findViewById(R.id.card_talk_then);
+        final TextView thenName = (TextView) cardThen.findViewById(R.id.position_txt);
+
+        Button btnOK = (Button) v.findViewById(R.id.talk_btn);
+        btnOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss this screen
+                getActivity().onBackPressed();
+            }
+        });
+
+
+        // SegmentIndex values
+        // 0 has WP from 0 - 1
+        // 1 has WP from 1 - 2
+        // n has WP from n - (n+1)
+        //
+        // markerList.size
+        // with 1 segment  2 WPs, markerList.size=2
+        // with 2 segments 3 WPs, markerList.size=3
+        // with n segment (n+1) WPs, markerList.size=(n+1)
+        //
+        // segmentIndex < size-2: At least 3 WP's left to report (2 segments)
+        // segmentIndex < size-1: At least 2 WP's left to report on (1 segment)
+
+
+        if (segmentIndex==markerList.size()-2) {
+            Log.d(TAG, "onCreateView: Last segment");
+
+            // At Card
+            MarkerObject thisWP = markerList.get(segmentIndex);
+            atName.setText(thisWP.getText());
+            if (segmentIndex==0) {
+                atTime.setText(String.format("%02d", (int)thisWP.getETO()));
+            } else {
+                atTime.setText(String.format("%02d", (int)thisWP.getATO()));
+            }
+            atAlt.setText(String.format("%.0f feet",thisWP.getALT()));
+
+
+            // Expect Card
+            MarkerObject expWP = markerList.get(segmentIndex+1);
+            expName.setText(expWP.getText());
+            expTime.setText(String.format("%02d", (int)expWP.getRETO()));
+            expAlt.setText(String.format(Locale.ENGLISH, "%d feet", (int)expWP.getALT()));
+
+
+            // Since we are at the end
+            cardThen.removeAllViews();
+            cardThen.setVisibility(View.INVISIBLE);
+
+        } else  {
+
+            // fill in the values
+            Log.d(TAG, "onCreateView: at least 2 segments to go");
+
+            // At Card
+            MarkerObject thisWP = markerList.get(segmentIndex);
+            atName.setText(thisWP.getText());
+            if (segmentIndex==0) {
+                atTime.setText(String.format("%02d", (int)thisWP.getETO()));
+            } else {
+                atTime.setText(String.format("%02d", (int)thisWP.getATO()));
+            }
+            atAlt.setText(String.format("%.0f feet",thisWP.getALT()));
+
+
+            // Expect Card
+            MarkerObject expWP = markerList.get(segmentIndex+1);
+            expName.setText(expWP.getText());
+            if (segmentIndex==0) {
+                expTime.setText(String.format("%02d", (int)expWP.getETO()));
+            } else {
+                expTime.setText(String.format("%02d", (int)expWP.getRETO()));
+            }
+            Log.d(TAG, "onCreateView: expWP");
+            Log.d(TAG, "onCreateView: getText: "+expWP.getText());
+            Log.d(TAG, "onCreateView: getETO: "+expWP.getETO());
+            Log.d(TAG, "onCreateView: getRETO: "+expWP.getRETO());
+            Log.d(TAG, "onCreateView: getATO: "+expWP.getATO());
+            expAlt.setText(String.format(Locale.ENGLISH, "%d feet", (int)expWP.getALT()));
+
+            // Then Card
+            // make it visible, just in case...
+            cardThen.setVisibility(View.VISIBLE);
+            MarkerObject thenWP = markerList.get(segmentIndex+2);
+            Log.d(TAG, "onCreateView: thenWP");
+            Log.d(TAG, "onCreateView: getText: "+expWP.getText());
+            Log.d(TAG, "onCreateView: getETO: "+thenWP.getETO());
+            Log.d(TAG, "onCreateView: getRETO: "+thenWP.getRETO());
+            Log.d(TAG, "onCreateView: getATO: "+thenWP.getATO());
+
+            thenName.setText(thenWP.getText());
         }
-        tvPositionAlt.setText(String.format("%.0f",thisWP.getALT()));
+
+
+
+
+
+        /*
+
+
 
         if (segmentIndex+2<markerList.size()) {
             // In here, we have at least two segments to work on
@@ -138,16 +233,7 @@ public class TalkFragment extends Fragment {
             tvPositionPTLabel.setVisibility(View.INVISIBLE);
 
         }
-
-
-        Button btnOK = (Button) v.findViewById(R.id.btnPositionOK);
-        btnOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Dismiss this screen
-                getActivity().onBackPressed();
-            }
-        });
+*/
 
         return v;
     }

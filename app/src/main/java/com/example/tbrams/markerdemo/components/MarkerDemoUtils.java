@@ -8,6 +8,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.example.tbrams.markerdemo.R;
 import com.example.tbrams.markerdemo.data.Aerodrome;
@@ -209,6 +210,17 @@ public class MarkerDemoUtils extends AppCompatActivity {
             return imageBitmap;
         }
     }
+
+
+    /*
+     * Convert dp pixes to normal pixels
+     *
+     */
+    float dp2px(float pix) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pix,
+                getResources().getDisplayMetrics());
+    }
+
 
 
     // Map and Zoom related
