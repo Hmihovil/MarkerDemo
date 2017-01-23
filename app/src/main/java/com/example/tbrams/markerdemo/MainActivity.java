@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +25,12 @@ import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
+
+/*
+ * this class is use to display a list of flightplans on file. When in data browse mode
+ * it will display waypoints using DetailActivity and otherwise it will use MarkerDemoActivity
+ * to present the plan on a map
+ */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_WRITE = 101;
     private static final String TAG = "TBR:MA";

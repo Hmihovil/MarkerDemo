@@ -78,6 +78,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             Marker marker = gMap.addMarker(new MarkerOptions()
                     .position(midPt)
                     .anchor((float)0.5, (float)0.5)
+                    .alpha(.6f)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
 
             midpointList.add(marker);
@@ -227,6 +228,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public void updateZoom(SharedPreferences sharedPrefs, GoogleMap gMap) {
         float zoomLevel = (float) Double.parseDouble(sharedPrefs.getString("zoomLevel","10."));
+        setZoomLevel(zoomLevel);
         gMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel), 1000, null);
     }
 

@@ -1,13 +1,10 @@
 package com.example.tbrams.markerdemo;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.db.DataSource;
@@ -17,6 +14,9 @@ import java.util.List;
 
 import static com.example.tbrams.markerdemo.MarkerDemoActivity.getCurrentTripId;
 
+/*
+ * This class is used to display a list of Waypoints in data browse mode
+ */
 
 @SuppressWarnings("FieldCanBeLocal")
 public class DetailActivity extends AppCompatActivity {

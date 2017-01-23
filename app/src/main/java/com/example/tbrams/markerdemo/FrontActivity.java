@@ -16,22 +16,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.tbrams.markerdemo.data.MarkerLab;
-import com.example.tbrams.markerdemo.db.DataSource;
-import com.example.tbrams.markerdemo.dbModel.TripItem;
-
-import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 
 
 public class FrontActivity extends AppCompatActivity {
@@ -65,7 +59,7 @@ public class FrontActivity extends AppCompatActivity {
 
     // flag to load home fragment when user presses back key
     private boolean shouldLoadHomeFragOnBackPress = true;
-    private Handler mHandler;
+    private Handler myHandler;
 
 
     @Override
@@ -76,7 +70,7 @@ public class FrontActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mHandler = new Handler();
+        myHandler = new Handler();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -141,7 +135,7 @@ public class FrontActivity extends AppCompatActivity {
 
         // If mPendingRunnable is not null, then add to the message queue
         if (mPendingRunnable != null) {
-            mHandler.post(mPendingRunnable);
+            myHandler.post(mPendingRunnable);
         }
 
 
@@ -184,8 +178,7 @@ public class FrontActivity extends AppCompatActivity {
 
     /***
      * Load navigation menu header information
-     * like background image, profile image
-     * name, website, notifications action view (dot)
+     * like background image, profile image and name
      */
     private void loadNavHeader() {
         // name, website
@@ -235,6 +228,19 @@ public class FrontActivity extends AppCompatActivity {
                         startActivity(new Intent(FrontActivity.this, AboutActivity.class));
                         drawer.closeDrawers();
                         return true;
+
+                    case R.id.db_admin:
+                        Log.d(TAG, "onNavigationItemSelected: Database admin mode");
+                        break;
+
+                    case R.id.db_reset:
+                        Log.d(TAG, "onNavigationItemSelected: Database Reset...");
+                        break;
+
+                    case R.id.db_navaids:
+                        Log.d(TAG, "onNavigationItemSelected: Import Navaids");
+                        break;
+
 
                     default:
                         navItemIndex = 0;

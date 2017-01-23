@@ -13,6 +13,21 @@
             android:title="@string/nav_settings" />
     </group>
 
+    <item android:title="Database">
+        <menu
+            android:id="@+id/db"
+            android:title="Database">
+            <item
+                android:id="@+id/db_admin"
+                android:title="Admin"/>
+            <item
+                android:id="@+id/db_navaids"
+                android:title="Import Navaids"/>
+            <item
+                android:id="@+id/db_reset"
+                android:title="Reset DB"/>
+        </menu>
+    </item>
     <item android:title="Other">
         <menu>
             <item

@@ -64,7 +64,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private static final float ZOOM_OVERVIEW = 10.0f;
 
-    private static final String DEGREES="\u00B0";
     private static final String TAG = "TBR:MDA" ;
 
     private  MarkerObject mUndoDeleteMarker = null;
@@ -206,7 +205,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         updateZoom(mSharedPrefs, mMap);
 
 
-        // In rare cases the lookup will time out and we will end up with a null position vairable. For that reason,
+        // In rare cases the lookup will time out and we will end up with a null position variable. For that reason,
         // I have set the default backup position to be
         LatLng position = new LatLng(55.74015, 11.96788);  // Skibby!
 
