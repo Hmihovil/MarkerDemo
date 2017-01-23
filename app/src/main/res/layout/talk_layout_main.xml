@@ -30,7 +30,7 @@
     </ScrollView>
 
     <Button
-        android:text="Done"
+        android:text="@string/done"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/talk_btn"

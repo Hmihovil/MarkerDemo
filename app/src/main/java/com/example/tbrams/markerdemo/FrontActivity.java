@@ -43,7 +43,7 @@ public class FrontActivity extends AppCompatActivity {
     // urls to load navigation header background image
     // and profile image
     private static final String urlNavHeaderBg = "http://api.androidhive.info/images/nav-menu-header-bg.jpg";
-    private static final String urlProfileImg = "https://lh4.googleusercontent.com/E0UCqfRQwpHoOmKhR1WhLtboTinW1R2HyD9OmuzLNpYyS5k3JyMjJHpLT2k41k2O-2iCcoGDvkVLTdutVAZC2w=w1804-h903-rw";
+    private static final String urlProfileImg = "https://lh3.googleusercontent.com/OourXDyOSAS9q65-InyB3qrAVt1EIO8uA80ta6jBB3IgK8MfdqgkAAA3AvpegO_1-pftvls6s0j4zTjyvSECRVr9PnESJT_ni3QkIxsIr7bG0-IfLmrUblfD0YHp0TFb-4zK_w=w1331-h999-no";
 
     private NavigationView navigationView;
     private DrawerLayout drawer;
