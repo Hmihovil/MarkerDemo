@@ -3,8 +3,6 @@ package com.example.tbrams.markerdemo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -14,7 +12,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -27,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.components.MarkerDemoUtils;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.Aerodromes;
 import com.example.tbrams.markerdemo.data.MarkerLab;
@@ -42,27 +40,20 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
-import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
-import static com.google.maps.android.SphericalUtil.computeHeading;
-import static com.google.maps.android.SphericalUtil.interpolate;
 
-public class MarkerDemoActivity extends AppCompatActivity implements
+public class MarkerDemoActivity extends MarkerDemoUtils implements
         OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener,
         AlertDialogFragment.SimpleDialogListener {
@@ -75,18 +66,12 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private static final String DEGREES="\u00B0";
     private static final String TAG = "TBR:MDA" ;
-    public static final int AERODROME_MAX_ZOOM = 14;
-    public static final int AERODROME_MIN_ZOOM = 7;
-    public static final int NAVAID_MAX_ZOOM = 16;
-    public static final int NAVAID_MIN_ZOOM = 7;
-    public static final int ZOOM_CHANGE_MAP_TYPE = 16;
 
     private  MarkerObject mUndoDeleteMarker = null;
     private  int mUndoDeleteIndex= -1;
 
     private static GoogleMap mMap;
     private SharedPreferences mSharedPrefs;
-    private float mZoomLevel;
     private boolean mMapTypeChangedByZoom=false;
 
 
@@ -97,21 +82,15 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     private final List<NavAid> navAidList = navaids.getList();
     private final List<NavAid> vorList = new ArrayList<>();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
-    private boolean mHideADicons = false;
-    private boolean mHideNavAidIcons = false;
 
 
     private final Aerodromes aerodromes = Aerodromes.get(this);
     private final List<Aerodrome> ADList = aerodromes.getList();
     private final List<Marker> mADMarkers = new ArrayList<>();
 
-
-    private final static List<Marker> midpointList = new ArrayList<>();
-    private static Polyline polyline;
     private static int currentMarkerIndex=-1;
 
     private Vibrator mVib;
-    private Object mSearchedFor;
     private static String mTripId;
     private String mWpId;
     private boolean mPlanUpdated=false;
@@ -225,8 +204,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         mMap = map;
 
         // Check map type preference and update the map here
-        updateMapType();
-        updateZoom();
+        updateMapType(mSharedPrefs, mMap);
+        updateZoom(mSharedPrefs, mMap);
+
 
         // In rare cases the lookup will time out and we will end up with a null position vairable. For that reason,
         // I have set the default backup position to be
@@ -242,7 +222,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         if (mMap!=null) {
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,mZoomLevel));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, getZoomLevel()));
 
             // Disable the navigation toolbar that will otherwise pop up after setting a marker
             mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -250,36 +230,36 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             // Enable my location button though
             //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-            plotNavAids();
-            plotAerodromes();
+            plotNavAids(mNavAidMarkers, navAidList, mMap);
+            plotAerodromes(mADMarkers, ADList, mMap);
 
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                 @Override
                 public void onCameraIdle() {
                     CameraPosition cameraPosition = mMap.getCameraPosition();
-                    mZoomLevel=cameraPosition.zoom;
+                    setZoomLevel(cameraPosition.zoom);
                     writePreferenceChanges();
 
-                    if(mZoomLevel> ZOOM_CHANGE_MAP_TYPE) {
+                    if(getZoomLevel()> ZOOM_CHANGE_MAP_TYPE) {
                         Log.d(TAG, "onCameraIdle: Changing to hybrid map");
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                        mHideADicons=true;
-                        mHideNavAidIcons=true;
+                        setHideADicons(true);
+                        setHideNavAidIcons(true);
                         mMapTypeChangedByZoom = true;
                     } else {
                         // Switch back to preferred map type after "forced" change due to zoom
                         if (mMapTypeChangedByZoom) {
                             // Fetch the hide details variables from preferences.
                             updatePreferenceFlags();
-                            updateMapType();
+                            updateMapType(mSharedPrefs, mMap);
                             mMapTypeChangedByZoom = false;
                         }
 
                     }
                     // Update both Aerodromes and Navaid icons was well
-                    plotNavAids();
-                    plotAerodromes();
+                    plotNavAids(mNavAidMarkers, navAidList, mMap);
+                    plotAerodromes(mADMarkers, ADList, mMap);
 
                 }
             });
@@ -318,7 +298,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                     TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
                     tvLocality.setText(marker.getTitle());
 
-                    int markerIndex=getIndexById(marker.getId());
+                    int markerIndex=getIndexById(marker.getId(), markerList);
 
                     return v;
 
@@ -340,7 +320,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                currentMarkerIndex=getIndexById(marker.getId());
+                currentMarkerIndex=getIndexById(marker.getId(), markerList);
 
                 if (isMidPoint(marker)) {
                     int pp=getMidpointIndex(marker);
@@ -366,7 +346,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
             @Override
             public void onMarkerDrag(Marker marker) {
-                updatePolyline();
+                updatePolyline(markerList, mMap);
             }
 
             @Override
@@ -376,8 +356,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
                 mVib.vibrate(50);
                 updateMarkerInfo(marker);
-                updatePolyline();
-                updateNavinfo();
+                updatePolyline(markerList, mMap);
+                updateNavinfo(markerList);
             }
         });
 
@@ -391,374 +371,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         }
     }
 
-
-
-    /*
-     * Plot Aerodrome icons on the map with customized markers
-     * All markers are initially created and filed away in the mADMarkers list. Everything is
-     * Offset 50% in both directions, so they will center on the position of the AD.
-     *
-     * When the markers are already done, all we need to do is resize the icon depending on
-     * the Zoom level.
-     *
-     * For zoom levels above 14 it seems there is n need for this functionality as the native
-     * airport markers start to appear in Google Maps.
-     *
-     * Zooming out over level 7 makes the maps ugly because of the extra large icons, so they
-     * are hidden at these levels as well
-     *
-     */
-    private void plotAerodromes() {
-
-        // Create the markers if not alrady there
-        String iconName = "ic_device_airplanemode_on";
-        int iconInt = R.drawable.ic_device_airplanemode_on;
-        if (mADMarkers.size() == 0) {
-            // Create all AD markers and keep record in an ArrayList
-            for (int i = 0; i < ADList.size(); i++) {
-                Marker m = mMap.addMarker(new MarkerOptions()
-                        .title(ADList.get(i).getIcaoName())
-                        .snippet(ADList.get(i).getName())
-                        .position(ADList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
-
-                m.setAnchor(0.5f, .5f);
-                mADMarkers.add(m);
-            }
-        }
-
-
-
-        if (mHideADicons || mZoomLevel > AERODROME_MAX_ZOOM || mZoomLevel< AERODROME_MIN_ZOOM) {
-            for (Marker m : mADMarkers) {
-                m.setVisible(false);
-            }
-        } else {
-
-            // Update size of each ADMarker relative to zoom level
-            for (Marker m : mADMarkers) {
-                m.setVisible(true);
-         //       m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
-            }
-        }
-    }
-
-
- /*
- * Plot NavAid icons on the map with customized markers
- * All markers are initially created and filed away in the m list. Everything is
- * Offset 50% in both directions, so they will center on the position of the AD.
- *
- *
- * Should the markers are already be created, all we need to do is resize the icon depending on
- * the Zoom level.
- *
- * For zoom levels above 16 the map type will be changed to Hybrid and there is no longer need
- * for this marker.
- *
- */
-    private void plotNavAids() {
-
-        String snippetText="invalid";
-        int iconInt=R.drawable.ic_device_gps_blue;
-        if (mNavAidMarkers.size() == 0) {
-            // Create all NavAids markers and keep record in an ArrayList
-            for (int i = 0; i < navAidList.size(); i++) {
-                 switch (navAidList.get(i).getType()){
-                     case NavAid.VOR:
-                         iconInt=R.drawable.ic_device_gps_blue;
-                         snippetText = "VOR";
-                         break;
-                     case NavAid.VORDME:
-                         iconInt=R.drawable.ic_device_gps_green;
-                         snippetText = "VOR/DME";
-                         break;
-                     case NavAid.DME:
-                         iconInt=R.drawable.ic_device_gps_purple;
-                         snippetText = "DME";
-                         break;
-                     case NavAid.NDB:
-                         iconInt=R.drawable.ic_device_gps_black;
-                         snippetText = "NDB";
-                         break;
-                     case NavAid.TACAN:
-                         iconInt=R.drawable.ic_device_gps_red;
-                         snippetText = "TACAN";
-                         break;
-                     case NavAid.VORTAC:
-                         iconInt=R.drawable.ic_device_gps_orange;
-                         snippetText = "VORTAC";
-                         break;
-                     case NavAid.LOCALIZER:
-                         iconInt=R.drawable.ic_device_gps_grey;
-                         snippetText = "LOCALIZER";
-                         break;
-                 }
-
-
-
-                Marker m = mMap.addMarker(new MarkerOptions()
-                        .title(navAidList.get(i).getName())
-                        .snippet(snippetText+" "+navAidList.get(i).getFreq())
-                        .position(navAidList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
-
-                m.setAnchor(.5f, .5f);
-                mNavAidMarkers.add(m);
-            }
-        }
-
-        if (mHideNavAidIcons || mZoomLevel > NAVAID_MAX_ZOOM || mZoomLevel< NAVAID_MIN_ZOOM) {
-            // Preference off for AD markers - hide them
-            for (Marker m : mNavAidMarkers) {
-                m.setVisible(false);
-            }
-       } else {
-            // Update size of each NavAidMarker relative to zoom level
-            for (Marker m : mNavAidMarkers) {
-                m.setVisible(true);
-              //  m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
-            }
-        }
-    }
-
-
-
-    private Dimension getDimensions(String iconName) {
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
-        Dimension d = new Dimension();
-        d.w=imageBitmap.getWidth();
-        d.h=imageBitmap.getHeight();
-
-        return d;
-    }
-
-
-    private static class Dimension {
-        int w,h;
-    }
-
-    public Bitmap resizeMapIcons(String iconName){
-
-        // Try to get the sizing right
-        // At ZoomLevel 12 60px
-
-        // At Zoomlevel  12 100px ... not more than that
-        // 13.9  233  seems OK
-
-        double pixelSizeAtZoom14 = 500; //the size of the icon at zoom level 0
-        int maxPixelSize = 150;       //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
-        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(mZoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
-
-        if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
-            relativePixelSize = maxPixelSize;
-
-        Log.d(TAG, "Rel pixel size: "+relativePixelSize);
-
-        // Create bitmap from drawable and size it.. if it makes sense
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
-        if (relativePixelSize>0) {
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, relativePixelSize, relativePixelSize, false);
-            return resizedBitmap;
-        } else {
-            return imageBitmap;
-        }
-    }
-
-    private void updateMapType() {
-        switch (mSharedPrefs.getString("mapType","1")) {
-            case "1":
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                break;
-            case "2":
-                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                break;
-            case "3":
-                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                break;
-            case "4":
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                break;
-        }
-    }
-
-
-
-    private void updateZoom() {
-        mZoomLevel = (float) Double.parseDouble(mSharedPrefs.getString("zoomLevel","10."));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(mZoomLevel), 1000, null);
-    }
-
-
-    /*
-     * find new location text for existing marker - used when dragged
-     */
-    private void updateMarkerInfo(Marker marker) {
-
-        Address adr = findAddress(marker.getPosition());
-        marker.setTitle(adr.getLocality());
-        marker.setSnippet(adr.getCountryName());
-    }
-
-
-    /*
-     * This function is looking up a location and doing the geocoding.
-     * Returning an address
-     */
-    private Address findAddress(LatLng location) {
-        Geocoder gc = new Geocoder(MarkerDemoActivity.this);
-        List<Address> list = null;
-
-        try {
-            list = gc.getFromLocation(location.latitude, location.longitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Address adr=null;
-        if (list!=null) {
-            adr = list.get(0);
-            Log.d(TAG, "findAddress: Got adr from lookup: "+adr);
-        } else {
-            Log.d(TAG, "findAddress: Got a null from address lookup");
-        }
-        return adr;
-    }
-
-
-    /*
-     * Determine if the marker argument is a midpoint marker
-     */
-    private boolean isMidPoint(Marker marker) {
-        return (getMidpointIndex(marker)>=0);
-    }
-
-
-    /*
-     * Look up the marker in the midpointList and return the index. If not found return
-     * minus one.
-     */
-    private static int getMidpointIndex(Marker marker) {
-        for (int i=0;i<midpointList.size();i++){
-            if (midpointList.get(i).getPosition().equals(marker.getPosition()))
-                return i;
-        }
-        return -1;
-    }
-
-
-
-    /*
-     * Find and return the marker index with the marker_id as specified
-     * otherwise return minus one
-     */
-    private int getIndexById(String mid) {
-        for (int i=0; i<markerList.size();i++) {
-            if (markerList.get(i).getMarker().getId().equals(mid)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /*
-     * Refresh polyline from marker coordinates
-     *
-     * This one is called after a new marker has been added, when a marker is dragged and
-     * when the activity resumes
-     */
-
-    private void updatePolyline() {
-        if (polyline==null) {
-            Log.d(TAG, "UpdatePolyLine: ==null");
-            PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
-            polyline = mMap.addPolyline(lineOptions);
-        }
-
-        List<LatLng> points = new ArrayList<>();
-        for (int i=0;i<markerList.size();i++){
-            points.add(markerList.get(i).getMarker().getPosition());
-        }
-        polyline.setPoints(points);
-
-        updateMidpoints();
-    }
-
-    /*
-     * Update distance and heading info for all markers except the last one
-     * After this is done all markers will have the distance to next marker and
-     * the initial heading needed to reach next marker
-     */
-    private void updateNavinfo(){
-        if (markerList.size()<2) {
-            return;
-        }
-
-        for (int i=0;i<markerList.size()-1;i++){
-            MarkerObject mFrom =markerList.get(i);
-            MarkerObject mTo = markerList.get(i+1);
-
-            double dist=computeDistanceBetween(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
-            double heading = computeHeading(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
-
-            // Set these values on the to point, that way we will have all we need in the WP
-            // dist from prev, required heading from prev, IAS, TAS etc later...
-
-            mTo.setDist(dist);
-            mTo.setTT(heading);
-        }
-    }
-
-    /*
-     *  Clear all physical traces of midpoints from the map, then go through all established
-     *  markers again and calculate new locations for midpoints. Then add them to the map and
-     *  to our midPointList
-     */
-    private void updateMidpoints() {
-        if (markerList.size()<2) return;
-
-        // remove old markers from map and clear the storage
-        for (int i=0;i<midpointList.size();i++){
-            midpointList.get(i).remove();
-        }
-        midpointList.clear();
-
-        // Go through all markers and add new non draggable midpoint markers
-        for (int i=0; i<markerList.size()-1;i++) {
-            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                    .position(midPt)
-                    .anchor((float)0.5, (float)0.5)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
-
-            midpointList.add(marker);
-        }
-    }
-
-
-    /*
-     * Find the three nearest VORs for the marker in question and return a list
-     * with the sorted results
-     */
-    private ArrayList<Pejling> nearestVORs(Marker m) {
-
-        ArrayList<Pejling> plist= new ArrayList<>();
-
-        for (int i=0;i<vorList.size();i++) {
-            LatLng position = vorList.get(i).getPosition();
-            double dist=computeDistanceBetween(position, m.getPosition());
-            double heading = computeHeading(position, m.getPosition());
-            plist.add(new Pejling(i, dist, heading));
-        }
-
-
-        Collections.sort(plist);
-
-        ArrayList<Pejling> result = new ArrayList<>();
-        for (int i=0; i<3;i++) {
-            result.add(plist.get(i));
-        }
-
-        return result;
-    }
 
 
     @Override
@@ -814,7 +426,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
                         // Delete physical marker and then the MarkerObject
                         markerList.get(markerIndex).getMarker().remove();
                         markerList.remove(markerIndex);
-                        updatePolyline();
+                        updatePolyline(markerList, mMap);
 
                         // Make a snackbar message offering undo
                         Snackbar.make(findViewById(R.id.map), "Marker deleted", Snackbar.LENGTH_LONG)
@@ -872,8 +484,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
             updatePreferenceFlags();
 
-            updateMapType();
-            updateZoom();
+            updateMapType(mSharedPrefs, mMap);
+            updateZoom(mSharedPrefs, mMap);
+
         }
 
     }
@@ -882,7 +495,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         LatLng position = null;
         try {
             position = searchLocation(mSharedPrefs.getString("startPlace", "Roskilde airport, Denmark"));
-            gotoLocation(position, mZoomLevel);
+            gotoLocation(position, getZoomLevel());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -890,8 +503,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     }
 
     private void updatePreferenceFlags() {
-        mHideADicons = ! mSharedPrefs.getBoolean("ADs", true);
-        mHideNavAidIcons = ! mSharedPrefs.getBoolean("navAids", true);
+        setHideADicons(! mSharedPrefs.getBoolean("ADs", true));
+        setHideNavAidIcons(! mSharedPrefs.getBoolean("navAids", true));
     }
 
 
@@ -973,29 +586,29 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         }
 
 
-        mSearchedFor = tv.getText().toString();
+        setSearchedFor(tv.getText().toString());
         tv.setText("");
 
         // Check existing NavAid names - they are not in Google Places
         for (NavAid n : navAidList) {
-            if (n.getName().equals(mSearchedFor)) {
-                placeAndZoomOnMarker(n.getPosition(), mZoomLevel);
+            if (n.getName().equals(getSearchedFor())) {
+                placeAndZoomOnMarker(n.getPosition(), getZoomLevel());
                 return;
             }
         }
 
         // Check existing AD names - they are (probably) not in Google Places
         for (Aerodrome n : ADList) {
-            if (n.getIcaoName().equals(mSearchedFor)) {
-                placeAndZoomOnMarker(n.getPosition(), mZoomLevel);
+            if (n.getIcaoName().equals(getSearchedFor())) {
+                placeAndZoomOnMarker(n.getPosition(), getZoomLevel());
                 return;
             }
         }
 
 
         // Look up location name
-        LatLng position = searchLocation((String) mSearchedFor);
-        placeAndZoomOnMarker(position, mZoomLevel);
+        LatLng position = searchLocation(getSearchedFor());
+        placeAndZoomOnMarker(position, getZoomLevel());
 
     }
 
@@ -1020,8 +633,11 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
 
     private void placeAndZoomOnMarker(LatLng position, float zoom) {
-        gotoLocation(position, zoom);
-        addMarker(position);
+        // In rare cases, searching for something will not return a position. Just ignore those
+        if (position != null) {
+            gotoLocation(position, zoom);
+            addMarker(position);
+        }
     }
 
 
@@ -1036,13 +652,13 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
-        pejlinger = nearestVORs(marker);
+        pejlinger = nearestVORs(marker, vorList);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
         markerList.add(mo);
 
-        updatePolyline();
-        updateNavinfo();
+        updatePolyline(markerList, mMap);
+        updateNavinfo(markerList);
 
     }
 
@@ -1057,13 +673,13 @@ public class MarkerDemoActivity extends AppCompatActivity implements
         Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
-        pejlinger=nearestVORs(marker);
+        pejlinger=nearestVORs(marker, vorList);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
 
         markerList.add(afterThis+1, mo);
-        updatePolyline();
-        updateNavinfo();
+        updatePolyline(markerList, mMap);
+        updateNavinfo(markerList);
     }
 
 
@@ -1094,43 +710,6 @@ public class MarkerDemoActivity extends AppCompatActivity implements
     }
 
 
-    /*
-    * Used for all add marker functions
-    * Create the options needed for a new marker
-    */
-    private MarkerOptions createMarkerOptions(LatLng loc) {
-        Address adr = findAddress(loc);
-
-        String text="";
-        String country = "";
-        if (adr!=null) {
-            text = adr.getLocality();
-            adr.getCountryName();
-
-        } else {
-            text = "GeoLookup Failed";
-        }
-
-        MarkerOptions options = new MarkerOptions()
-                    .draggable(true)
-                    .position(loc);
-
-        if (mSearchedFor == "") {
-            options.title(text);
-        } else {
-            // Use the name from the searchfield this time instead of the location name/blank
-            options.title((String) mSearchedFor);
-            mSearchedFor = "";
-        }
-
-        if (country.length() > 0) {
-            options.snippet(country);
-        }
-
-
-        return options;
-    }
-
 
     /*
      * When the info window is clicked, we will launch the NavPagerActivity
@@ -1148,7 +727,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
     private void writePreferenceChanges() {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString("zoomLevel", String.format(Locale.US, "%.1f",mZoomLevel));
+        editor.putString("zoomLevel", String.format(Locale.US, "%.1f", getZoomLevel()));
         editor.apply();
 
     }
@@ -1193,7 +772,7 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             m.setTitle(name);
 
             ArrayList<Pejling> pejlinger = new ArrayList<>();
-            pejlinger = nearestVORs(m);
+            pejlinger = nearestVORs(m, vorList);
 
             MarkerObject mo = new MarkerObject(m, name, null, pejlinger);
 
@@ -1223,8 +802,8 @@ public class MarkerDemoActivity extends AppCompatActivity implements
             gotoLocation(startPoint, ZOOM_OVERVIEW);
 
         }
-        updatePolyline();
-        updateNavinfo();
+        updatePolyline(markerList, mMap);
+        updateNavinfo(markerList);
 
     }
 
@@ -1357,8 +936,9 @@ public class MarkerDemoActivity extends AppCompatActivity implements
 
         mMap.clear();
         markerList.clear();
-        midpointList.clear();
-        polyline.remove();
-        polyline=null;
+        clearMidpoints();
+        clearPolyline();
     }
+
+
 }
