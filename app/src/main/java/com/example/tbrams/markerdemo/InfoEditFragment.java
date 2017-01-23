@@ -92,7 +92,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
         // Update Edit Text fields with marker provided info
         mEditName.setText(mo.getText());
-        mEditNote.setText(mo.getSnippet());
+        mEditNote.setText(mo.getNote());
         mEditAltitude.setText(Double.toString(mo.getALT()));
 
         // set a lost focus event handler to automatically update the position name
@@ -216,7 +216,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
             // update marker data
             markerList.get(markerIndex).setText(titleString);
-            markerList.get(markerIndex).setSnippet(snippetString);
+            markerList.get(markerIndex).setNote(snippetString);
             markerList.get(markerIndex).setALT(alt);
 
             // update physical markers

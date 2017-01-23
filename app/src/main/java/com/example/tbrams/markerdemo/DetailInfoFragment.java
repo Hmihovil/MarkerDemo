@@ -111,7 +111,7 @@ public class DetailInfoFragment extends Fragment {
             tvMinAlt.setText(String.format("%.1f ft", mo.getMIN_ALT()));
             tvTime.setText(String.format("%02d", (int)mo.getTIME()));
 
-            String wind = String.format("%03d", (int)mo.getWindDirection())+"/"+String.format("%02d", (int)mo.getWindStrenght());
+            String wind = String.format("%03d", (int)mo.getWindDir())+"/"+String.format("%02d", (int)mo.getWindStr());
             tvWv.setText(wind);
 
             double time=0;

@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.example.tbrams.markerdemo.data.GlobalNavValData;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
-import com.google.android.gms.vision.text.Text;
 
 import java.util.List;
 
@@ -69,7 +68,7 @@ public class GlobalNavValFragment extends Fragment {
         if (mo.getTAS()!=0) {
             editTextTAS.setText(String.format("%.1f", mo.getTAS()));
             editTextALT.setText(String.format("%.1f", mo.getALT()));
-            editTextWIND.setText(String.format("%.0f", mo.getWindDirection()) + "/" + String.format("%.0f", mo.getWindStrenght()));
+            editTextWIND.setText(String.format("%.0f", mo.getWindDir()) + "/" + String.format("%.0f", mo.getWindStr()));
         }
 
         v.findViewById(R.id.buttonNavValOK).setOnClickListener(new View.OnClickListener() {

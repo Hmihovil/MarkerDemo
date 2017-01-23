@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class MarkerObject implements Parcelable {
-    private Integer myIndex;
-    private String myId;       // WpId
-    private String myText;
-    private String mySnippet;
-    private Marker myMarker;
+    private Integer myIndex;    // Internal index
+    private String myId;        // WpId
+    private String myText;      // WP Name
+    private String myNote;      // WP Notes
+    private Marker myMarker;    // Copy of marker object
 
-    // Navigational parameters that are fed in
+    // Navigational parameters that are set by user
     private double mTAS;
     private double mMIN_ALT;
     private double mALT;
-    private double mWindStrenght;
-    private double mWindDirection;
+    private double mWindStr;
+    private double mWindDir;
 
     // Navigational parameters that are calculated
     private double mDist;
@@ -46,12 +46,12 @@ public class MarkerObject implements Parcelable {
 
     protected MarkerObject(Parcel in) {
         myText = in.readString();
-        mySnippet = in.readString();
+        myNote = in.readString();
         mTAS = in.readDouble();
         mMIN_ALT = in.readDouble();
         mALT = in.readDouble();
-        mWindStrenght = in.readDouble();
-        mWindDirection = in.readDouble();
+        mWindStr = in.readDouble();
+        mWindDir = in.readDouble();
         mDist = in.readDouble();
         mIAS = in.readDouble();
         mGS = in.readDouble();
@@ -70,12 +70,12 @@ public class MarkerObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(myText);
-        dest.writeString(mySnippet);
+        dest.writeString(myNote);
         dest.writeDouble(mTAS);
         dest.writeDouble(mMIN_ALT);
         dest.writeDouble(mALT);
-        dest.writeDouble(mWindStrenght);
-        dest.writeDouble(mWindDirection);
+        dest.writeDouble(mWindStr);
+        dest.writeDouble(mWindDir);
         dest.writeDouble(mDist);
         dest.writeDouble(mIAS);
         dest.writeDouble(mGS);
@@ -108,10 +108,10 @@ public class MarkerObject implements Parcelable {
         }
     };
 
+
     public Marker getMarker() {
         return myMarker;
     }
-
     public void setMarker(Marker marker) {
         myMarker = marker;
     }
@@ -120,7 +120,6 @@ public class MarkerObject implements Parcelable {
     public String getText() {
         return myText;
     }
-
     public void setText(String text) {
         myText = text;
         myMarker.setTitle(text);
@@ -129,17 +128,15 @@ public class MarkerObject implements Parcelable {
     public int getIndex() {
         return myIndex;
     }
-
     public void setIndex(int index) {
         myIndex = index;
     }
 
-    public String getSnippet() {
-        return mySnippet;
+    public String getNote() {
+        return myNote;
     }
-
-    public void setSnippet(String text) {
-        mySnippet = text;
+    public void setNote(String text) {
+        myNote = text;
         myMarker.setSnippet(text);
     }
 
@@ -150,8 +147,8 @@ public class MarkerObject implements Parcelable {
     public String getMyId() {
         return myId;
     }
-
     public void setMyId(String myId) {
+        // If no id is given, create a unique ID string
         if (myId==null) {
             this.myId = UUID.randomUUID().toString();
         } else {
@@ -162,8 +159,8 @@ public class MarkerObject implements Parcelable {
     public double getTAS() {return mTAS;}
     public double getMIN_ALT() {return mMIN_ALT;}
     public double getALT() {return mALT;}
-    public double getWindStrenght() {return mWindStrenght;}
-    public double getWindDirection() {return mWindDirection;}
+    public double getWindStr() {return mWindStr;}
+    public double getWindDir() {return mWindDir;}
 
     public double getDist() {return mDist;}
     public double getIAS() {return mIAS;}
@@ -180,8 +177,8 @@ public class MarkerObject implements Parcelable {
     public double getDiff() { return mDiff; }
 
     // These two are done for all way points except for the starting point
-    public void setDist(double dist) {mDist= dist/1852.;}
-    public void setTT(double tt) {mTT = (tt+360)%360;}
+    public void setDist(double dist) {mDist= dist/1852.;}    // Convert to nautical miles
+    public void setTT(double tt) {mTT = (tt+360)%360;}       // keen between 0 to 360 degrees
 
     public void setETO(double ETO) { mETO = ETO; }
     public void setATO(double ATO) {
@@ -189,6 +186,8 @@ public class MarkerObject implements Parcelable {
         mDiff = mETO-mATO;  // positive means ahead of schedule
     }
     public void setRETO(double RETO) { mRETO = RETO; }
+
+
 
     // Calculate navigational factors based on global nav values
     public void calcIAS(double tas, double alt)
@@ -198,18 +197,18 @@ public class MarkerObject implements Parcelable {
     }
 
     public void calcGS(double tas, double windDirection, double windStrength) {
-        double a = windStrength*Math.sin(windDirection-mTT)/tas;
-        double b=  windStrength*Math.cos(windDirection-mTT);
+        double a = windStrength*Math.sin(Math.toRadians(windDirection-mTT))/tas;
+        double b=  windStrength*Math.cos(Math.toRadians(windDirection-mTT));
 
         mGS = Math.sqrt(1-Math.pow(a,2))*(tas-b);
     }
 
     public void calcWCA(double tas, double windDirection, double windStrength) {
         mTAS = tas;
-        mWindDirection=windDirection;
-        mWindStrenght=windStrength;
+        mWindDir =windDirection;
+        mWindStr =windStrength;
 
-        mWCA = Math.atan(windStrength*Math.sin(windDirection-mTT)/tas);
+        mWCA = Math.toDegrees(Math.atan(windStrength*Math.sin(Math.toRadians(windDirection-mTT))/tas));
     }
 
     public void calcTH() {
@@ -239,8 +238,8 @@ public class MarkerObject implements Parcelable {
         mMIN_ALT=1000; // In Denmark...
         mTAS=0;
         mALT=0;
-        mWindStrenght=0;
-        mWindDirection=0;
+        mWindStr =0;
+        mWindDir =0;
 
         mDist=0;
         mGS=0;
@@ -255,7 +254,7 @@ public class MarkerObject implements Parcelable {
         mETO=0;
 
         myText = text;
-        mySnippet = snippet;
+        myNote = snippet;
         myMarker = marker;
         mPejlinger = new ArrayList<>();
         mPejlinger=pejlinger;
@@ -269,8 +268,8 @@ public class MarkerObject implements Parcelable {
         mMIN_ALT=1000; // In Denmark...
         mTAS=0;
         mALT=0;
-        mWindStrenght=0;
-        mWindDirection=0;
+        mWindStr =0;
+        mWindDir =0;
 
         mDist=0;
         mGS=0;
@@ -283,7 +282,7 @@ public class MarkerObject implements Parcelable {
         mETO=0;
 
         myText = "";
-        mySnippet = "";
+        myNote = "";
         myMarker = null;
         mPejlinger = new ArrayList<>();
 
