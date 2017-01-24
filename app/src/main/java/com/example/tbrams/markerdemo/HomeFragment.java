@@ -112,7 +112,7 @@ public class HomeFragment extends Fragment {
 
                             Log.d(TAG, "Trip ID after insert: " + trip.getTripId());
 
-                            // Save tripname in markerLab singleton storage
+                            // Save trip name in markerLab singleton storage
                             MarkerLab markerLab = MarkerLab.getMarkerLab(getContext());
                             markerLab.setTripName(trip.getTripName());
 

@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
-import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 
 import java.util.List;
@@ -22,10 +22,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
     public static final String WP_KEY = "markerdemo.tbrams.wp_key";
     public static final String TRIP_KEY = "markerdemo.tbrams.trip_key";
+    public static final String TAG = "TBR:Tripadapter";
 
     private List<TripItem>  mTrips;
     private Context         mContext;
-    private DataSource mDataSource;
+    private static DbAdmin    mDbAdmin;
     private final MarkerLab markerLab;
     private String tripName;
 
@@ -56,7 +57,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
         this.mTrips = trips;
 
         // Get a handle to the database helper and prepare the database
-        mDataSource = new DataSource(mContext);
+        mDbAdmin = new DbAdmin(mContext);
     }
 
 
@@ -101,7 +102,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
     public static void updateBackgroundColor() {
 
-        if (MainActivity.isThisDbMaintenance()) {
+        if (mDbAdmin.isInMaintenanceMode()) {
             mRootView.getBackground().setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.DARKEN);
         } else {
             if (mRootView.getBackground()!=null)
@@ -144,7 +145,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             TripItem trip = mTrips.get(this.getAdapterPosition());
 
-            if (MainActivity.isThisDbMaintenance()) {
+            if (mDbAdmin.isInMaintenanceMode()) {
 
                 // DB Maintenance mode:
                 // Start Detailview and show the waypoints
@@ -152,7 +153,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 markerLab.setTripName(trip.getTripName());
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
-                Log.d("TBR", "Passing id: " + trip.getTripId());
+                Log.d(TAG, "Passing id: " + trip.getTripId());
                 mContext.startActivity(intent);
             } else {
 
@@ -160,12 +161,12 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 // Start MarkerDemoActivity with map at WP 0
 
                 markerLab.setTripName(trip.getTripName());
-                Log.d("TBR:","Tripadaptor - tripName set in Singleton: "+markerLab.getTripName());
+                Log.d(TAG,"Tripadaptor - tripName set in Singleton: "+markerLab.getTripName());
 
                 Intent intent = new Intent(mContext, MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, trip.getTripId());
                 intent.putExtra(WP_KEY, "");
-                Log.d("TBR","Passing Trip# "+trip.getTripId()+" and WP #0");
+                Log.d(TAG,"Passing Trip# "+trip.getTripId()+" and WP #0");
                 mContext.startActivity(intent);
             }
         }
@@ -177,7 +178,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
             TripItem trip = mTrips.get(this.getAdapterPosition());
 
-            if (MainActivity.isThisDbMaintenance()) {
+            if (mDbAdmin.isInMaintenanceMode()) {
 
                 // Maintenance Mode:
                 // Remove from the list and update the listview
@@ -187,9 +188,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 Toast.makeText(mContext, "You deleted " + trip.getTripName(), Toast.LENGTH_SHORT).show();
 
                 // Drop from database
-                mDataSource.open();
-                mDataSource.deleteTrip(trip);
-                mDataSource.close();
+                mDbAdmin.open();
+                mDbAdmin.deleteTrip(trip);
+                mDbAdmin.close();
 
                 return false;
 

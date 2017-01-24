@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class DataSource {
-    private static final String LOG = "TBR DataSource";
+    private static final String TAG = "TBR:DataSource";
 
 
     private Context             mContext;
@@ -318,7 +318,7 @@ public class DataSource {
                 mDb.update(TripTable.TABLE_NAME, value, TripTable.COLUMN_ID + " = ?",
                         new String[]{wp.getTripIndex()});
             } else {
-                Log.e("TBR", "cursor.moveToFirst() failed in deleteWp");
+                Log.e(TAG, "cursor.moveToFirst() failed in deleteWp");
             }
             cursor.close();
         }
@@ -382,7 +382,7 @@ public class DataSource {
         } else {
             String filterQuery = "SELECT  * FROM " + WpTable.TABLE_NAME + " WHERE "+WpTable.COLUMN_TRIP_ID
                                 +"=? ORDER BY "+WpTable.COLUMN_SEQUENCE_NUMBER+" ASC";
-            Log.d("TBR", "Query: "+filterQuery);
+            Log.d(TAG, "Query: "+filterQuery);
              cursor = mDb.rawQuery(filterQuery, new String[]{id});
         }
 

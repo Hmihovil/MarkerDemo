@@ -1,52 +1,30 @@
 package com.example.tbrams.markerdemo;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.db.DataSource;
-import com.example.tbrams.markerdemo.dbModel.JSONHelper;
-import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
+import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
-import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
 
 /*
- * this class is use to display a list of flightplans on file. When in data browse mode
- * it will display waypoints using DetailActivity and otherwise it will use MarkerDemoActivity
+ * this class is use to display a list of flight plans on file. When in data browse mode
+ * it will display way points using DetailActivity and otherwise it will use MarkerDemoActivity
  * to present the plan on a map
  */
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_PERMISSION_WRITE = 101;
-    private static final String TAG = "TBR:MA";
+    private static final String TAG = "TBR:MainActivity";
 
-    List<String>       mTripSampleList = SampleDataProvider.sTrips;
-    List<List<WpItem>> mWpSampleList   = SampleDataProvider.sWpListsForTrips;
-    List<NavAid> mNavAidListsSample = SampleDataProvider.sNavAidList;
-
-    DataSource      mDataSource;
-    List<TripItem>  mListFromDB;
-    List<NavAid>    mNavAidsListFromDB;
-    RecyclerView    mRecyclerView;
-    TripAdapter     mTripAdapter;
-    private boolean mPermissionGranted;
-    private static boolean mDbMaintenance=false;
-    private Menu    mMenuHandle;
+    DbAdmin mDbAdmin;
+    RecyclerView mRecyclerView;
+    TripAdapter mTripAdapter;
     private static Context mContext;
     public static View mBackgroundView;
 
@@ -55,21 +33,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mContext = this;
+
+        // Get a handle to the Database Admin helper and prepare the database
+        mDbAdmin = new DbAdmin(this);
+
+
         updateTitle();
 
         setContentView(R.layout.activity_route);
-        Log.d(TAG, "onCreate: activity_route loaded");
 
         mBackgroundView = findViewById(R.id.activity_main);
-
-        // Need this for import/export
-        if (!mPermissionGranted) {
-            mPermissionGranted=checkPermissions();
-        }
-
-
-        // Get a handle to the database helper and prepare the database
-        mDataSource = new DataSource(this);
 
         // Get a reference to the layout for the recyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.rvItems);
@@ -80,32 +53,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /*
+     * This is used from DetailActivity to maintain same context as the master list
+     */
     public static Context getContext() {
         return mContext;
     }
-
-    private void populateDatabase() {
-        // Delete and recreate both tables
-        mDataSource.open();
-        mDataSource.resetDB();
-
-        // For each trip we have in the Sample provider, get all related WP's as well and add it all to the DB
-        for (int i = 0; i < mTripSampleList.size(); i++) {
-                String tripName = mTripSampleList.get(i);
-                List<WpItem> wpList = mWpSampleList.get(i);
-
-                mDataSource.addFullTrip(tripName, wpList);
-        }
-
-        // Copy all navaids form the dataProvider to the Database
-        for (NavAid na : mNavAidListsSample) {
-            mDataSource.createNavAid(na);
-        }
-
-        mDataSource.close();
-    }
-
-
 
     /*
      * displayTrips
@@ -113,16 +66,13 @@ public class MainActivity extends AppCompatActivity {
      * matching object for each row returned and feed that to the TripAdapter that will
      * be used for the List.
      *
-     * Also for data maintenance purposes, get a fresh list of NavAids from the database at this point
-     *
      * @args:   filter
      * @return: none
      */
     private void displayTrips(String filter) {
-        mDataSource.open();
-        mListFromDB  = mDataSource.getAllTrips(filter);
-        mNavAidsListFromDB = mDataSource.getAllNavAids(null);
-        mDataSource.close();
+        mDbAdmin.open();
+        List<TripItem> mListFromDB = mDbAdmin.getAllTrips(filter);
+        mDbAdmin.close();
 
         mTripAdapter = new TripAdapter(this, mListFromDB);
         mRecyclerView.setAdapter(mTripAdapter);
@@ -144,89 +94,47 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mMenuHandle = menu;
         getMenuInflater().inflate(R.menu.db_menu, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // Toggle usage mode between dabtabase maintenance and select trip mode
+                // Toggle usage mode between database maintenance and select trip mode
                 // In select trip: click on trip -> WP inspection, long click -> select trip
                 //                 click on wp -> you selected, long click -> Nothing
                 // In db maintenance: Click on trip -> WP inspection, long click -> delete trip
                 //                    click on wp -> you selected, long click -> delete wp
 
-                mDbMaintenance = !mDbMaintenance;
+                mDbAdmin.toggleMaintenanceMode();
+
                 updateTitle();
                 TripAdapter.updateBackgroundColor();
 
                 return true;
 
             case R.id.action_import:
-                // First flush the tables
-                mDataSource.open();
-                mDataSource.resetDB();
+                // Flush the tables and import JSON files
+                mDbAdmin.importJSON();
 
-                // then get the items from the imported trips and save in DB
-                List<TripItem> tripItems = JSONHelper.importTripsFromJSON(this);
-                mDataSource.seedTripTable(tripItems);
-                Log.i(TAG, "Restored JSON Trip Data written to DB");
-
-                // Update list display - show them all
+                // Update list display - show them all with the null-filter
                 displayTrips(null);
-
-                // need to re-open datasource, because displayTrips closes it
-                mDataSource.open();
-                List<WpItem> wpItems = JSONHelper.importWpsFromJSON(this);
-                mDataSource.seedWpTable(wpItems);
-                Log.i(TAG, "Restored JSON WP Data written to DB");
-
-                List<NavAid> naList = JSONHelper.importNavAidsFromJSON(this);
-                mDataSource.seedNavAidTable(naList);
-                Log.i(TAG, "Restored JSON NavAid Data written to DB");
-
-                mDataSource.close();
 
                 return true;
 
             case R.id.action_export:
 
-                // Get all WPs from database for export
-                mDataSource.open();
-                List<WpItem> wps = mDataSource.getAllWps(null);
-                if (JSONHelper.exportWpsToJSON(this, wps)) {
-                    Log.i(TAG, "WP data exported in JSONB format");
-                } else {
-                    Log.e(TAG, "WP data export failed");
-                }
-
-
-                if (JSONHelper.exportTripsToJSON(this, mListFromDB)) {
-                    Toast.makeText(this, "Trip data Exported in JSONB format", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e(TAG, "Trips data export failed");
-                }
-
-
-                if (JSONHelper.exportNavAidsToJSON(this, mNavAidsListFromDB)) {
-                    Toast.makeText(this, "NavAid data Exported in JSONB format", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e(TAG, "NavAid data export failed");
-                }
-                mDataSource.close();
-
+                mDbAdmin.exportJSON();
                 return true;
 
 
             case R.id.action_reset:
                 // Clean DB and load test data
-                populateDatabase();
+                mDbAdmin.populateDatabase();
 
                 // Update list display
                 displayTrips(null);
@@ -238,75 +146,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
-    }
-
-    // Initiate request for permissions.
-    private boolean checkPermissions() {
-        Log.d(TAG, "CheckPermissions");
-
-        if (!isExternalStorageReadable() || !isExternalStorageWritable()) {
-            Toast.makeText(this, "This app only works on devices with usable external storage",
-                    Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_PERMISSION_WRITE);
-
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    // Handle permissions result
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_PERMISSION_WRITE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mPermissionGranted = true;
-                    Toast.makeText(this, "External storage permission granted",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "You must grant permission!", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
-
-
-    public static boolean isThisDbMaintenance() {
-        return mDbMaintenance;
-    }
 
 
     private void updateTitle() {
-        if (isThisDbMaintenance())
+        if (mDbAdmin.isInMaintenanceMode())
             setTitle(getString(R.string.title_maintenance));
         else
             setTitle(getString(R.string.title_trip));
     }
-
-
 
 }
 

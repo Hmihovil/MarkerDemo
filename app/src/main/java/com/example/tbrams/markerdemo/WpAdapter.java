@@ -12,9 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tbrams.markerdemo.data.MarkerLab;
-import com.example.tbrams.markerdemo.data.MarkerObject;
-import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
@@ -23,11 +21,13 @@ import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
 
 
+
 public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
+    public static final String TAG = "TBR:WpAdapter";
 
     private List<WpItem> mWpList;
     private Context    mContext;
-    private DataSource mDataSource;
+    private static DbAdmin mDbAdmin;
     private String tripName;
 
     private static View mRootView;
@@ -52,7 +52,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
         this.mWpList = wps;
 
         // Get a handle to the database helper and prepare the database
-        mDataSource = new DataSource(mContext);
+        mDbAdmin = new DbAdmin(mContext);
     }
 
 
@@ -74,7 +74,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
     public static void updateBackgroundColor() {
 
-        if (MainActivity.isThisDbMaintenance()) {
+        if (mDbAdmin.isInMaintenanceMode()) {
             mRootView.getBackground().setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.DARKEN);
         } else {
             if (mRootView.getBackground()!=null)
@@ -133,7 +133,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
             WpItem wp= mWpList.get(this.getAdapterPosition());
 
-            if (MainActivity.isThisDbMaintenance()) {
+            if (mDbAdmin.isInMaintenanceMode()) {
       //          Toast.makeText(mContext, "You selected "+wp.getWpName(), Toast.LENGTH_SHORT).show();
                 Toast.makeText(mContext, "Long press to delete this Way Point", Toast.LENGTH_SHORT).show();
             } else {
@@ -143,7 +143,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
                 Intent intent = new Intent(mContext, MarkerDemoActivity.class);
                 intent.putExtra(TRIP_KEY, wp.getTripIndex());
                 intent.putExtra(WP_KEY, wp.getWpId());
-                Log.d("TBR","Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
+                Log.d(TAG,"Passing Trip# "+wp.getTripIndex()+" and WP #"+wp.getWpId());
                 mContext.startActivity(intent);
             }
 
@@ -159,15 +159,15 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
             // First get a copy of the item to be deleted
             WpItem wp= mWpList.get(this.getAdapterPosition());
 
-            if (MainActivity.isThisDbMaintenance()) {
+            if (mDbAdmin.isInMaintenanceMode()) {
 
                 // Drop from database and make sure trip distance is updated
-                mDataSource.open();
-                mDataSource.deleteWp(wp, true);
+                mDbAdmin.open();
+                mDbAdmin.deleteWp(wp, true);
                 Toast.makeText(mContext, "You deleted "+wp.getWpName(), Toast.LENGTH_SHORT).show();
 
-                List<WpItem> newList = mDataSource.getAllWps(wp.getTripIndex());
-                mDataSource.close();
+                List<WpItem> newList = mDbAdmin.getAllWps(wp.getTripIndex());
+                mDbAdmin.close();
                 mWpList = newList;
 
                 // Update display
@@ -179,7 +179,7 @@ public class WpAdapter extends RecyclerView.Adapter<WpAdapter.ViewHolder>  {
 
                 // Trip Selection - guide the user
 
-                Toast.makeText(mContext, "Change mode to Maintenance, if you want to delete something", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Change mode to Maintenance if you want to delete something", Toast.LENGTH_SHORT).show();
 
                 return false;
             }

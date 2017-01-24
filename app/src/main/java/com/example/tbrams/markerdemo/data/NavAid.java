@@ -3,14 +3,11 @@ package com.example.tbrams.markerdemo.data;
 import android.content.ContentValues;
 
 import com.example.tbrams.markerdemo.db.NavAidTable;
-import com.example.tbrams.markerdemo.db.TripTable;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static android.R.attr.y;
 
 public class NavAid {
 
@@ -44,14 +41,6 @@ public class NavAid {
         this.id = UUID.randomUUID().toString();
     }
 
-
-    /*   public NavAid(String n, int what, String lat, String lng) {
-        // Convert the Lat and Lng strings to double values and use them to establish a position
-
-        position = new LatLng(convert(lat), convert(lng));
-        name = n;
-    }
-*/
 
     public NavAid(String name, String id, int kind, String latlong, String freq, String limitString, Double elevation) {
         position = parseCoordinates(latlong);

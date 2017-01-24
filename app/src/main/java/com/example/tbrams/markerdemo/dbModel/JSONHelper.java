@@ -1,7 +1,6 @@
 package com.example.tbrams.markerdemo.dbModel;
 
 
-import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -24,7 +23,7 @@ public class JSONHelper {
      * Export Trip data to external storage in JSON format by wrapping trip data in the
      * TripDataItem class structure and encode using Gson.
      */
-    public static boolean exportTripsToJSON(Context context, List<TripItem> list) {
+    public static boolean exportTripsToJSON(List<TripItem> list) {
 
         TripDataItems tripItems = new TripDataItems();
         tripItems.setDataItems(list);
@@ -61,7 +60,7 @@ public class JSONHelper {
      * Export WP data to external storage in JSON format by wrapping trip data in the
      * WpDataItem class structure and encode using Gson.
      */
-    public static boolean exportWpsToJSON(Context context, List<WpItem> list) {
+    public static boolean exportWpsToJSON(List<WpItem> list) {
 
         WpDataItems wpDataItems = new WpDataItems();
         wpDataItems.setDataItems(list);
@@ -98,7 +97,7 @@ public class JSONHelper {
      * Export NavAid data to external storage in JSON format by wrapping trip data in the
      * NavAidDataItem class structure and encode using Gson.
      */
-    public static boolean exportNavAidsToJSON(Context context, List<NavAid> list) {
+    public static boolean exportNavAidsToJSON(List<NavAid> list) {
 
         NavAidDataItems navAidDataItems = new NavAidDataItems();
         navAidDataItems.setDataItems(list);
@@ -135,12 +134,12 @@ public class JSONHelper {
      * into the TripDataItems data structure.
      */
 
-    public static List<TripItem> importTripsFromJSON(Context context) {
+    public static List<TripItem> importTripsFromJSON() {
 
         FileReader reader = null;
 
         try {
-            File file=new File(Environment.getExternalStorageDirectory(),FILE_NAME_TRIPS);
+            File file=new File(Environment.getExternalStorageDirectory(), FILE_NAME_TRIPS);
             reader = new FileReader(file);
 
             Gson gson = new Gson();
@@ -170,7 +169,7 @@ public class JSONHelper {
      * into the WpDataItems data structure.
      */
 
-    public static List<WpItem> importWpsFromJSON(Context context) {
+    public static List<WpItem> importWpsFromJSON() {
 
         FileReader reader = null;
 
@@ -206,7 +205,7 @@ public class JSONHelper {
      * into the NavAids List data structure.
      */
 
-    public static List<NavAid> importNavAidsFromJSON(Context context) {
+    public static List<NavAid> importNavAidsFromJSON() {
 
         FileReader reader = null;
 

@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
-import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
@@ -20,8 +20,9 @@ import static com.example.tbrams.markerdemo.MarkerDemoActivity.getCurrentTripId;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class DetailActivity extends AppCompatActivity {
+    public static final String TAG = "TBR:DetailActivity";
 
-    DataSource   mDataSource;
+    DbAdmin     mDbAdmin;
     List<WpItem> mListFromDB;
     RecyclerView mRecyclerView;
     WpAdapter    mWpAdapter;
@@ -35,9 +36,10 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route);
+        mDbAdmin = new DbAdmin(this);
 
         markerLab= MarkerLab.getMarkerLab(getApplicationContext());
-        if (MainActivity.isThisDbMaintenance()) {
+        if (mDbAdmin.isInMaintenanceMode()) {
             setTitle(R.string.title_maintenance);
         } else {
             setTitle(markerLab.getTripName());
@@ -63,18 +65,17 @@ public class DetailActivity extends AppCompatActivity {
     private void displayWps() {
 
         // Get the WP data ready for display
-        mDataSource = new DataSource(this);
-        mDataSource.open();
-        mListFromDB = mDataSource.getAllWps(mId);
+        mDbAdmin.open();
+        mListFromDB = mDbAdmin.getAllWps(mId);
 
         // If the Database has been recently updated, in some cases the ID will no longer
         // produce results. In that case we have reserved a new ID in the OnActionResult
-        // handler, that we can use
+        // handler from MarkerDemoActivity that we can get to using getCurrentTripId()
         if (mListFromDB.size()==0) {
-            mListFromDB = mDataSource.getAllWps(getCurrentTripId());
+            mListFromDB = mDbAdmin.getAllWps(getCurrentTripId());
         }
 
-        mDataSource.close();
+        mDbAdmin.close();
 
         if (mWpAdapter==null) {
             // create an adapter and initiate it with the available data
@@ -89,7 +90,7 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mDataSource.close();
+        mDbAdmin.close();
     }
 
     @Override
