@@ -239,6 +239,10 @@ public class FrontActivity extends AppCompatActivity {
 
                     case R.id.db_navaids:
                         Log.d(TAG, "onNavigationItemSelected: Import Navaids");
+                        // Launch GoogleSheetsActivity
+                        Intent sheetsIntent = new Intent(FrontActivity.this, GoogleSheetActivity.class);
+                        startActivity(sheetsIntent);
+
                         break;
 
 
