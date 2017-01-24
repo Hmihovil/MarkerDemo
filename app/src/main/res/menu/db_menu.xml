@@ -4,13 +4,4 @@
         android:id="@+id/action_settings"
         android:title="@string/label_mode"
         />
-    <item android:id="@+id/action_export"
-          android:title="Export"
-        />
-    <item android:id="@+id/action_import"
-          android:title="Import"
-        />
-    <item android:id="@+id/action_reset"
-          android:title="Reset DB"
-        />
 </menu>

@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.tbrams.markerdemo.db.DbAdmin;
 
 
 public class FrontActivity extends AppCompatActivity {
@@ -61,6 +62,9 @@ public class FrontActivity extends AppCompatActivity {
     private boolean shouldLoadHomeFragOnBackPress = true;
     private Handler myHandler;
 
+    // DB Related
+    DbAdmin mDbAdmin;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,9 @@ public class FrontActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Get a handle to the Database Admin helper and prepare the database
+        mDbAdmin = new DbAdmin(this);
 
         myHandler = new Handler();
 
@@ -229,16 +236,30 @@ public class FrontActivity extends AppCompatActivity {
                         drawer.closeDrawers();
                         return true;
 
-                    case R.id.db_admin:
-                        Log.d(TAG, "onNavigationItemSelected: Database admin mode");
+                    case R.id.db_export:
+                        Log.d(TAG, "onNavigationItemSelected: Database Export");
+
+                        mDbAdmin.exportJSON();
+
+                        break;
+
+
+                    case R.id.db_import:
+                        Log.d(TAG, "onNavigationItemSelected: Database import");
+
+                        // Flush the tables and import JSON files
+                        mDbAdmin.importJSON();
+
                         break;
 
                     case R.id.db_reset:
                         Log.d(TAG, "onNavigationItemSelected: Database Reset...");
+                        // Clean DB and load test data
+                        mDbAdmin.populateDatabase();
                         break;
 
                     case R.id.db_navaids:
-                        Log.d(TAG, "onNavigationItemSelected: Import Navaids");
+                        Log.d(TAG, "onNavigationItemSelected: Update Navaids");
                         // Launch GoogleSheetsActivity
                         Intent sheetsIntent = new Intent(FrontActivity.this, GoogleSheetActivity.class);
                         startActivity(sheetsIntent);
@@ -313,6 +334,7 @@ public class FrontActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        /*
 
         // show menu only when home fragment is selected
         if (navItemIndex == 0) {
@@ -323,6 +345,7 @@ public class FrontActivity extends AppCompatActivity {
         if (navItemIndex == 4) {
             getMenuInflater().inflate(R.menu.db_menu, menu);
         }
+        */
         return true;
     }
 
@@ -333,12 +356,12 @@ public class FrontActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_export) {
+        if (id == R.id.db_export) {
             Toast.makeText(getApplicationContext(), "Export action!", Toast.LENGTH_LONG).show();
             return true;
         }
 
-        if (id == R.id.action_import) {
+        if (id == R.id.db_import) {
             Toast.makeText(getApplicationContext(), "Action Import!", Toast.LENGTH_LONG).show();
         }
 

@@ -65,4 +65,5 @@
     <string name="ETO">ETO</string>
     <string name="RETO">RETO</string>
     <string name="done">Done</string>
+    <string name="db_admin_guide">You are now in admin mode\n\n- Long press a plan to delete it\n- Click on a plan to inspect way points\n and optionally delete by long pressing.</string>
 </resources>

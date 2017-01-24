@@ -17,12 +17,17 @@
         <menu
             android:id="@+id/db"
             android:title="Database">
+
+
             <item
-                android:id="@+id/db_admin"
-                android:title="Admin"/>
+                android:id="@+id/db_export"
+                android:title="Export"/>
+            <item
+                android:id="@+id/db_import"
+                android:title="Import"/>
             <item
                 android:id="@+id/db_navaids"
-                android:title="Import Navaids"/>
+                android:title="Update Navaids"/>
             <item
                 android:id="@+id/db_reset"
                 android:title="Reset DB"/>

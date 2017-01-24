@@ -1,12 +1,17 @@
 package com.example.tbrams.markerdemo;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
@@ -111,33 +116,11 @@ public class MainActivity extends AppCompatActivity {
                 //                    click on wp -> you selected, long click -> delete wp
 
                 mDbAdmin.toggleMaintenanceMode();
+                if (mDbAdmin.isInMaintenanceMode())
+                    showGuide();
 
                 updateTitle();
                 TripAdapter.updateBackgroundColor();
-
-                return true;
-
-            case R.id.action_import:
-                // Flush the tables and import JSON files
-                mDbAdmin.importJSON();
-
-                // Update list display - show them all with the null-filter
-                displayTrips(null);
-
-                return true;
-
-            case R.id.action_export:
-
-                mDbAdmin.exportJSON();
-                return true;
-
-
-            case R.id.action_reset:
-                // Clean DB and load test data
-                mDbAdmin.populateDatabase();
-
-                // Update list display
-                displayTrips(null);
 
                 return true;
 
@@ -153,6 +136,30 @@ public class MainActivity extends AppCompatActivity {
             setTitle(getString(R.string.title_maintenance));
         else
             setTitle(getString(R.string.title_trip));
+    }
+
+    private void showGuide() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.MyAlertDialogStyle);
+        builder.setTitle("Notice");
+
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.guide_panel, (ViewGroup) this.findViewById(android.R.id.content), false);
+
+        // Set up the input
+        TextView guide = (TextView) viewInflated.findViewById(R.id.guide_text);
+        guide.setText(R.string.db_admin_guide);
+        builder.setView(viewInflated);
+
+        // Set up the buttons
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+
+        builder.show();
+
     }
 
 }
