@@ -57,6 +57,11 @@ public class DataSource {
         mDb.execSQL(TripTable.SQL_CREATE);
         mDb.execSQL(WpTable.SQL_DELETE);
         mDb.execSQL(WpTable.SQL_CREATE);
+    }
+
+
+
+    public void resetNavAidTable() {
         mDb.execSQL(NavAidTable.SQL_DELETE);
         mDb.execSQL(NavAidTable.SQL_CREATE);
     }

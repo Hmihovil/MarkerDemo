@@ -15,14 +15,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -44,9 +41,7 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static android.content.ContentValues.TAG;
-
-public class GoogleSheetActivity extends Activity implements EasyPermissions.PermissionCallbacks {
+public class GoogleSheetActivity2 extends Activity implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
@@ -325,7 +320,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         Dialog dialog = apiAvailability.getErrorDialog(
-                GoogleSheetActivity.this,
+                GoogleSheetActivity2.this,
                 connectionStatusCode,
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
@@ -403,88 +398,12 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             ValueRange response = this.mService.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();
-
-
-            List<NavAid> navAidsList = new ArrayList<>();
             List<List<Object>> values = response.getValues();
-
-            // Now we have an array packed with Strings from the spreadsheet
-            // column 0: Station [STRING]
-            // column 1: Identifier [STRING]
-            // Column 2: TYPE  [String, VOR, DME, VOR/DME, NDB, L, TACAN, VORTAC]
-            // column 3: Location [String, format "55 13 44.18N 009 12 50.61E"]
-            // Column 4: FREQ [OPT String]
-            // Column 5: USAGE [OPT String]
-            // Column 6: ELEV [OPT Double]
-            // Column 7: MIL FREQ [OPT String]
-
-            int nType=0;
-
             if (values != null) {
                 results.add("Name\tLocation\tRange");
-
                 for (List row : values) {
-                    if (row.get(2).equals("VOR")) {
-                        nType = NavAid.VOR;
-                    } else if (row.get(2).equals("DME")) {
-                        nType = NavAid.DME;
-                    } else if (row.get(2).equals("VOR/DME")) {
-                        nType = NavAid.VORDME;
-                    } else if (row.get(2).equals("NDB")) {
-                        nType = NavAid.NDB;
-                    } else if (row.get(2).equals("L")) {
-                        nType = NavAid.LOCALIZER;
-                    } else if (row.get(2).equals("TACAN")) {
-                        nType = NavAid.TACAN;
-                    } else if (row.get(2).equals("VORTAC")) {
-                        nType = NavAid.VORTAC;
-                    } else {
-                        Log.d(TAG, "getDataFromApi: Unrecognized NavAid Type: "+row.get(2));
-                    }
-
-                    String station=row.get(0).toString();
-                    String ident=row.get(1).toString();
-                    String location=row.get(3).toString();
-
-                    String freq=null;
-                    if (!row.get(4).toString().equals("")) {
-                        freq = row.get(4).toString();
-                    }
-
-                    String usage=null;
-                    if (!row.get(5).toString().equals("")) {
-                        usage = row.get(5).toString();
-                    }
-
-                    double elev = 0;
-                    if (row.size()>6) {
-                        if (!row.get(6).toString().equals("")) {
-                            elev = Double.parseDouble(row.get(6).toString());
-                        }
-                    }
-
-                    String milfreq=null;
-                    if (row.size()>7) {
-                        if (!row.get(7).toString().equals("")) {
-                            milfreq = row.get(7).toString();
-                        }
-                    }
-
-
-//                    // TODO: Need a constructor taking MilFreq as well
-                    NavAid na = new NavAid(station, ident, nType, location, freq, usage, elev);
-                    Log.d(TAG, "getDataFromApi: New Navaid name: "+na.getName()+" @"+na.getPosition());
-                    navAidsList.add(na);
-
-                        results.add(row.get(0) + "\t" + row.get(3) + "\t" + row.get(5));
+                    results.add(row.get(0) + "\t" + row.get(3) + "\t" + row.get(5));
                 }
-
-                // update database
-                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
-                dbAdmin.updateNavAidsFromMaster(navAidsList);
-
-                results.clear();
-                results.add("All done...");
             }
             return results;
         }
@@ -518,7 +437,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            GoogleSheetActivity.REQUEST_AUTHORIZATION);
+                            GoogleSheetActivity2.REQUEST_AUTHORIZATION);
                 } else {
                     mOutputText.setText("The following error occurred:\n"
                             + mLastError.getMessage());

@@ -32,11 +32,9 @@ public class DbAdmin extends DataSource {
 
     List<String> mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList = SampleDataProvider.sWpListsForTrips;
-    // TODO: DELETE THIS
-//    List<NavAid> mNavAidListsSample = SampleDataProvider.sNavAidList;
 
-    NavAids navaids;
-    List<NavAid> mNavAidListsSample;
+    NavAids mNavAids;
+
 
     private boolean mPermissionGranted;
     private Context mContext;
@@ -46,9 +44,6 @@ public class DbAdmin extends DataSource {
 
         mContext = context;
         mPermissionGranted = false;
-
-        navaids = NavAids.get(context);
-        mNavAidListsSample = navaids.getList();
     }
 
 
@@ -66,13 +61,46 @@ public class DbAdmin extends DataSource {
             super.addFullTrip(tripName, wpList);
         }
 
-        // Copy all navigational aids form the dataProvider to the Database
-        for (NavAid na : mNavAidListsSample) {
+       super.close();
+
+        // Get hold of NavAids storage and fetch the samples we will use for resetting
+        mNavAids = NavAids.get(mContext);
+
+        List<NavAid> navAidsSampleList = mNavAids.getSampleList();
+
+        // Then update the NavAid table
+        updateNavAidsFromMaster(navAidsSampleList);
+    }
+
+
+
+
+    /*
+     * Will reset the NavAids table and then populate it with navaids from the list provided
+     * as argument to the function.
+     *
+     * After updating the database table, the singleton Storage will be reflecting the database
+     * as well.
+     */
+    public void updateNavAidsFromMaster(List<NavAid> navAidsList) {
+        // Delete and recreate table
+        super.open();
+        super.resetNavAidTable();
+
+        // Copy all navigational aids form the sample list to the Database
+        for (NavAid na : navAidsList) {
             super.createNavAid(na);
         }
 
         super.close();
+
+        if (mNavAids==null) {
+            mNavAids=NavAids.get(mContext);
+        }
+        mNavAids.setNavList(navAidsList);
+
     }
+
 
 
 

@@ -174,12 +174,14 @@ public class NavAid {
          */
     private static int[] parseLimitations(String input) {
         int[] result = {0,0};
-        String[] parts=input.trim().replace(" ","").split("/");
-        for (String s : parts) {
-            if (s.indexOf("NM")>=0) {
-                result[1]= Integer.parseInt(s.replace("NM",""));
-            } else if (s.indexOf("FL")>=0) {
-                result[0]=Integer.parseInt(s.replace("FL",""));
+        if (input != null) {
+             String[] parts=input.trim().replace(" ","").split("/");
+            for (String s : parts) {
+                if (s.indexOf("NM")>=0) {
+                    result[1]= Integer.parseInt(s.replace("NM",""));
+                } else if (s.indexOf("FL")>=0) {
+                    result[0]=Integer.parseInt(s.replace("FL",""));
+                }
             }
         }
 
