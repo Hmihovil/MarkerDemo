@@ -77,6 +77,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private final NavAids navaids = NavAids.get(this);
     private final List<NavAid> navAidList = navaids.getList();
+
     private final List<NavAid> vorList = new ArrayList<>();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
 
@@ -111,6 +112,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         }
 
+        Log.d(TAG, "onCreate: vorList.size(): "+vorList.size());
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
         mWpId   = getIntent().getStringExtra(WP_KEY);

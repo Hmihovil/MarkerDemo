@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -14,7 +15,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -26,7 +26,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.db.DbAdmin;
+
+import java.util.List;
 
 
 public class FrontActivity extends AppCompatActivity {
@@ -64,6 +68,9 @@ public class FrontActivity extends AppCompatActivity {
 
     // DB Related
     DbAdmin mDbAdmin;
+    private final NavAids mNavAids = NavAids.get(this);
+    private final List<NavAid> navAidList = mNavAids.getList();
+
 
 
     @Override
@@ -76,6 +83,20 @@ public class FrontActivity extends AppCompatActivity {
 
         // Get a handle to the Database Admin helper and prepare the database
         mDbAdmin = new DbAdmin(this);
+
+        // check if we can load NavAids list from database or we need to load from samples
+        List<NavAid> navList = mDbAdmin.getAllNavAids(null);
+        Log.d(TAG, "onCreate: navList.size(): "+navList.size());
+        if (navList==null) {
+            // use the build in samples as backup
+            mNavAids.setNavList(mNavAids.getSampleList());
+            Log.d(TAG, "onCreate: Could not get navaid data from db, using samples");
+        } else {
+            // load this list from the database
+            mNavAids.setNavList(navList);
+            Log.d(TAG, "onCreate: Using navaids from database");
+        }
+
 
         myHandler = new Handler();
 

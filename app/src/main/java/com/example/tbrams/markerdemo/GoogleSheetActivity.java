@@ -424,19 +424,20 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 results.add("Name\tLocation\tRange");
 
                 for (List row : values) {
-                    if (row.get(2).equals("VOR")) {
+                    String sType = row.get(2).toString();
+                    if (sType.equals("VOR")) {
                         nType = NavAid.VOR;
-                    } else if (row.get(2).equals("DME")) {
+                    } else if (sType.equals("DME")) {
                         nType = NavAid.DME;
-                    } else if (row.get(2).equals("VOR/DME")) {
+                    } else if (sType.equals("VOR/DME")) {
                         nType = NavAid.VORDME;
-                    } else if (row.get(2).equals("NDB")) {
+                    } else if (sType.equals("NDB")) {
                         nType = NavAid.NDB;
-                    } else if (row.get(2).equals("L")) {
+                    } else if (sType.equals("L")) {
                         nType = NavAid.LOCALIZER;
-                    } else if (row.get(2).equals("TACAN")) {
+                    } else if (sType.equals("TACAN")) {
                         nType = NavAid.TACAN;
-                    } else if (row.get(2).equals("VORTAC")) {
+                    } else if (sType.equals("VORTAC")) {
                         nType = NavAid.VORTAC;
                     } else {
                         Log.d(TAG, "getDataFromApi: Unrecognized NavAid Type: "+row.get(2));

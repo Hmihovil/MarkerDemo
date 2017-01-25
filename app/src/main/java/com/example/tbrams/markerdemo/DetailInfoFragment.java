@@ -15,8 +15,6 @@ import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
-import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 
 import java.util.List;
 
@@ -28,9 +26,6 @@ public class DetailInfoFragment extends Fragment {
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
-
 
 
     public static Fragment newInstance(int markerIndex) {
