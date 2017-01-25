@@ -155,7 +155,8 @@ public class MarkerDemoUtils extends AppCompatActivity {
             LatLng position = vorList.get(i).getPosition();
             double dist=computeDistanceBetween(position, m.getPosition());
             double heading = computeHeading(position, m.getPosition());
-            plist.add(new Pejling(i, dist, heading));
+            int original_id=vorList.get(i).getSeq_id();
+            plist.add(new Pejling(original_id, dist, heading));
         }
 
 
@@ -233,6 +234,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
         setZoomLevel(zoomLevel);
         gMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel), 1000, null);
     }
+
 
 
     public void updateMapType(SharedPreferences sharedPrefs, GoogleMap gMap) {
@@ -469,14 +471,14 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         break;
                     case NavAid.LOCALIZER:
                         iconInt=R.drawable.ic_device_gps_grey;
-                        snippetText = "LOCALIZER";
+                        snippetText = "LZ";
                         break;
                 }
 
 
 
                 Marker m = gMap.addMarker(new MarkerOptions()
-                        .title(navAidList.get(i).getName())
+                        .title(navAidList.get(i).getIdent())
                         .snippet(snippetText+" "+navAidList.get(i).getFreq())
                         .position(navAidList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
 

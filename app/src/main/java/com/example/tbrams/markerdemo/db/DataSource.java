@@ -500,8 +500,6 @@ public class DataSource {
             navAid.setElevation(cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_ELEV)));
 
             navAids.add(navAid);
-            Log.d(TAG, "getAllNavAids: navAid.name: "+navAid.getName());
-            Log.d(TAG, "getAllNavAids: navAid.getPos: "+navAid.getPosition());
         }
         cursor.close();
 

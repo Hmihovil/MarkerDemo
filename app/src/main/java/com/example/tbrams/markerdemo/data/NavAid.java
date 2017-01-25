@@ -20,6 +20,7 @@ public class NavAid {
     public static final int LOCALIZER=7;
 
     private String id;
+    private int seq_id;
     private String name;
     private String ident;
     private String freq;
@@ -41,6 +42,8 @@ public class NavAid {
         this.id = UUID.randomUUID().toString();
     }
 
+    public int getSeq_id() { return seq_id; }
+    public void setSeq_id(int seq_id) { this.seq_id = seq_id; }
 
     public NavAid(String name, String id, int kind, String latlong, String freq, String limitString, Double elevation) {
         position = parseCoordinates(latlong);
@@ -51,6 +54,8 @@ public class NavAid {
         this.ident=id;
         this.naType = kind;
         this.freq = freq;
+
+        this.seq_id=-1;
 
         int[] limits = parseLimitations(limitString);
         max_alt = limits[0];

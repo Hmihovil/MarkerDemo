@@ -110,11 +110,12 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Prepare a list with VOR's for navigation101
-        for (NavAid na:navAidList) {
+        for (int i = 0; i < navAidList.size(); i++) {
+            NavAid na=navAidList.get(i);
             if (na.getType()==NavAid.VOR || na.getType()==NavAid.VORDME) {
+                na.setSeq_id(i);  // We need an easy way to find this navaid again
                 vorList.add(na);
             }
-
         }
 
         Log.d(TAG, "onCreate: vorList.size(): "+vorList.size());
