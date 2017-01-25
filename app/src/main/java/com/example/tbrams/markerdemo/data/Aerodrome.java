@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import com.example.tbrams.markerdemo.db.AdTable;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.UUID;
+
 import static android.R.attr.type;
 
 public class Aerodrome {
@@ -29,7 +31,12 @@ public class Aerodrome {
     private String link;
 
 
+    public Aerodrome() {
+        this.id = UUID.randomUUID().toString();
+    }
+
     public Aerodrome(String name, String fullname, String position, int adType) {
+        this.id = UUID.randomUUID().toString();
         this.icaoName = name;
         this.name = fullname;
         this.position = convertVFG(position);
@@ -70,6 +77,30 @@ public class Aerodrome {
     public void setIcaoName(String icaoName) {
         this.icaoName = icaoName;
     }
+
+    public int getAdType() { return adType; }
+    public void setAdType(int adType) { this.adType = adType; }
+
+    public String getRadio() { return radio; }
+    public void setRadio(String radio) { this.radio = radio; }
+
+    public String getFreq() { return freq; }
+    public void setFreq(String freq) { this.freq = freq; }
+
+    public String getWeb() { return web; }
+    public void setWeb(String web) { this.web = web; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public boolean isPPR() { return PPR; }
+    public void setPPR(boolean PPR) { this.PPR = PPR; }
+
+    public String getRemarks() { return remarks; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
+
+    public String getLink() { return link; }
+    public void setLink(String link) { this.link = link; }
 
     // Convert format used in VFG Denmark ADC to internal location form
     // For example "57 05 34.04N 009 50 56.99E"

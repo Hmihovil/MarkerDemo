@@ -20,7 +20,7 @@ public class NavAidTable {
             COLUMN_LAT, COLUMN_LON, COLUMN_FREQ, COLUMN_MAX_ALT, COLUMN_MAX_DIST, COLUMN_ELEV};
 
     public static final String SQL_CREATE =
-            "CREATE TABLE " + TABLE_NAME + "(" +
+            "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" +
                     COLUMN_ID + " TEXT PRIMARY KEY," +
                     COLUMN_NAME + " TEXT," +
                     COLUMN_IDENT + " TEXT," +

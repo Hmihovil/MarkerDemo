@@ -527,11 +527,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                 startActivityForResult(preferenceIntent, SETTINGS_RESULT);
                 break;
 
-            case R.id.importNavAids:
-                // Launch GoogleSheetsActivity
-                Intent sheetsIntent = new Intent(this, GoogleSheetActivity.class);
-                startActivity(sheetsIntent);
-                break;
         }
 
         return super.onOptionsItemSelected(item);

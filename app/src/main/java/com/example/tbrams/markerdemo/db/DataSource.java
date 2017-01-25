@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
@@ -73,6 +74,33 @@ public class DataSource {
         mDb.execSQL(AdTable.SQL_CREATE);
     }
 
+
+    public void makeSureWeHaveTables() {
+        mDb.execSQL(TripTable.SQL_CREATE);
+        mDb.execSQL(WpTable.SQL_CREATE);
+        mDb.execSQL(NavAidTable.SQL_CREATE);
+        mDb.execSQL(AdTable.SQL_CREATE);
+    }
+
+    /*
+     * This function will return false if the table is not already created
+     */
+    boolean isTableExists(SQLiteDatabase db, String tableName)
+    {
+        if (tableName == null || db == null || !db.isOpen())
+        {
+            return false;
+        }
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+        if (!cursor.moveToFirst())
+        {
+            cursor.close();
+            return false;
+        }
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count > 0;
+    }
 
     //
     //Trip Table specifics
@@ -506,6 +534,104 @@ public class DataSource {
         return navAids;
     }
 
+
+
+
+    // ================  AdTable ==========================
+
+
+
+    /*
+     * createAerodrome
+     * This is the function responsible for inserting data into the Aerodrome Table. Will be returning
+     * the same object in case we need to check if something has been changed.
+     *
+     * @Args: Aerodrome Object
+     *
+     * @Return: Aerodrome object
+     *
+     */
+    public Aerodrome createAerodrome(Aerodrome ad) {
+        ContentValues values = ad.toContentValues();
+
+        mDb.insert(AdTable.TABLE_NAME, null, values);
+        return ad;
+    }
+
+    /*
+     * seedAerodromeTable
+     * Insert all Aerodrome objects into the Aerodrome table in the database
+     *
+     * @Args: List of Aerodrome objects
+     *
+     * @Return: none
+     *
+     */
+    public void seedAerodromeTable(List<Aerodrome> adList) {
+        if (adList.size()>0) {
+            for (Aerodrome ad : adList) {
+                try {
+                    createAerodrome(ad);
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /*
+     * getAllAerodromes
+     * Lookup matching records in the database and for each create a matching object and return
+     * a list with all of these as the result.
+     *
+     * @Args: type,     a filter - if this is null all rows are returned from db, otherwise only
+     *                  Aerodromes of a certain type is returned.
+     *
+     * @Return: A list of Aerodromes
+     *
+     */
+    public List<Aerodrome> getAllAerodromes(Integer type){
+        List<Aerodrome> adList = new ArrayList<>();
+        Cursor cursor;
+
+        if (type==null) {
+            // Fetch all sorted by Name
+            cursor = mDb.query(AdTable.TABLE_NAME, AdTable.ALL_COLUMNS, null,null,null,null, AdTable.COLUMN_NAME);
+        } else {
+            // Pack the type in the required Array object notation before search for matching types and then sorting by name
+            String[] typeArg = {type.toString()};
+            cursor = mDb.query(AdTable.TABLE_NAME, AdTable.ALL_COLUMNS, AdTable.COLUMN_TYPE+"=?",typeArg, null, null, AdTable.COLUMN_NAME);
+        }
+
+
+        while (cursor.moveToNext()) {
+            Aerodrome  ad = new Aerodrome();
+
+            ad.setName(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_NAME)));
+            ad.setIcaoName(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_ICAO)));
+            ad.setAdType(cursor.getInt(cursor.getColumnIndex(AdTable.COLUMN_TYPE)));
+            double lat = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LON));
+            ad.setPosition(new LatLng(lat, lon));
+            ad.setRadio(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_RADIO)));
+            ad.setFreq(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_FREQ)));
+            if (cursor.getInt(cursor.getColumnIndex(AdTable.COLUMN_PPR))==1) {
+                ad.setPPR(true);
+            } else {
+                ad.setPPR(false);
+            }
+            ad.setPhone(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_PHONE)));
+            ad.setWeb(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_WEB)));
+            ad.setLink(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_LINK)));
+            ad.setRemarks(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_REMARKS)));
+
+            adList.add(ad);
+        }
+        cursor.close();
+
+        return adList;
+    }
 
 
 

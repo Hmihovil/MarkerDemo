@@ -11,7 +11,7 @@ public class TripTable {
     public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_NAME, COLUMN_DIST, COLUMN_DATE};
 
     public static final String SQL_CREATE =
-            "CREATE TABLE " + TABLE_NAME + "(" +
+            "CREATE TABLE  IF NOT EXISTS " + TABLE_NAME + "(" +
                     COLUMN_ID + " TEXT PRIMARY KEY," +
                     COLUMN_NAME + " TEXT," +
                     COLUMN_DIST + " REAL," +

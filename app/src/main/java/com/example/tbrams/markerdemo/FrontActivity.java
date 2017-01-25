@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.tbrams.markerdemo.data.Aerodrome;
+import com.example.tbrams.markerdemo.data.Aerodromes;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.db.DbAdmin;
@@ -69,25 +71,38 @@ public class FrontActivity extends AppCompatActivity {
     // DB Related
     DbAdmin mDbAdmin;
     private NavAids mNavAids;
+    private Aerodromes mAerodromes;
+
     private List<NavAid> navAidList;
+    private List<Aerodrome> mAdList;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        // Get a reference to the Navaid and Aerodrome details
         mNavAids = NavAids.get(getApplicationContext());
         navAidList = mNavAids.getList();
+        mAerodromes = Aerodromes.get(getApplicationContext());
+        mAdList = mAerodromes.getList();
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Log.d(TAG, "onCreate: Before prepare DB content, navAidList.size(): "+navAidList.size());
+        Log.d(TAG, "onCreate: Before prepare DB content, AdList.size(): "+mAdList.size());
+
         // Get all the details in sync with the DB
         prepareDbContent();
+
         navAidList = mNavAids.getList();
+        mAdList = mAerodromes.getList();
+
         Log.d(TAG, "onCreate: After prepare DB content, navAidList.size(): "+navAidList.size());
+        Log.d(TAG, "onCreate: After prepare DB content, AdList.size(): "+mAdList.size());
 
 
         myHandler = new Handler();
@@ -125,10 +140,13 @@ public class FrontActivity extends AppCompatActivity {
         // Get a handle to the Database Admin helper
         mDbAdmin = new DbAdmin(this);
 
+        // Just in case it is a new installation, make sure we have the empty tables at least
+        mDbAdmin.makeSureWeHaveTables();
+
         // check if we can load NavAids list from database or we need to load from samples
         List<NavAid> navList = mDbAdmin.getAllNavAids(null);
         Log.d(TAG, "onCreate: from DB - navList.size(): "+navList.size());
-        if (navList==null) {
+        if (navList==null||navList.size()==0) {
             // use the build in samples as backup
             mNavAids.setNavList(mNavAids.getSampleList());
             Log.d(TAG, "onCreate: Could not get navaid data from db, using samples");
@@ -139,6 +157,18 @@ public class FrontActivity extends AppCompatActivity {
         }
 
 
+        // Check if we can load Aerodromes from the database or if we need to load from samples
+        List<Aerodrome> adList = mDbAdmin.getAllAerodromes(null);
+        Log.d(TAG, "onCreate: from DB - adList.size(): "+adList.size());
+        if (adList==null||adList.size()==0) {
+            // use the build in samples as backup
+            mAerodromes.setList(mAerodromes.getSampleList());
+            Log.d(TAG, "onCreate: Could not get AD data from db, using samples");
+        } else {
+            // load this list from the database
+            mAerodromes.setList(adList);
+            Log.d(TAG, "onCreate: Using ADs from database");
+        }
     }
 
 

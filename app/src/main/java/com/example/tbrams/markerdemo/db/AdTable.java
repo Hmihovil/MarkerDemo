@@ -24,7 +24,7 @@ public class AdTable {
             COLUMN_LAT, COLUMN_LON, COLUMN_RADIO, COLUMN_FREQ, COLUMN_PPR, COLUMN_WEB, COLUMN_PHONE, COLUMN_REMARKS, COLUMN_LINK};
 
     public static final String SQL_CREATE =
-            "CREATE TABLE " + TABLE_NAME + "(" +
+            "CREATE TABLE  IF NOT EXISTS " + TABLE_NAME + "(" +
                     COLUMN_ID + " TEXT PRIMARY KEY," +
                     COLUMN_NAME + " TEXT," +
                     COLUMN_ICAO + " TEXT," +
