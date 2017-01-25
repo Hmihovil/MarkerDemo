@@ -4,4 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="content_padding_normal">16dp</dimen>
+    <dimen name="talk_header_text_size">24sp</dimen>
+    <dimen name="talk_text_size">18sp</dimen>
 </resources>

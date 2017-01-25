@@ -180,9 +180,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         VORtext2.setText(vorList.get((pejlinger.get(1).getMarkerIndex())).getName());
         VORtext3.setText(vorList.get((pejlinger.get(2).getMarkerIndex())).getName());
 
-        VORrad1.setText(String.format("%.1f \u00B0", (pejlinger.get(0).getHeading() + 360) % 360));
-        VORrad2.setText(String.format("%.1f \u00B0", (pejlinger.get(1).getHeading() + 360) % 360));
-        VORrad3.setText(String.format("%.1f \u00B0", (pejlinger.get(2).getHeading() + 360) % 360));
+        VORrad1.setText(String.format("%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
+        VORrad2.setText(String.format("%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));
+        VORrad3.setText(String.format("%03d \u00B0", (int)(pejlinger.get(2).getHeading() + 360) % 360));
 
         VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance() / 1852.));
         VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));

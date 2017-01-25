@@ -19,10 +19,14 @@
 
         <TextView
             android:id="@+id/heading_label"
-            android:layout_width="wrap_content"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:background="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+            android:textColor="@color/cardview_light_background"
             android:text="At"
+            android:textSize="@dimen/talk_header_text_size"
+            android:padding="4dp"
             android:layout_marginTop="16dp"
             card_view:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
@@ -32,6 +36,7 @@
             android:id="@+id/position_txt"
             android:hint="WP Name"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/talk_text_size"
             android:layout_width="310dp"
             android:layout_marginTop="8dp"
             card_view:layout_constraintTop_toBottomOf="@+id/heading_label"
@@ -41,6 +46,7 @@
         <TextView
             android:id="@+id/time_txt"
             android:hint="00"
+            android:textSize="@dimen/talk_text_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -51,6 +57,7 @@
         <TextView
             android:id="@+id/alt_txt"
             android:hint="1200 ft"
+            android:textSize="@dimen/talk_text_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="textEnd"

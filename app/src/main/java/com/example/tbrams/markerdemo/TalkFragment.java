@@ -13,8 +13,6 @@ import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
-import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 
 import java.util.List;
 import java.util.Locale;
@@ -26,8 +24,6 @@ public class TalkFragment extends Fragment {
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids;
-    List<NavAid> vorList;
 
     private int segmentIndex = -1;
 
@@ -46,9 +42,6 @@ public class TalkFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        vorList = navaids.getList();
-        navaids = NavAids.get(getActivity().getApplicationContext());
 
         getActivity().setTitle(markerLab.getTripName());
 

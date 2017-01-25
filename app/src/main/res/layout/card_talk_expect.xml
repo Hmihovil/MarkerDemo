@@ -19,10 +19,14 @@
 
         <TextView
             android:id="@+id/heading_label"
-            android:layout_width="wrap_content"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:text="Expecting"
+            android:textSize="@dimen/talk_header_text_size"
+            android:padding="4dp"
+            android:background="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+            android:textColor="@color/cardview_light_background"
             android:layout_marginStart="16dp"
             card_view:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginTop="16dp"
@@ -31,6 +35,7 @@
         <TextView
             android:id="@+id/position_txt"
             android:hint="WP Name"
+            android:textSize="@dimen/talk_text_size"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             card_view:layout_constraintLeft_toLeftOf="parent"
@@ -40,6 +45,7 @@
 
         <TextView
             android:id="@+id/time_txt"
+            android:textSize="@dimen/talk_text_size"
             android:hint="00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,6 +56,7 @@
 
         <TextView
             android:id="@+id/alt_txt"
+            android:textSize="@dimen/talk_text_size"
             android:hint="1200 ft"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
