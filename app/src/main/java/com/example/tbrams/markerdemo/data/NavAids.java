@@ -10,7 +10,8 @@ public class NavAids {
     private static NavAids sNavAids;
 
     private NavAids(Context context) {
-        sNavAidList = getSampleList();
+        sNavAidList = new ArrayList<>();
+     //   sNavAidList = getSampleList();
     }
 
 

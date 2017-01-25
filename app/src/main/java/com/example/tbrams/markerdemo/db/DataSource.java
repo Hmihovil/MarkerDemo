@@ -67,6 +67,13 @@ public class DataSource {
     }
 
 
+
+    public void resetAdTable() {
+        mDb.execSQL(AdTable.SQL_DELETE);
+        mDb.execSQL(AdTable.SQL_CREATE);
+    }
+
+
     //
     //Trip Table specifics
     // --------------------

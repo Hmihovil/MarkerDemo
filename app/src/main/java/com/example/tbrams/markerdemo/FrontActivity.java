@@ -69,7 +69,7 @@ public class FrontActivity extends AppCompatActivity {
     // DB Related
     DbAdmin mDbAdmin;
     private final NavAids mNavAids = NavAids.get(this);
-    private final List<NavAid> navAidList = mNavAids.getList();
+    private List<NavAid> navAidList = mNavAids.getList();
 
 
 
@@ -81,21 +81,11 @@ public class FrontActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Get a handle to the Database Admin helper and prepare the database
-        mDbAdmin = new DbAdmin(this);
-
-        // check if we can load NavAids list from database or we need to load from samples
-        List<NavAid> navList = mDbAdmin.getAllNavAids(null);
-        Log.d(TAG, "onCreate: navList.size(): "+navList.size());
-        if (navList==null) {
-            // use the build in samples as backup
-            mNavAids.setNavList(mNavAids.getSampleList());
-            Log.d(TAG, "onCreate: Could not get navaid data from db, using samples");
-        } else {
-            // load this list from the database
-            mNavAids.setNavList(navList);
-            Log.d(TAG, "onCreate: Using navaids from database");
-        }
+        Log.d(TAG, "onCreate: Before prepare DB content, navAidList.size(): "+navAidList.size());
+        // Get all the details in sync with the DB
+        prepareDbContent();
+        navAidList = mNavAids.getList();
+        Log.d(TAG, "onCreate: After prepare DB content, navAidList.size(): "+navAidList.size());
 
 
         myHandler = new Handler();
@@ -124,6 +114,34 @@ public class FrontActivity extends AppCompatActivity {
             loadHomeFragment();
         }
     }
+
+
+
+
+
+    private void prepareDbContent() {
+        // Get a handle to the Database Admin helper
+        mDbAdmin = new DbAdmin(this);
+
+        // check if we can load NavAids list from database or we need to load from samples
+        List<NavAid> navList = mDbAdmin.getAllNavAids(null);
+        Log.d(TAG, "onCreate: from DB - navList.size(): "+navList.size());
+        if (navList==null) {
+            // use the build in samples as backup
+            mNavAids.setNavList(mNavAids.getSampleList());
+            Log.d(TAG, "onCreate: Could not get navaid data from db, using samples");
+        } else {
+            // load this list from the database
+            mNavAids.setNavList(navList);
+            Log.d(TAG, "onCreate: Using navaids from database");
+        }
+
+
+    }
+
+
+
+
 
     /***
      * Returns respected fragment that user
@@ -438,4 +456,6 @@ public class FrontActivity extends AppCompatActivity {
             Toast.makeText(this, "Preferences done...", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

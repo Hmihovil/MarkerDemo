@@ -398,7 +398,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
          */
         private List<String> getDataFromApi() throws IOException {
             String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
-            String range = "Sheet1!A2:H";
+            String range = "NavAids!A2:H";
             List<String> results = new ArrayList<String>();
             ValueRange response = this.mService.spreadsheets().values()
                     .get(spreadsheetId, range)
@@ -443,6 +443,9 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                         Log.d(TAG, "getDataFromApi: Unrecognized NavAid Type: "+row.get(2));
                     }
 
+                    Log.d(TAG, "getDataFromApi: nType: "+nType);
+
+
                     String station=row.get(0).toString();
                     String ident=row.get(1).toString();
                     String location=row.get(3).toString();
@@ -483,6 +486,91 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 // update database
                 DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
                 dbAdmin.updateNavAidsFromMaster(navAidsList);
+
+                results.clear();
+                results.add("All done...");
+            }
+            return results;
+        }
+
+
+        /**
+         * Fetch a list of PrivateAerodromes names and locations from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return List of names and majors
+         * @throws IOException
+         */
+        private List<String> getPrivateADsFromApi() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "PrivateAerodromes!A2:I";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<NavAid> navAidsList = new ArrayList<>();
+            List<List<Object>> values = response.getValues();
+
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: NAME [STRING]
+            // column 1: ICAO [STRING]
+            // Column 2: Location [String, format "55 13 44.18N 009 12 50.61E"]
+            // column 3: RADIO [OPT String]
+            // Column 4: FREQ [OPT String]
+            // Column 5: PHONE [OPT String]
+            // Column 6: WEB [OPT Double]
+            // Column 7: PPR [OPT String, "Yes"]
+            // Column 8: REMARKS [OPT String]
+
+            int PPR=0;
+
+            if (values != null) {
+                results.add("Name\tLocation\tRange");
+
+                for (List row : values) {
+                    String sPPR = row.get(7).toString().toUpperCase();
+                    if (sPPR.equals("YES")) {
+                        PPR = NavAid.VOR;
+                    }
+
+                    String name=row.get(0).toString();
+                    String icao=row.get(1).toString();
+                    String location=row.get(2).toString();
+
+                    String radio=null;
+                    if (!row.get(3).toString().equals("")) {
+                        radio = row.get(4).toString();
+                    }
+
+                    String freq=null;
+                    if (!row.get(4).toString().equals("")) {
+                        freq = row.get(4).toString();
+                    }
+
+                    String phone=null;
+                    if (!row.get(5).toString().equals("")) {
+                        phone = row.get(5).toString();
+                    }
+
+                    String web=null;
+                    if (!row.get(5).toString().equals("")) {
+                        web = row.get(5).toString();
+                    }
+
+
+                    // TODO: Need a constructor taking Remarks as well
+      //              NavAid na = new NavAid(station, ident, nType, location, freq, usage, elev);
+      //              Log.d(TAG, "getDataFromApi: New Navaid name: "+na.getName()+" @"+na.getPosition());
+      //              navAidsList.add(na);
+
+                    results.add(row.get(0) + "\t" + row.get(3) + "\t" + row.get(5));
+                }
+
+                // update database
+      //          DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+      //          dbAdmin.updateNavAidsFromMaster(navAidsList);
 
                 results.clear();
                 results.add("All done...");

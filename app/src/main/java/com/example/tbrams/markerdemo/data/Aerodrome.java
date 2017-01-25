@@ -1,17 +1,50 @@
 package com.example.tbrams.markerdemo.data;
 
 
+import android.content.ContentValues;
+
+import com.example.tbrams.markerdemo.db.AdTable;
 import com.google.android.gms.maps.model.LatLng;
 
+import static android.R.attr.type;
+
 public class Aerodrome {
+
+    public static final int PUBLIC=1;
+    public static final int PRIVATE=2;
+    public static final int GLIDER=3;
+    public static final int HELI=4;
+
+    private String id;
     private String icaoName;
     private String name;
+    private int    adType;
     private LatLng position;
+    private String radio;
+    private String freq;
+    private String web;
+    private String phone;
+    private boolean PPR;
+    private String remarks;
+    private String link;
 
-    public Aerodrome(String name, String fullname, String position) {
+
+    public Aerodrome(String name, String fullname, String position, int adType) {
         this.icaoName = name;
         this.name = fullname;
         this.position = convertVFG(position);
+        this.adType=adType;
+
+
+        // not yet implemented
+        this.id=null;
+        this.radio=null;
+        this.freq=null;
+        this.web=null;
+        this.phone=null;
+        this.PPR=false;
+        this.remarks=null;
+        this.link=null;
     }
 
     public String getName() {
@@ -52,11 +85,24 @@ public class Aerodrome {
     }
 
 
-    @Override
-    public String toString() {
-        return "Aerodrome{" +
-                "name='" + name + '\'' +
-                ", position=" + position +
-                '}';
+
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues(4);
+
+        values.put(AdTable.COLUMN_ID,   id);
+        values.put(AdTable.COLUMN_NAME, name);
+        values.put(AdTable.COLUMN_ICAO, icaoName);
+        values.put(AdTable.COLUMN_TYPE, type);
+        values.put(AdTable.COLUMN_LAT, position.latitude);
+        values.put(AdTable.COLUMN_LON, position.longitude);
+        values.put(AdTable.COLUMN_RADIO, radio);
+        values.put(AdTable.COLUMN_FREQ, freq);
+        values.put(AdTable.COLUMN_WEB, web);
+        values.put(AdTable.COLUMN_PHONE, phone);
+        values.put(AdTable.COLUMN_PPR, PPR);
+        values.put(AdTable.COLUMN_REMARKS, remarks);
+
+        return values;
     }
 }

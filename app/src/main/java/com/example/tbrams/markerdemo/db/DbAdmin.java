@@ -33,7 +33,7 @@ public class DbAdmin extends DataSource {
     List<String> mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList = SampleDataProvider.sWpListsForTrips;
 
-    NavAids mNavAids;
+    private NavAids mNavAids;
 
 
     private boolean mPermissionGranted;
