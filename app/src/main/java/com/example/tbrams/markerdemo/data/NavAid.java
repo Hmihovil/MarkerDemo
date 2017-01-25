@@ -23,7 +23,7 @@ public class NavAid {
     private String name;
     private String ident;
     private String freq;
-    private int    type;
+    private int naType;
     private int    max_range;
     private int    max_alt;
     private LatLng position;
@@ -49,7 +49,7 @@ public class NavAid {
 
         this.name = name;
         this.ident=id;
-        this.type = kind;
+        this.naType = kind;
         this.freq = freq;
 
         int[] limits = parseLimitations(limitString);
@@ -110,11 +110,11 @@ public class NavAid {
     }
 
     public int getType() {
-        return type;
+        return naType;
     }
 
     public void setType(int type) {
-        this.type = type;
+        this.naType = type;
     }
 
     public void setPosition(LatLng position) {
@@ -127,19 +127,6 @@ public class NavAid {
 
     public void setIdent(String ident) {
         this.ident = ident;
-    }
-
-    @Override
-    public String toString() {
-        return "NavAid{" +
-                "name='" + name + '\'' +
-                ", ident='" + ident + '\'' +
-                ", freq='" + freq + '\'' +
-                ", type=" + type +
-                ", max_range=" + max_range +
-                ", max_alt=" + max_alt +
-                ", position=" + position +
-                '}';
     }
 
     public String getFreq() {
@@ -225,7 +212,7 @@ public class NavAid {
         values.put(NavAidTable.COLUMN_ID,   id);
         values.put(NavAidTable.COLUMN_NAME, name);
         values.put(NavAidTable.COLUMN_IDENT, ident);
-        values.put(NavAidTable.COLUMN_TYPE, type);
+        values.put(NavAidTable.COLUMN_TYPE, naType);
         values.put(NavAidTable.COLUMN_LAT, position.latitude);
         values.put(NavAidTable.COLUMN_LON, position.longitude);
         values.put(NavAidTable.COLUMN_FREQ, freq);

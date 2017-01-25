@@ -26,8 +26,8 @@ public class TalkFragment extends Fragment {
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
+    NavAids navaids;
+    List<NavAid> vorList;
 
     private int segmentIndex = -1;
 
@@ -46,6 +46,9 @@ public class TalkFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        vorList = navaids.getList();
+        navaids = NavAids.get(getActivity().getApplicationContext());
 
         getActivity().setTitle(markerLab.getTripName());
 

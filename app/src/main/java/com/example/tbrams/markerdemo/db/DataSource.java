@@ -490,8 +490,9 @@ public class DataSource {
 
             navAid.setName(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_NAME)));
             navAid.setIdent(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_IDENT)));
+            navAid.setType(cursor.getInt(cursor.getColumnIndex(NavAidTable.COLUMN_TYPE)));
             double lat = cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_LAT));
-            double lon = cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_LON));
             navAid.setPosition(new LatLng(lat, lon));
             navAid.setFreq(cursor.getString(cursor.getColumnIndex(NavAidTable.COLUMN_FREQ)));
             navAid.setMax_alt(cursor.getInt(cursor.getColumnIndex(NavAidTable.COLUMN_MAX_ALT)));
@@ -499,6 +500,8 @@ public class DataSource {
             navAid.setElevation(cursor.getDouble(cursor.getColumnIndex(NavAidTable.COLUMN_ELEV)));
 
             navAids.add(navAid);
+            Log.d(TAG, "getAllNavAids: navAid.name: "+navAid.getName());
+            Log.d(TAG, "getAllNavAids: navAid.getPos: "+navAid.getPosition());
         }
         cursor.close();
 

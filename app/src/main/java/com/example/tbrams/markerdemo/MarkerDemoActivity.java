@@ -75,8 +75,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     private final List<MarkerObject> markerList = markerLab.getMarkers();
 
-    private final NavAids navaids = NavAids.get(this);
-    private final List<NavAid> navAidList = navaids.getList();
+    private NavAids navaids;
+    private  List<NavAid> navAidList;
 
     private final List<NavAid> vorList = new ArrayList<>();
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
@@ -99,6 +99,11 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        navaids = NavAids.get(getApplicationContext());
+        navAidList = navaids.getList();
+        Log.d(TAG, "onCreate: navAidList.size(): "+navAidList.size());
+
         setContentView(R.layout.activity_marker_demo);
 
         // make sure we have default values by running this first time a user launches the app

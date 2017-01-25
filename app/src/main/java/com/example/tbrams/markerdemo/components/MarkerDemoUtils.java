@@ -141,6 +141,8 @@ public class MarkerDemoUtils extends AppCompatActivity {
         }
     }
 
+
+
     /*
      * Find the three nearest VORs for the marker in question and return a list
      * with the sorted results
@@ -431,6 +433,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
      *
      */
     public void plotNavAids(List<Marker> navAidMarkers, List<NavAid> navAidList, GoogleMap gMap) {
+
+        Log.d(TAG, "plotNavAids: navAidList.size(): "+navAidList.size());
+        Log.d(TAG, "plotNavAids: navAidMarkers.size(): "+navAidMarkers.size());
 
         String snippetText="invalid";
         int iconInt=R.drawable.ic_device_gps_blue;

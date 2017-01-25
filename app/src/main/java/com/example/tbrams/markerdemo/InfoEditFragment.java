@@ -45,8 +45,8 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
+    NavAids navaids;
+    List<NavAid> vorList;
 
 
     public static InfoEditFragment newInstance(int markerIndex) {
@@ -64,6 +64,10 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        navaids = NavAids.get(getActivity().getApplicationContext());
+        vorList = navaids.getList();
+
 
         // Now inflate the detailed layout for each WP - at this stage, it is a ScrollView with a number of specially formatted
         // CardViews - one updating/deleting, one for Next WP, one for VOR

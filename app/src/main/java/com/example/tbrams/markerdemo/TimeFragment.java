@@ -58,9 +58,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private MarkerObject toWP;
     private static int mCommand;
     private List<String> mCommandList = new ArrayList();
-    NavAids navaids = NavAids.get(getActivity());
-    List<NavAid> vorList = navaids.getList();
 
+    NavAids navaids;
+    List<NavAid> vorList;
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
@@ -68,6 +68,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        navaids = NavAids.get(getActivity().getApplicationContext());
+        vorList = navaids.getList();
 
         getActivity().setTitle(markerLab.getTripName());
 

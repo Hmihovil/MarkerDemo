@@ -7,7 +7,7 @@ public class NavAidTable {
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_IDENT   = "ident";
-    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_TYPE = "ntype";
     public static final String COLUMN_LAT = "lat";
     public static final String COLUMN_LON = "lon";
     public static final String COLUMN_FREQ = "freq";

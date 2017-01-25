@@ -68,14 +68,16 @@ public class FrontActivity extends AppCompatActivity {
 
     // DB Related
     DbAdmin mDbAdmin;
-    private final NavAids mNavAids = NavAids.get(this);
-    private List<NavAid> navAidList = mNavAids.getList();
-
+    private NavAids mNavAids;
+    private List<NavAid> navAidList;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mNavAids = NavAids.get(getApplicationContext());
+        navAidList = mNavAids.getList();
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
