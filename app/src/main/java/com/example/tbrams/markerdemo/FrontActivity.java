@@ -133,8 +133,7 @@ public class FrontActivity extends AppCompatActivity {
                 // update the main content by replacing fragments
                 Fragment fragment = getHomeFragment();
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
                 fragmentTransaction.commitAllowingStateLoss();
             }
@@ -178,9 +177,12 @@ public class FrontActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(activityTitles[navItemIndex]);
     }
 
+
+
     private void selectNavMenu() {
         navigationView.getMenu().getItem(navItemIndex).setChecked(true);
     }
+
 
 
     /***
@@ -260,6 +262,7 @@ public class FrontActivity extends AppCompatActivity {
 
                     case R.id.db_navaids:
                         Log.d(TAG, "onNavigationItemSelected: Update Navaids");
+
                         // Launch GoogleSheetsActivity
                         Intent sheetsIntent = new Intent(FrontActivity.this, GoogleSheetActivity.class);
                         startActivity(sheetsIntent);
@@ -290,13 +293,13 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                // Code here will be triggered once the drawer closes. We don't want anything to happen so we leave this blank
                 super.onDrawerClosed(drawerView);
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
+                // Code here will be triggered once the drawer open. We don't want anything to happen so we leave this blank
                 super.onDrawerOpened(drawerView);
             }
         };
@@ -307,6 +310,8 @@ public class FrontActivity extends AppCompatActivity {
         //calling sync state is necessary or else your hamburger icon wont show up
         actionBarDrawerToggle.syncState();
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -374,6 +379,8 @@ public class FrontActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+
+        // Make sure we have a network connection
         ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -386,7 +393,8 @@ public class FrontActivity extends AppCompatActivity {
                     .setMessage("This application needs a network connection")
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // continue with finish()
+
+                            // Terminate the activity
                             finish();
                         }
                     })
