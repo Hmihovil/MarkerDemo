@@ -19,17 +19,17 @@
 
 
     <style name="MyTitleTextStyle">
-        <item name="android:textColor">#FFEB3B</item>
+        <item name="android:textColor">#FFFFFF</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
     </style>
 
     <style name="MyAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <!-- Used for the buttons -->
-        <item name="colorAccent">#FFC107</item>
+        <item name="colorAccent">#DDDDDD</item>
         <!-- Used for the title and text -->
         <item name="android:textColorPrimary">#FFFFFF</item>
         <!-- Used for the background -->
-        <item name="android:background">#4CAF50</item>
+        <item name="android:background">#2196F3</item>
         <!-- used for window title -->
         <item name="android:windowTitleStyle">@style/MyTitleTextStyle</item>
     </style>
