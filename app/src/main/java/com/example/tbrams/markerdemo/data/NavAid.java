@@ -45,13 +45,13 @@ public class NavAid {
     public int getSeq_id() { return seq_id; }
     public void setSeq_id(int seq_id) { this.seq_id = seq_id; }
 
-    public NavAid(String name, String id, int kind, String latlong, String freq, String limitString, Double elevation) {
+    public NavAid(String name, String ident, int kind, String latlong, String freq, String limitString, Double elevation) {
         position = parseCoordinates(latlong);
 
         this.id = UUID.randomUUID().toString();
 
         this.name = name;
-        this.ident=id;
+        this.ident=ident;
         this.naType = kind;
         this.freq = freq;
 

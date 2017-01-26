@@ -16,6 +16,7 @@ import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.components.Morse;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
@@ -444,6 +445,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
 
     public void showVORdetail(int i) {
+
+        final Morse morse = new Morse(getActivity());
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.MyAlertDialogStyle);
         builder.setTitle("VOR Detail");
 
@@ -466,6 +470,14 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         String limitString = String.format(Locale.ENGLISH, "%d NM/%d ft", VOR.getMax_range(), VOR.getMax_alt());
         limitation.setText(limitString);
+
+        morseSignal.setText(morse.getMorseCode(VOR.getIdent()));
+        morseSignal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                morse.vibrate();
+            }
+        });
 
         builder.setPositiveButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
