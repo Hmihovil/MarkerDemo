@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.google.android.gms.common.ConnectionResult;
@@ -356,7 +357,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
-                return getDataFromApi();
+                return getAllData();
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -389,6 +390,15 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         }
 
 
+        private List<String> getAllData() throws IOException {
+            List<String> result=new ArrayList<>();
+
+  //          result.add(getDataFromApi());
+            result.add(getPrivateAerodromes());
+
+            return result;
+        }
+
         /**
          * Fetch a list of Navaid names and locations from a sample spreadsheet:
          * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -396,7 +406,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
          * @return List of names and majors
          * @throws IOException
          */
-        private List<String> getDataFromApi() throws IOException {
+        private String getDataFromApi() throws IOException {
             String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
             String range = "NavAids!A2:H";
             List<String> results = new ArrayList<String>();
@@ -421,7 +431,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             int nType=0;
 
             if (values != null) {
-                results.add("Name\tLocation\tRange");
 
                 for (List row : values) {
                     String sType = row.get(2).toString();
@@ -480,17 +489,14 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     Log.d(TAG, "getDataFromApi: New Navaid name: "+na.getName()+" @"+na.getPosition());
                     navAidsList.add(na);
 
-                        results.add(row.get(0) + "\t" + row.get(3) + "\t" + row.get(5));
                 }
 
                 // update database
                 DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
                 dbAdmin.updateNavAidsFromMaster(navAidsList);
 
-                results.clear();
-                results.add("All done...");
             }
-            return results;
+            return "NavAids updated";
         }
 
 
@@ -501,7 +507,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
          * @return List of names and majors
          * @throws IOException
          */
-        private List<String> getPrivateADsFromApi() throws IOException {
+        private String getPrivateAerodromes() throws IOException {
             String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
             String range = "PrivateAerodromes!A2:I";
             List<String> results = new ArrayList<String>();
@@ -510,7 +516,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     .execute();
 
 
-            List<NavAid> navAidsList = new ArrayList<>();
+            List<Aerodrome> adList = new ArrayList<>();
             List<List<Object>> values = response.getValues();
 
             // Now we have an array packed with Strings from the spreadsheet
@@ -527,12 +533,12 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             int PPR=0;
 
             if (values != null) {
-                results.add("Name\tLocation\tRange");
-
                 for (List row : values) {
-                    String sPPR = row.get(7).toString().toUpperCase();
-                    if (sPPR.equals("YES")) {
-                        PPR = NavAid.VOR;
+                    if (row.size()>6) {
+                        String sPPR = row.get(7).toString().toUpperCase();
+                        if (sPPR.equals("YES")) {
+                            PPR = NavAid.VOR;
+                        }
                     }
 
                     String name=row.get(0).toString();
@@ -561,21 +567,19 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
 
                     // TODO: Need a constructor taking Remarks as well
+                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PRIVATE);
       //              NavAid na = new NavAid(station, ident, nType, location, freq, usage, elev);
-      //              Log.d(TAG, "getDataFromApi: New Navaid name: "+na.getName()+" @"+na.getPosition());
-      //              navAidsList.add(na);
+                    Log.d(TAG, "getData: New Private Aeridrome: "+ad.getName()+" @"+ad.getPosition());
+                    adList.add(ad);
 
-                    results.add(row.get(0) + "\t" + row.get(3) + "\t" + row.get(5));
                 }
 
                 // update database
       //          DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
       //          dbAdmin.updateNavAidsFromMaster(navAidsList);
 
-                results.clear();
-                results.add("All done...");
             }
-            return results;
+            return "Private Aerodromes imported";
         }
 
 

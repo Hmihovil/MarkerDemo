@@ -73,7 +73,7 @@ public class ExtraMarkers {
         sampleAdList.add(new Aerodrome("EKSB", "Sønderborg", "54 57 51.72N 009 47 30.23E", Aerodrome.PUBLIC));
         sampleAdList.add(new Aerodrome("EKVJ", "Stauning", "55 59 24.44N 008 21 14.06E", Aerodrome.PUBLIC));
         sampleAdList.add(new Aerodrome("EKST", "Sydfyn Tåsinge", "55 00 59.40N 010 33 47.02E", Aerodrome.PUBLIC));
-        sampleAdList.add(new Aerodrome("EKTS", "Thisted", "57 04 07.68N 008 42 18.81EE", Aerodrome.PUBLIC));
+        sampleAdList.add(new Aerodrome("EKTS", "Thisted", "57 04 07.68N 008 42 18.81E", Aerodrome.PUBLIC));
         sampleAdList.add(new Aerodrome("EKTD", "Tønder", "54 55 46.65N 008 50 25.14E", Aerodrome.PUBLIC));
         sampleAdList.add(new Aerodrome("EKVH", "Vesthimmerland", "56 50 49.28N 009 27 30.74E", Aerodrome.PUBLIC));
         sampleAdList.add(new Aerodrome("EKVB", "Viborg", "56 24 35.82N 009 24 33.82E", Aerodrome.PUBLIC));
