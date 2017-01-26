@@ -319,12 +319,15 @@ public class FrontActivity extends AppCompatActivity {
 
                     case R.id.db_reset:
                         Log.d(TAG, "onNavigationItemSelected: Database Reset...");
+
                         // Clean DB and load test data
                         mDbAdmin.populateDatabase();
+                        Toast.makeText(FrontActivity.this, "Database reset and populated with sample data", Toast.LENGTH_SHORT).show();
+
                         break;
 
                     case R.id.db_navaids:
-                        Log.d(TAG, "onNavigationItemSelected: Update Navaids");
+                        Log.d(TAG, "onNavigationItemSelected: Update from server");
 
                         // Launch GoogleSheetsActivity
                         Intent sheetsIntent = new Intent(FrontActivity.this, GoogleSheetActivity.class);

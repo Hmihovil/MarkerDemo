@@ -69,6 +69,13 @@ public class DbAdmin extends DataSource {
 
         // Then update the NavAid table
         updateNavAidsFromMaster(navAidsSampleList);
+
+        // Fetch the Aerodrome samples we will use for resetting
+        List<Aerodrome> adSampleList = sExtraMarkers.getSampleAerodromeList();
+
+        // Then update the Aerodromes table
+        updateAerodromesFromMaster(adSampleList, true);
+
     }
 
 
