@@ -161,7 +161,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
 
 
         // Location Card
-        TextView tvLat = (TextView) cardLocation.findViewById(R.id.lat_txt);
+        TextView tvLat = (TextView) cardLocation.findViewById(R.id.freq_txt);
         TextView tvLon = (TextView) cardLocation.findViewById(R.id.lon_txt);
         TextView tvVar = (TextView) cardLocation.findViewById(R.id.mag_txt);
 

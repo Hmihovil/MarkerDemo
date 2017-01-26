@@ -1,9 +1,11 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,6 +64,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private MarkerObject fromWP;
     private MarkerObject toWP;
     private static int mCommand;
+    private ArrayList<Pejling> mPejlinger;
+
     private List<String> mCommandList = new ArrayList();
 
     ExtraMarkers sExtraMarkers = ExtraMarkers.get(getActivity());
@@ -99,14 +103,17 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         CardView vorCard = (CardView) v.findViewById(R.id.card_vor);
         VORtext1 = (TextView) vorCard.findViewById(R.id.vor1_txt);
+        VORtext1.setOnClickListener(this);
         VORrad1 = (TextView) vorCard.findViewById(R.id.vor1rad_txt);
         VORdist1 = (TextView) vorCard.findViewById(R.id.vor1dist_txt);
 
         VORtext2 = (TextView) vorCard.findViewById(R.id.vor2_txt);
+        VORtext2.setOnClickListener(this);
         VORrad2 = (TextView) vorCard.findViewById(R.id.vor2rad_txt);
         VORdist2 = (TextView) vorCard.findViewById(R.id.vor2dist_txt);
 
         VORtext3 = (TextView) vorCard.findViewById(R.id.vor3_txt);
+        VORtext3.setOnClickListener(this);
         VORrad3 = (TextView) vorCard.findViewById(R.id.vor3rad_txt);
         VORdist3 = (TextView) vorCard.findViewById(R.id.vor3dist_txt);
 
@@ -147,7 +154,7 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         fromWP = markerList.get(segmentIndex);
         toWP   = markerList.get(segmentIndex+1);
 
-        ArrayList<Pejling> pejlinger = toWP.getPejlinger();
+        mPejlinger = toWP.getPejlinger();
 
         // Next Location Card
         nextLabel.setText(String.format(Locale.ENGLISH, "Next WP: %s", toWP.getText()));
@@ -173,17 +180,17 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         commandTxt.setText(mCommandList.get(C_TAKEOFF));
 
         // VOR Card
-        VORtext1.setText(mNavAidList.get((pejlinger.get(0).getMarkerIndex())).getName());
-        VORtext2.setText(mNavAidList.get((pejlinger.get(1).getMarkerIndex())).getName());
-        VORtext3.setText(mNavAidList.get((pejlinger.get(2).getMarkerIndex())).getName());
+        VORtext1.setText(mNavAidList.get((mPejlinger.get(0).getMarkerIndex())).getName());
+        VORtext2.setText(mNavAidList.get((mPejlinger.get(1).getMarkerIndex())).getName());
+        VORtext3.setText(mNavAidList.get((mPejlinger.get(2).getMarkerIndex())).getName());
 
-        VORrad1.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
-        VORrad2.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));
-        VORrad3.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(2).getHeading() + 360) % 360));
+        VORrad1.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(0).getHeading() + 360) % 360));
+        VORrad2.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(1).getHeading() + 360) % 360));
+        VORrad3.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(2).getHeading() + 360) % 360));
 
-        VORdist1.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(0).getDistance() / 1852.));
-        VORdist2.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(1).getDistance() / 1852.));
-        VORdist3.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(2).getDistance() / 1852.));
+        VORdist1.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(0).getDistance() / 1852.));
+        VORdist2.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(1).getDistance() / 1852.));
+        VORdist3.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(2).getDistance() / 1852.));
 
     }
 
@@ -200,6 +207,20 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+
+        if (view.getId()==R.id.vor1_txt) {
+            Log.d(TAG, "VOR1 is " + mNavAidList.get((mPejlinger.get(0).getMarkerIndex())).getName());
+            showVORdetail(0);
+        } else
+        if (view.getId()==R.id.vor2_txt) {
+            Log.d(TAG, "VOR1 is " + mNavAidList.get((mPejlinger.get(1).getMarkerIndex())).getName());
+            showVORdetail(1);
+        } else
+        if (view.getId()==R.id.vor3_txt) {
+            Log.d(TAG, "VOR1 is " + mNavAidList.get((mPejlinger.get(2).getMarkerIndex())).getName());
+            showVORdetail(2);
+        } else
+
         if (view.getId()==R.id.command_btn) {
 
             String zuluTime;
@@ -419,6 +440,42 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         String[] zArr=zString.split(":");
         return Double.parseDouble(zArr[0])*60+Double.parseDouble(zArr[1])+Double.parseDouble(zArr[2])/60;
 
+    }
+
+
+    public void showVORdetail(int i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.MyAlertDialogStyle);
+        builder.setTitle("VOR Detail");
+
+        // The android.R.id.content is a good way to identify the root view
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.card_vor_spec, (ViewGroup) getView().findViewById(android.R.id.content), false);
+        builder.setView(dialogView);
+
+        TextView header=(TextView) dialogView.findViewById(R.id.heading_label);
+        TextView frequency=(TextView) dialogView.findViewById(R.id.freq_txt);
+        TextView elevation=(TextView) dialogView.findViewById(R.id.elev_txt);
+        TextView limitation=(TextView) dialogView.findViewById(R.id.limit_txt);
+        TextView morseSignal=(TextView) dialogView.findViewById(R.id.morse_txt);
+
+        // Find the VOR that was clicked, so we can get to the details
+        NavAid VOR = mNavAidList.get((mPejlinger.get(i).getMarkerIndex()));
+
+        header.setText(VOR.getName());
+        frequency.setText(VOR.getFreq());
+        elevation.setText(String.format(Locale.ENGLISH, "%.1f ft", VOR.getElevation()));
+
+        String limitString = String.format(Locale.ENGLISH, "%d NM/%d ft", VOR.getMax_range(), VOR.getMax_alt());
+        limitation.setText(limitString);
+
+        builder.setPositiveButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // not so much to do here....
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
 

@@ -40,7 +40,7 @@
             card_view:layout_constraintLeft_toLeftOf="@+id/heading_label"/>
 
         <TextView
-            android:id="@+id/lat_txt"
+            android:id="@+id/freq_txt"
             android:hint="55.0123 N"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,14 +50,14 @@
             android:layout_marginLeft="8dp"/>
 
         <TextView
-            android:id="@+id/lon_lbl"
+            android:id="@+id/morse_txt"
             android:text="Lon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            card_view:layout_constraintLeft_toRightOf="@+id/lat_txt"
+            card_view:layout_constraintLeft_toRightOf="@+id/freq_txt"
             android:layout_marginLeft="16dp"
-            card_view:layout_constraintTop_toTopOf="@+id/lat_txt"/>
+            card_view:layout_constraintTop_toTopOf="@+id/freq_txt"/>
 
         <TextView
             android:id="@+id/lon_txt"
@@ -65,12 +65,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            card_view:layout_constraintLeft_toRightOf="@+id/lon_lbl"
+            card_view:layout_constraintLeft_toRightOf="@+id/morse_txt"
             android:layout_marginLeft="8dp"
-            card_view:layout_constraintTop_toTopOf="@+id/lon_lbl"/>
+            card_view:layout_constraintTop_toTopOf="@+id/morse_txt"/>
 
         <TextView
-            android:id="@+id/magn_label"
+            android:id="@+id/elev_lbl"
             android:text="Magnetic Declination"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,8 +83,8 @@
             android:hint="-3.34˚"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            card_view:layout_constraintTop_toTopOf="@+id/magn_label"
-            card_view:layout_constraintLeft_toRightOf="@+id/magn_label"
+            card_view:layout_constraintTop_toTopOf="@+id/elev_lbl"
+            card_view:layout_constraintLeft_toRightOf="@+id/elev_lbl"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"/>
 

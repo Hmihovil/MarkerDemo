@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_vor_spec"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    card_view:cardCornerRadius="2dp"
+    card_view:contentPadding="10dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
+
+
+
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/heading_label"
+            android:hint="KORSA VOR"
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            card_view:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
+
+        <TextView
+            android:id="@+id/freq_txt"
+            android:hint="123.45 MHz"
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            card_view:layout_constraintTop_toTopOf="@+id/heading_label"
+            card_view:layout_constraintRight_toRightOf="@+id/morse_txt"
+            />
+
+        <TextView
+            android:id="@+id/morse_txt"
+            android:text="\u2022\u2014\n\u2014\u2022\u2022\u2022\n\u2014\u2022\u2014\u2022"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="#ff0099cc"
+            android:layout_width="wrap_content"
+            android:lineSpacingMultiplier=".5"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toRightOf="@+id/limit_txt"
+            card_view:layout_constraintTop_toBottomOf="@+id/freq_txt"/>
+
+        <TextView
+            android:id="@+id/limit_lbl"
+            android:text="Limitation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
+
+        <TextView
+            android:id="@+id/limit_txt"
+            android:hint="80NM/2200ft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            card_view:layout_constraintLeft_toRightOf="@+id/limit_lbl"
+            card_view:layout_constraintTop_toTopOf="@+id/limit_lbl"/>
+
+        <TextView
+            android:id="@+id/elev_lbl"
+            android:text="Elevation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintBottom_toTopOf="@+id/limit_lbl"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/elev_txt"
+            android:hint="123 ft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            card_view:layout_constraintLeft_toRightOf="@+id/elev_lbl"
+            card_view:layout_constraintTop_toTopOf="@+id/elev_lbl"/>
+
+
+
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>
