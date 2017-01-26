@@ -69,7 +69,7 @@ public class DataSource {
 
 
 
-    public void resetAdTable() {
+    public void resetAerodromeTable() {
         mDb.execSQL(AdTable.SQL_DELETE);
         mDb.execSQL(AdTable.SQL_CREATE);
     }
@@ -494,9 +494,9 @@ public class DataSource {
      * a list with all of these as the result.
      *
      * @Args: type,     a filter - if this is null all rows are returned from db, otherwise only
-     *                  NavAids of a certain type is returned.
+     *                  Navigational Aids of a certain type is returned.
      *
-     * @Return: A list of trip NavAids
+     * @Return: A list of trip Navigational Aids
      *
      */
     public List<NavAid> getAllNavAids(Integer type){

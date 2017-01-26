@@ -13,10 +13,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.data.Pejling;
 
 import java.util.ArrayList;
@@ -59,8 +59,8 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private static int mCommand;
     private List<String> mCommandList = new ArrayList();
 
-    NavAids navaids;
-    List<NavAid> vorList;
+    ExtraMarkers sExtraMarkers = ExtraMarkers.get(getActivity());
+    List<NavAid> mNavAidList= sExtraMarkers.getNavAidList();
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
     List<MarkerObject> markerList = markerLab.getMarkers();
@@ -68,9 +68,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        navaids = NavAids.get(getActivity().getApplicationContext());
-        vorList = navaids.getList();
 
         getActivity().setTitle(markerLab.getTripName());
 
@@ -176,9 +173,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         commandTxt.setText(mCommandList.get(C_TAKEOFF));
 
         // VOR Card
-        VORtext1.setText(vorList.get((pejlinger.get(0).getMarkerIndex())).getName());
-        VORtext2.setText(vorList.get((pejlinger.get(1).getMarkerIndex())).getName());
-        VORtext3.setText(vorList.get((pejlinger.get(2).getMarkerIndex())).getName());
+        VORtext1.setText(mNavAidList.get((pejlinger.get(0).getMarkerIndex())).getName());
+        VORtext2.setText(mNavAidList.get((pejlinger.get(1).getMarkerIndex())).getName());
+        VORtext3.setText(mNavAidList.get((pejlinger.get(2).getMarkerIndex())).getName());
 
         VORrad1.setText(String.format("%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
         VORrad2.setText(String.format("%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));

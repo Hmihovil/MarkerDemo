@@ -419,7 +419,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-    // NavAids Related
+    // Nav Aids Related
 
     /*
      * Plot NavAid icons on the map with customized markers
@@ -442,7 +442,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
         String snippetText="invalid";
         int iconInt=R.drawable.ic_device_gps_blue;
         if (navAidMarkers.size() == 0) {
-            // Create all NavAids markers and keep record in an ArrayList
+            // Create all Nav Aids markers and keep record in an ArrayList
             for (int i = 0; i < navAidList.size(); i++) {
                 switch (navAidList.get(i).getType()){
                     case NavAid.VOR:

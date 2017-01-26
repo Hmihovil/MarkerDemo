@@ -27,9 +27,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.tbrams.markerdemo.data.Aerodrome;
-import com.example.tbrams.markerdemo.data.Aerodromes;
+import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 
 import java.util.List;
@@ -70,11 +69,10 @@ public class FrontActivity extends AppCompatActivity {
 
     // DB Related
     DbAdmin mDbAdmin;
-    private NavAids mNavAids;
-    private Aerodromes mAerodromes;
 
-    private List<NavAid> navAidList;
-    private List<Aerodrome> mAdList;
+    private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
+    private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
+    private List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
 
 
     @Override
@@ -82,27 +80,21 @@ public class FrontActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        // Get a reference to the Navaid and Aerodrome details
-        mNavAids = NavAids.get(getApplicationContext());
-        navAidList = mNavAids.getList();
-        mAerodromes = Aerodromes.get(getApplicationContext());
-        mAdList = mAerodromes.getList();
-
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Log.d(TAG, "onCreate: Before prepare DB content, navAidList.size(): "+navAidList.size());
-        Log.d(TAG, "onCreate: Before prepare DB content, AdList.size(): "+mAdList.size());
+        Log.d(TAG, "onCreate: Before prepare DB content, mNavAidList.size(): "+ mNavAidList.size());
+        Log.d(TAG, "onCreate: Before prepare DB content, AdList.size(): "+ mAerodromeList.size());
 
         // Get all the details in sync with the DB
         prepareDbContent();
 
-        navAidList = mNavAids.getList();
-        mAdList = mAerodromes.getList();
+        mNavAidList = sExtraMarkers.getNavAidList();
+        mAerodromeList = sExtraMarkers.getAerodromeList();
 
-        Log.d(TAG, "onCreate: After prepare DB content, navAidList.size(): "+navAidList.size());
-        Log.d(TAG, "onCreate: After prepare DB content, AdList.size(): "+mAdList.size());
+        Log.d(TAG, "onCreate: After prepare DB content, mNavAidList.size(): "+ mNavAidList.size());
+        Log.d(TAG, "onCreate: After prepare DB content, AdList.size(): "+ mAerodromeList.size());
 
 
         myHandler = new Handler();
@@ -143,16 +135,16 @@ public class FrontActivity extends AppCompatActivity {
         // Just in case it is a new installation, make sure we have the empty tables at least
         mDbAdmin.makeSureWeHaveTables();
 
-        // check if we can load NavAids list from database or we need to load from samples
+        // check if we can load Nav Aids list from database or we need to load from samples
         List<NavAid> navList = mDbAdmin.getAllNavAids(null);
         Log.d(TAG, "onCreate: from DB - navList.size(): "+navList.size());
         if (navList==null||navList.size()==0) {
             // use the build in samples as backup
-            mNavAids.setNavList(mNavAids.getSampleList());
+            sExtraMarkers.setNavAidList(sExtraMarkers.getSampleNavAidList());
             Log.d(TAG, "onCreate: Could not get navaid data from db, using samples");
         } else {
             // load this list from the database
-            mNavAids.setNavList(navList);
+            sExtraMarkers.setNavAidList(navList);
             Log.d(TAG, "onCreate: Using navaids from database");
         }
 
@@ -162,11 +154,11 @@ public class FrontActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: from DB - adList.size(): "+adList.size());
         if (adList==null||adList.size()==0) {
             // use the build in samples as backup
-            mAerodromes.setList(mAerodromes.getSampleList());
+            sExtraMarkers.setAerodromeList(sExtraMarkers.getSampleAerodromeList());
             Log.d(TAG, "onCreate: Could not get AD data from db, using samples");
         } else {
             // load this list from the database
-            mAerodromes.setList(adList);
+            sExtraMarkers.setAerodromeList(adList);
             Log.d(TAG, "onCreate: Using ADs from database");
         }
     }

@@ -26,11 +26,10 @@ import android.widget.Toast;
 
 import com.example.tbrams.markerdemo.components.MarkerDemoUtils;
 import com.example.tbrams.markerdemo.data.Aerodrome;
-import com.example.tbrams.markerdemo.data.Aerodromes;
+import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
@@ -75,16 +74,17 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     private final List<MarkerObject> markerList = markerLab.getMarkers();
 
-    private NavAids navaids;
-    private  List<NavAid> navAidList;
+    private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
+    private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
+    private final List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
 
-    private final List<NavAid> vorList = new ArrayList<>();
+    // Special list of VOR only nav. aids
+    private final List<NavAid> mVorList = new ArrayList<>();
+
+    // This is used for map marker storage
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
-
-
-    private final Aerodromes aerodromes = Aerodromes.get(this);
-    private final List<Aerodrome> ADList = aerodromes.getList();
     private final List<Marker> mADMarkers = new ArrayList<>();
+
 
     private static int currentMarkerIndex=-1;
 
@@ -100,25 +100,17 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        navaids = NavAids.get(getApplicationContext());
-        navAidList = navaids.getList();
-        Log.d(TAG, "onCreate: navAidList.size(): "+navAidList.size());
+        Log.d(TAG, "onCreate: mNavAidList.size(): "+ mNavAidList.size());
+        Log.d(TAG, "onCreate: mAerodromeList.size(): "+ mAerodromeList.size());
 
         setContentView(R.layout.activity_marker_demo);
 
         // make sure we have default values by running this first time a user launches the app
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-        // Prepare a list with VOR's for navigation101
-        for (int i = 0; i < navAidList.size(); i++) {
-            NavAid na=navAidList.get(i);
-            if (na.getType()==NavAid.VOR || na.getType()==NavAid.VORDME) {
-                na.setSeq_id(i);  // We need an easy way to find this navaid again
-                vorList.add(na);
-            }
-        }
+        prepareListOfVORs();
 
-        Log.d(TAG, "onCreate: vorList.size(): "+vorList.size());
+
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
         mWpId   = getIntent().getStringExtra(WP_KEY);
@@ -197,7 +189,19 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     }
 
+    private void prepareListOfVORs() {
+        // Prepare a list with VOR's for navigation101
+        for (int i = 0; i < mNavAidList.size(); i++) {
+            NavAid na= mNavAidList.get(i);
+            if (na.getType()==NavAid.VOR || na.getType()==NavAid.VORDME) {
+                // We need an easy way to find this navaid again, keep original index
+                na.setSeq_id(i);
+                mVorList.add(na);
+            }
+        }
 
+        Log.d(TAG, "onCreate: mVorList.size(): "+ mVorList.size());
+    }
 
 
     /*
@@ -235,8 +239,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             // Enable my location button though
             //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-            plotNavAids(mNavAidMarkers, navAidList, mMap);
-            plotAerodromes(mADMarkers, ADList, mMap);
+            plotNavAids(mNavAidMarkers, mNavAidList, mMap);
+            plotAerodromes(mADMarkers, mAerodromeList, mMap);
 
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -262,9 +266,9 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                         }
 
                     }
-                    // Update both Aerodromes and Navaid icons was well
-                    plotNavAids(mNavAidMarkers, navAidList, mMap);
-                    plotAerodromes(mADMarkers, ADList, mMap);
+                    // Update both Aerodrome and Navigational aid icons was well
+                    plotNavAids(mNavAidMarkers, mNavAidList, mMap);
+                    plotAerodromes(mADMarkers, mAerodromeList, mMap);
 
                 }
             });
@@ -566,7 +570,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         // check if special command :navaids
         if (String.valueOf(tv.getText()).matches(":navaids")) {
             String miniHelp="Valid names:\n";
-            for (NavAid n : navAidList) {
+            for (NavAid n : mNavAidList) {
                 miniHelp += n.getName() + "\n";
             }
             tv.setError(miniHelp);
@@ -577,7 +581,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         // check if special command aerodromes
         if (String.valueOf(tv.getText()).matches(":ad")) {
             String miniHelp="Installed Aerodromes:\n";
-            for (Aerodrome n : ADList) {
+            for (Aerodrome n : mAerodromeList) {
                 miniHelp += n.getIcaoName() + "\n";
             }
             tv.setError(miniHelp);
@@ -590,7 +594,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         tv.setText("");
 
         // Check existing NavAid names - they are not in Google Places
-        for (NavAid n : navAidList) {
+        for (NavAid n : mNavAidList) {
             if (n.getName().equals(getSearchedFor())) {
                 placeAndZoomOnMarker(n.getPosition(), getZoomLevel());
                 return;
@@ -598,7 +602,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
         // Check existing AD names - they are (probably) not in Google Places
-        for (Aerodrome n : ADList) {
+        for (Aerodrome n : mAerodromeList) {
             if (n.getIcaoName().equals(getSearchedFor())) {
                 placeAndZoomOnMarker(n.getPosition(), getZoomLevel());
                 return;
@@ -652,7 +656,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
-        pejlinger = nearestVORs(marker, vorList);
+        pejlinger = nearestVORs(marker, mVorList);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
         markerList.add(mo);
@@ -673,7 +677,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         Marker marker =createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
-        pejlinger=nearestVORs(marker, vorList);
+        pejlinger=nearestVORs(marker, mVorList);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
 
@@ -757,12 +761,16 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             String name = wp.getWpName();
             LatLng location = new LatLng(wp.getWpLat(), wp.getWpLon());
 
+            /* Debug only
+
             Log.d(TAG, "getWpName: "+name);
             Log.d(TAG, "getWpId: "+wp.getWpId());
             Log.d(TAG, "getWpAltitude: "+wp.getWpAltitude());
             Log.d(TAG, "getWpDistance: "+wp.getWpDistance());
             Log.d(TAG, "getWpLat: "+wp.getWpLat());
             Log.d(TAG, "getWpLon: "+wp.getWpLon());
+            */
+
 
             MarkerOptions options = new MarkerOptions()
                     .draggable(true)
@@ -772,7 +780,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             m.setTitle(name);
 
             ArrayList<Pejling> pejlinger = new ArrayList<>();
-            pejlinger = nearestVORs(m, vorList);
+            pejlinger = nearestVORs(m, mVorList);
 
             MarkerObject mo = new MarkerObject(m, name, null, pejlinger);
 
@@ -780,7 +788,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             mo.setALT(wp.getWpAltitude()); // WP Alt
             mo.setDist(wp.getWpDistance()); // Dist
 
-            // If a specfic way point was selected - keep a reference when found
+            // If a specific way point was selected - keep a reference when found
             if (mWpId!=null) {
                 if (mWpId.equals(wp.getWpId())) {
                     startPoint = location;

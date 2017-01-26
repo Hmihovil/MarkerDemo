@@ -11,8 +11,9 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.data.Aerodrome;
+import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
-import com.example.tbrams.markerdemo.data.NavAids;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
@@ -33,8 +34,7 @@ public class DbAdmin extends DataSource {
     List<String> mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList = SampleDataProvider.sWpListsForTrips;
 
-    private NavAids mNavAids;
-
+    private ExtraMarkers sExtraMarkers;
 
     private boolean mPermissionGranted;
     private Context mContext;
@@ -63,10 +63,9 @@ public class DbAdmin extends DataSource {
 
        super.close();
 
-        // Get hold of NavAids storage and fetch the samples we will use for resetting
-        mNavAids = NavAids.get(mContext);
-
-        List<NavAid> navAidsSampleList = mNavAids.getSampleList();
+        // Get hold of ExtraMarker storage and fetch the NavAid samples we will use for resetting
+        sExtraMarkers = ExtraMarkers.get(mContext);
+        List<NavAid> navAidsSampleList = sExtraMarkers.getSampleNavAidList();
 
         // Then update the NavAid table
         updateNavAidsFromMaster(navAidsSampleList);
@@ -94,10 +93,37 @@ public class DbAdmin extends DataSource {
 
         super.close();
 
-        if (mNavAids==null) {
-            mNavAids=NavAids.get(mContext);
+        if (sExtraMarkers==null) {
+            sExtraMarkers=ExtraMarkers.get(mContext);
         }
-        mNavAids.setNavList(navAidsList);
+        sExtraMarkers.setNavAidList(navAidsList);
+
+    }
+
+
+    /*
+     * Will reset the Aerodromes table and then populate it with aerodromes from the list provided
+     * as argument to the function.
+     *
+     * After updating the database table, the singleton Storage will be reflecting the database
+     * as well.
+     */
+    public void updateAerodromesFromMaster(List<Aerodrome> adList) {
+        // Delete and recreate table
+        super.open();
+        super.resetAerodromeTable();
+
+        // Copy all navigational aids form the sample list to the Database
+        for (Aerodrome ad : adList) {
+            super.createAerodrome(ad);
+        }
+
+        super.close();
+
+        if (sExtraMarkers==null) {
+            sExtraMarkers=ExtraMarkers.get(mContext);
+        }
+        sExtraMarkers.setAerodromeList(adList);
 
     }
 
