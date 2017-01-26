@@ -108,10 +108,14 @@ public class DbAdmin extends DataSource {
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      */
-    public void updateAerodromesFromMaster(List<Aerodrome> adList) {
-        // Delete and recreate table
+    public void updateAerodromesFromMaster(List<Aerodrome> adList, boolean purgeDatabase) {
+
         super.open();
-        super.resetAerodromeTable();
+
+        if (purgeDatabase) {
+            // Delete and recreate table
+            super.resetAerodromeTable();
+        }
 
         // Copy all navigational aids form the sample list to the Database
         for (Aerodrome ad : adList) {

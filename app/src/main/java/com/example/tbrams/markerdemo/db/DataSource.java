@@ -610,7 +610,7 @@ public class DataSource {
 
             ad.setName(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_NAME)));
             ad.setIcaoName(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_ICAO)));
-            ad.setAdType(cursor.getInt(cursor.getColumnIndex(AdTable.COLUMN_TYPE)));
+            ad.setType(cursor.getInt(cursor.getColumnIndex(AdTable.COLUMN_TYPE)));
             double lat = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LAT));
             double lon = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LON));
             ad.setPosition(new LatLng(lat, lon));

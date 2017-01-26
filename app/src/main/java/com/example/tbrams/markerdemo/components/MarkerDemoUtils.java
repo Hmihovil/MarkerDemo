@@ -36,10 +36,10 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 public class MarkerDemoUtils extends AppCompatActivity {
 
     private static final String TAG = "TBR:MarkerDemoUtils";
-    public static final int AERODROME_MAX_ZOOM = 14;
-    public static final int AERODROME_MIN_ZOOM = 7;
-    public static final int NAVAID_MAX_ZOOM = 16;
-    public static final int NAVAID_MIN_ZOOM = 7;
+    public static final int AERODROME_MAX_ZOOM = 14;  // At this point normal map icons show up
+    public static final int AERODROME_MIN_ZOOM = 7;   // At this point the cluttering is too high
+    public static final int NAVAID_MAX_ZOOM = 17;     // At this point we have switched to sat mode
+    public static final int NAVAID_MIN_ZOOM = 7;      // At this point the cluttering is too high
     public static final int ZOOM_CHANGE_MAP_TYPE = 16;
 
     private final static List<Marker> midpointList = new ArrayList<>();
@@ -49,8 +49,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private boolean mHideNavAidIcons = false;
     private boolean mHideADicons = false;
     private boolean mMapTypeChangedByZoom=false;
-
-
 
 
 
@@ -521,12 +519,15 @@ public class MarkerDemoUtils extends AppCompatActivity {
      */
     public void plotAerodromes(List<Marker> adMarkers, List<Aerodrome> adList, GoogleMap gMap ) {
 
+        Log.d(TAG, "plotAerodromes: Entering, adList.size(): "+adList.size());
+
         // Create the markers if not alrady there
-        String iconName = "ic_device_airplanemode_on";
-        int iconInt = R.drawable.ic_device_airplanemode_on;
+        int iconPublicAirfield = R.drawable.ic_public_airfield;
+        int iconPrivateAirfield = R.drawable.ic_private_airfield;
         if (adMarkers.size() == 0) {
             // Create all AD markers and keep record in an ArrayList
             for (int i = 0; i < adList.size(); i++) {
+                int iconInt = (adList.get(i).getType()==Aerodrome.PUBLIC?iconPublicAirfield:iconPrivateAirfield);
                 Marker m = gMap.addMarker(new MarkerOptions()
                         .title(adList.get(i).getIcaoName())
                         .snippet(adList.get(i).getName())

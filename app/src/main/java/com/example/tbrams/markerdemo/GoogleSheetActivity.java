@@ -393,9 +393,9 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         private List<String> getAllData() throws IOException {
             List<String> result=new ArrayList<>();
 
-  //          result.add(getDataFromApi());
+            result.add(getDataFromApi());
+            result.add(getPublicAerodromes());
             result.add(getPrivateAerodromes());
-
             return result;
         }
 
@@ -530,14 +530,16 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 7: PPR [OPT String, "Yes"]
             // Column 8: REMARKS [OPT String]
 
-            int PPR=0;
+            boolean PPR=false;
 
             if (values != null) {
                 for (List row : values) {
                     if (row.size()>6) {
                         String sPPR = row.get(7).toString().toUpperCase();
                         if (sPPR.equals("YES")) {
-                            PPR = NavAid.VOR;
+                            PPR = true;
+                        } else {
+                            PPR=false;
                         }
                     }
 
@@ -567,19 +569,108 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
 
                     // TODO: Need a constructor taking Remarks as well
-                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PRIVATE);
-      //              NavAid na = new NavAid(station, ident, nType, location, freq, usage, elev);
-                    Log.d(TAG, "getData: New Private Aeridrome: "+ad.getName()+" @"+ad.getPosition());
+                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PRIVATE, radio, freq, PPR, null);
+                    Log.d(TAG, "getData: New Private Aerodrome: "+ad.getName()+" @"+ad.getPosition());
                     adList.add(ad);
 
                 }
 
                 // update database
-      //          DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
-      //          dbAdmin.updateNavAidsFromMaster(navAidsList);
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateAerodromesFromMaster(adList, false);
 
             }
             return "Private Aerodromes imported";
+        }
+
+
+
+        /**
+         * Fetch a list of PrivateAerodromes names and locations from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return List of names and majors
+         * @throws IOException
+         */
+        private String getPublicAerodromes() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "PublicAerodromes!A2:J";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<Aerodrome> adList = new ArrayList<>();
+            List<List<Object>> values = response.getValues();
+
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: NAME [STRING]
+            // column 1: ICAO [STRING]
+            // Column 2: Location [String, format "55 13 44.18N 009 12 50.61E"]
+            // column 3: RADIO [OPT String]
+            // Column 4: FREQ [OPT String]
+            // Column 5: PHONE [OPT String]
+            // Column 6: WEB [OPT Double]
+            // Column 7: PPR [OPT String, "Yes"]
+            // Column 8: REMARKS [OPT String]
+            // Column 9: LINK (OPT String)
+
+            boolean PPR=false;
+            String link="";
+
+            if (values != null) {
+                for (List row : values) {
+                    if (row.size()>6) {
+                        String sPPR = row.get(7).toString().toUpperCase();
+                        if (sPPR.equals("YES")) {
+                            PPR = true;
+                        } else {
+                            PPR=false;
+                        }
+                    }
+
+                    String name=row.get(0).toString();
+                    String icao=row.get(1).toString();
+                    String location=row.get(2).toString();
+
+                    String radio=null;
+                    if (!row.get(3).toString().equals("")) {
+                        radio = row.get(4).toString();
+                    }
+
+                    String freq=null;
+                    if (!row.get(4).toString().equals("")) {
+                        freq = row.get(4).toString();
+                    }
+
+                    String phone=null;
+                    if (!row.get(5).toString().equals("")) {
+                        phone = row.get(5).toString();
+                    }
+
+                    String web=null;
+                    if (!row.get(5).toString().equals("")) {
+                        web = row.get(5).toString();
+                    }
+
+                    if (row.size()>8) {
+                        link = row.get(8).toString().toUpperCase();
+                    }
+
+                    // TODO: Need a constructor taking Remarks as well
+                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PUBLIC, radio, freq, PPR, link);
+                    Log.d(TAG, "getData: New Public Aerodrome: "+ad.getName()+" @"+ad.getPosition());
+                    adList.add(ad);
+
+                }
+
+                // update database
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateAerodromesFromMaster(adList, true);
+
+            }
+            return "Public Aerodromes imported";
         }
 
 

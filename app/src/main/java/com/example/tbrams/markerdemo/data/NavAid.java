@@ -212,7 +212,7 @@ public class NavAid {
 
 
     public ContentValues toContentValues() {
-        ContentValues values = new ContentValues(4);
+        ContentValues values = new ContentValues();
 
         values.put(NavAidTable.COLUMN_ID,   id);
         values.put(NavAidTable.COLUMN_NAME, name);

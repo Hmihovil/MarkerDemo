@@ -8,8 +8,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-import static android.R.attr.type;
-
 public class Aerodrome {
 
     public static final int PUBLIC=1;
@@ -35,23 +33,22 @@ public class Aerodrome {
         this.id = UUID.randomUUID().toString();
     }
 
-    public Aerodrome(String name, String fullname, String position, int adType) {
+    public Aerodrome(String name, String fullname, String position, int adType, String radio, String freq, boolean ppr, String link) {
         this.id = UUID.randomUUID().toString();
         this.icaoName = name;
         this.name = fullname;
         this.position = convertVFG(position);
         this.adType=adType;
+        this.radio=radio;
+        this.freq=freq;
+        this.PPR=ppr;
+        this.link=link;
 
 
         // not yet implemented
-        this.id=null;
-        this.radio=null;
-        this.freq=null;
         this.web=null;
         this.phone=null;
-        this.PPR=false;
         this.remarks=null;
-        this.link=null;
     }
 
     public String getName() {
@@ -78,8 +75,8 @@ public class Aerodrome {
         this.icaoName = icaoName;
     }
 
-    public int getAdType() { return adType; }
-    public void setAdType(int adType) { this.adType = adType; }
+    public int getType() { return adType; }
+    public void setType(int adType) { this.adType = adType; }
 
     public String getRadio() { return radio; }
     public void setRadio(String radio) { this.radio = radio; }
@@ -125,12 +122,12 @@ public class Aerodrome {
     }
 
     public ContentValues toContentValues() {
-        ContentValues values = new ContentValues(4);
+        ContentValues values = new ContentValues();
 
         values.put(AdTable.COLUMN_ID,   id);
         values.put(AdTable.COLUMN_NAME, name);
         values.put(AdTable.COLUMN_ICAO, icaoName);
-        values.put(AdTable.COLUMN_TYPE, type);
+        values.put(AdTable.COLUMN_TYPE, adType);
         values.put(AdTable.COLUMN_LAT, position.latitude);
         values.put(AdTable.COLUMN_LON, position.longitude);
         values.put(AdTable.COLUMN_RADIO, radio);
