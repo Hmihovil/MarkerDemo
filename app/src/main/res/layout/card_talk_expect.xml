@@ -62,7 +62,8 @@
             android:layout_height="wrap_content"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toTopOf="@+id/time_txt"
-            android:textAlignment="textEnd"/>
+            android:textAlignment="textEnd"
+            android:layout_marginEnd="8dp"/>
 
 
     </android.support.constraint.ConstraintLayout>

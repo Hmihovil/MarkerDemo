@@ -17,11 +17,11 @@ import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 
 import java.util.List;
+import java.util.Locale;
 
 
 public class DetailInfoFragment extends Fragment {
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
-    private int markerIndex = -1;
 
 
     MarkerLab markerLab = MarkerLab.getMarkerLab(getActivity());
@@ -71,7 +71,7 @@ public class DetailInfoFragment extends Fragment {
 
 
         // Get marker id from argument bundle
-        markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
+        int markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
 
         TextView tvFromWP = (TextView) v.findViewById(R.id.tvFromWP);
         TextView tvToWP = (TextView) v.findViewById(R.id.tvToWP);
@@ -91,29 +91,29 @@ public class DetailInfoFragment extends Fragment {
         TextView tvAccTime = (TextView) v.findViewById(R.id.tvAccTime);
 
 
-        if (markerIndex<markerList.size()) {
+        if (markerIndex <markerList.size()) {
             tvFromWP.setText(markerList.get(markerIndex).getMarker().getTitle());
-            tvToWP.setText(markerList.get(markerIndex+1).getMarker().getTitle());
+            tvToWP.setText(markerList.get(markerIndex +1).getMarker().getTitle());
 
-            MarkerObject mo = markerList.get(markerIndex+1);
-            tvDist.setText(String.format("%.1f nm", mo.getDist()));
-            tvIAS.setText(String.format("%.1f kts", mo.getIAS()));
-            tvGS.setText(String.format("%.1f kts", mo.getGS()));
-            tvTT.setText(String.format("%03d ˚", (int)mo.getTT()));
-            tvTH.setText(String.format("%03d ˚", (int)mo.getTH()));
-            tvWCA.setText(String.format("%d ˚",  (int)mo.getWCA()));
-            tvVAR.setText(String.format("%.1f ˚", mo.getVAR()));
-            tvMH.setText(String.format("%03d ˚", (int)mo.getMH()));
-            tvTAS.setText(String.format("%.1f kts", mo.getTAS()));
-            tvAlt.setText(String.format("%.1f ft", mo.getALT()));
-            tvMinAlt.setText(String.format("%.1f ft", mo.getMIN_ALT()));
-            tvTime.setText(String.format("%02d", (int)mo.getTIME()));
+            MarkerObject mo = markerList.get(markerIndex +1);
+            tvDist.setText(String.format(Locale.ENGLISH, "%.1f nm", mo.getDist()));
+            tvIAS.setText(String.format(Locale.ENGLISH, "%.1f kts", mo.getIAS()));
+            tvGS.setText(String.format(Locale.ENGLISH, "%.1f kts", mo.getGS()));
+            tvTT.setText(String.format(Locale.ENGLISH, "%03d ˚", (int)mo.getTT()));
+            tvTH.setText(String.format(Locale.ENGLISH, "%03d ˚", (int)mo.getTH()));
+            tvWCA.setText(String.format(Locale.ENGLISH, "%d ˚",  (int)mo.getWCA()));
+            tvVAR.setText(String.format(Locale.ENGLISH, "%.1f ˚", mo.getVAR()));
+            tvMH.setText(String.format(Locale.ENGLISH, "%03d ˚", (int)mo.getMH()));
+            tvTAS.setText(String.format(Locale.ENGLISH, "%.1f kts", mo.getTAS()));
+            tvAlt.setText(String.format(Locale.ENGLISH, "%.1f ft", mo.getALT()));
+            tvMinAlt.setText(String.format(Locale.ENGLISH, "%.1f ft", mo.getMIN_ALT()));
+            tvTime.setText(String.format(Locale.ENGLISH, "%02d", (int)mo.getTIME()));
 
-            String wind = String.format("%03d", (int)mo.getWindDir())+"/"+String.format("%02d", (int)mo.getWindStr());
+            String wind = String.format(Locale.ENGLISH, "%03d", (int)mo.getWindDir())+"/"+String.format(Locale.ENGLISH, "%02d", (int)mo.getWindStr());
             tvWv.setText(wind);
 
             double time=0;
-            for (int i=1;i<=markerIndex+1;i++){
+            for (int i = 1; i<= markerIndex +1; i++){
                 time+=markerList.get(i).getTIME();
             }
 
@@ -123,7 +123,7 @@ public class DetailInfoFragment extends Fragment {
 
             int hrs=(int)(time/60);
             int min=(int)(time%60);
-            tvAccTime.setText(String.format("%02d:%02d", hrs, min));
+            tvAccTime.setText(String.format(Locale.ENGLISH, "%02d:%02d", hrs, min));
         }
 
             return v;

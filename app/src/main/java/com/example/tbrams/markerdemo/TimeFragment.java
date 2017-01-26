@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,9 +20,14 @@ import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Pejling;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class TimeFragment extends Fragment implements View.OnClickListener {
@@ -47,7 +53,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     private TextView VORtext1, VORrad1, VORdist1;
     private TextView VORtext2, VORrad2, VORdist2;
     private TextView VORtext3, VORrad3, VORdist3;
-    private Time mTime;
     private Boolean noIncrement=true;
 
     private TextView nextLabel, nextDist, nextHdg;
@@ -71,8 +76,6 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
 
         getActivity().setTitle(markerLab.getTripName());
 
-        mTime=new Time();
-
         v = inflater.inflate(R.layout.time_layout_main, container, false);
 
         CardView nextLocationCard = (CardView) v.findViewById(R.id.card_next_location);
@@ -81,6 +84,9 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         nextHdg = (TextView) nextLocationCard.findViewById(R.id.hdg_txt);
 
         CardView timeCard = (CardView) v.findViewById(R.id.card_time);
+        TextClock clock = (TextClock) timeCard.findViewById(R.id.textClock);
+        clock.setTimeZone(String.valueOf(TimeZone.getTimeZone("GMT")));
+
         timeRetoLbl = (TextView) timeCard.findViewById(R.id.reto_lbl);
         timeRetoTxt = (TextView) timeCard.findViewById(R.id.reto_txt);
         timeDiffTxt = (TextView) timeCard.findViewById(R.id.diff_txt);
@@ -148,24 +154,18 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         nextHdg.setText(String.format(Locale.ENGLISH, "%03d ˚", (int) toWP.getMH()));
         nextDist.setText(String.format(Locale.ENGLISH, "%.1f nm", toWP.getDist()));
 
-//        tvWPnumber.setText( String.format(Locale.ENGLISH, "%d", segmentIndex+1));
-//        tvWPtotal.setText( String.format(Locale.ENGLISH, "%d", markerList.size()-1));
-
 
         // Time Card
         if (segmentIndex==0) {
             // Special for first Segment. We only have ETO for first destination (No ATO, hence no RETO)
-            // TODO: Need some time formatting here later
-
             timeRetoLbl.setText(R.string.ETO);
-            timeRetoTxt.setText(String.format(Locale.ENGLISH, "%02d", (int) toWP.getETO()));
         } else {
-
             timeRetoLbl.setText(R.string.RETO);
-            timeRetoTxt.setText(String.format(Locale.ENGLISH, "%02d", (int)toWP.getRETO()));
         }
 
-        // Time difference
+        // Display RETO and the current difference
+        int minutesETO = ((int)toWP.getETO() % 60);
+        timeRetoTxt.setText(String.format(Locale.ENGLISH, "%02d", minutesETO));
         timeDiffTxt.setText(String.format(Locale.ENGLISH, "%02d", (int)fromWP.getDiff()));
 
 
@@ -177,13 +177,13 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
         VORtext2.setText(mNavAidList.get((pejlinger.get(1).getMarkerIndex())).getName());
         VORtext3.setText(mNavAidList.get((pejlinger.get(2).getMarkerIndex())).getName());
 
-        VORrad1.setText(String.format("%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
-        VORrad2.setText(String.format("%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));
-        VORrad3.setText(String.format("%03d \u00B0", (int)(pejlinger.get(2).getHeading() + 360) % 360));
+        VORrad1.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
+        VORrad2.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));
+        VORrad3.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(pejlinger.get(2).getHeading() + 360) % 360));
 
-        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance() / 1852.));
-        VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));
-        VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance() / 1852.));
+        VORdist1.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(0).getDistance() / 1852.));
+        VORdist2.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(1).getDistance() / 1852.));
+        VORdist3.setText(String.format(Locale.ENGLISH, "%.2f nm", pejlinger.get(2).getDistance() / 1852.));
 
     }
 
@@ -202,45 +202,45 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         if (view.getId()==R.id.command_btn) {
 
-            String zuluMinutes;
             String zuluTime;
+            Double zuluMinutes=0.;
 
             // Process Click action depending on what state we are in
             switch (mCommand) {
                 case C_TIME:
-                    // Get zulu time in minutes and set ATO.
-                    // Unlike the Pinto board situation, difference will be auto calculated here ^_^
-                    zuluTime    = mTime.getZuluTime();
-                    String[] zStrings=zuluTime.split(":");
-                    Double zMins = Double.parseDouble(zStrings[0])*60+Integer.parseInt(zStrings[1]);
-                    zuluMinutes = zStrings[1];
+                    // Get zulu time and set ATO.
+
+                    // Unlike the Pinto board situation, difference will be auto calculated automatically here ^_^
+                    zuluTime    = getZuluTime();
+                    zuluMinutes = getZuluMinutes(zuluTime);
+
+                    Log.d(TAG, "Command C_TIME: zuluTime is "+zuluTime);
+                    Log.d(TAG, "Command C_TIME: zuluMinutes is "+zuluMinutes);
+
                     Toast.makeText(getActivity(), "Time logged: "+zuluTime, Toast.LENGTH_SHORT).show();
 
-                    toWP.setATO(Double.parseDouble(zuluMinutes));
+                    toWP.setATO(zuluMinutes);
+                    debugWPinfo();
 
-                    Log.d(TAG, "WP "+toWP.getText()+" ATO set to: "+zuluMinutes);
-                    Log.d(TAG, "WP "+toWP.getText()+" DIFF found: "+toWP.getDiff());
-
+                    Log.d(TAG, "toWP is "+toWP.getText());
+                    
                     // Check if we have more legs to navigate, otherwise make arrival statement
                     if (segmentIndex<markerList.size()-2) {
-                        // This is not the final leg
+                        // This is not the final leg - update the next (R)ETO, ie next ToWP
                         MarkerObject thenWP = markerList.get(segmentIndex+2);
                         double RETO = thenWP.getETO() - toWP.getDiff();
-                        thenWP.setRETO(RETO);
+                        thenWP.setETO(RETO);
 
-                        // Debug
-                        Log.d(TAG, thenWP.getText()+" RETO set to: " + RETO);
-                        Log.d(TAG, "Dumping ETO/RETO for all markers here");
-                        for (int i=1;i<markerList.size();i++){
-                            Log.d(TAG, markerList.get(i).getText() + " ETO: "+markerList.get(i).getETO()+" RETO: "+markerList.get(i).getRETO());
-                        }
-
+                        debugWPinfo();
+                        
                         // We have arrived at toWP and got the time already
                         // Next action is to change heading towards new point
                         newCommand(C_TURN);
 
                     } else {
-                        toWP.setATO(zMins);
+
+                        Log.d(TAG, "before newCommand C_Arrived");
+                        debugWPinfo();
                         newCommand(C_ARRIVED);
                     }
                     break;
@@ -280,14 +280,15 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
                     // on current time plus previous ETO estimate.
 
 
-                    zuluTime = mTime.getZuluTime();
-                    zuluMinutes = zuluTime.split(":")[1];
+                    zuluTime = getZuluTime();
+                    zuluMinutes = getZuluMinutes(zuluTime);
 
                     Log.d(TAG, "Takeoff Zulu Time is: "+zuluTime);
                     Log.d(TAG, "Minutes is  : "+zuluMinutes);
 
                     // use it to generate RETOs
-                    updateETO(Double.parseDouble(zuluMinutes));
+                    updateETO(zuluMinutes);
+                    debugWPinfo();
 
                     newCommand(C_TURN);
                     break;
@@ -378,4 +379,48 @@ public class TimeFragment extends Fragment implements View.OnClickListener {
             markerList.get(i).setETO(originalTime+newTime);
         }
     }
+
+
+
+    void debugWPinfo() {
+        Log.d(TAG, "WP Dump:");
+        Log.d(TAG, " ");
+        Log.d(TAG, "fromWP: "+fromWP.getText());
+        Log.d(TAG, "toWP: "+toWP.getText());
+        for (MarkerObject wp: markerList) {
+            Log.d(TAG, " --- ");
+            Log.d(TAG, "WP: "+wp.getText());
+            Log.d(TAG, "ATO: "+wp.getATO()+" (min): "+((int)wp.getATO()%60));
+            Log.d(TAG, "ETO: "+wp.getETO()+" (min): "+((int)wp.getETO()%60));
+            Log.d(TAG, "Dif: "+wp.getDiff());
+            Log.d(TAG, " --- ");
+        }
+    }
+
+
+    /*
+     * Get the current zulu time and return it as a string in the format "hh:mm:ss"
+     */
+    public String getZuluTime() {
+        Calendar mCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        DateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss");
+        Date currentLocalTime = mCalendar.getTime();
+        mDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String zuluTime = mDateFormat.format(currentLocalTime);
+
+        return zuluTime;
+    }
+
+
+    /*
+     * Convert zulutime in format "hh:mm:ss" to minutes in decimal format
+     */
+    public Double getZuluMinutes(String zString) {
+        String[] zArr=zString.split(":");
+        return Double.parseDouble(zArr[0])*60+Double.parseDouble(zArr[1])+Double.parseDouble(zArr[2])/60;
+
+    }
+
+
+
 }

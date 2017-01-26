@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_time"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -16,17 +17,29 @@
         android:layout_height="wrap_content"
         android:paddingBottom="16dp">
 
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textClock"
+            android:textSize="44sp"
+            android:textStyle="bold"
+            android:textColor="#2196f3"
+            android:format24Hour="k:mm"
+            android:layout_marginTop="14dp"
+            card_view:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="8dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"/>
+
         <TextView
             android:id="@+id/heading_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:text="Expected Time"
-            android:layout_marginTop="16dp"
-            card_view:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginLeft="16dp"/>
+            card_view:layout_constraintLeft_toRightOf="@+id/textClock"
+            card_view:layout_constraintTop_toTopOf="@+id/textClock"
+            android:layout_marginTop="5dp"/>
 
         <TextView
             android:id="@+id/reto_lbl"

@@ -96,17 +96,17 @@ public class TalkFragment extends Fragment {
             MarkerObject thisWP = markerList.get(segmentIndex);
             atName.setText(thisWP.getText());
             if (segmentIndex==0) {
-                atTime.setText(String.format("%02d", (int)thisWP.getETO()));
+                atTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)thisWP.getETO()%60)));
             } else {
-                atTime.setText(String.format("%02d", (int)thisWP.getATO()));
+                atTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)thisWP.getATO()%60)));
             }
-            atAlt.setText(String.format("%.0f feet",thisWP.getALT()));
+            atAlt.setText(String.format(Locale.ENGLISH, "%.0f feet",thisWP.getALT()));
 
 
             // Expect Card
             MarkerObject expWP = markerList.get(segmentIndex+1);
             expName.setText(expWP.getText());
-            expTime.setText(String.format("%02d", (int)expWP.getRETO()));
+            expTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)expWP.getETO()%60)));
             expAlt.setText(String.format(Locale.ENGLISH, "%d feet", (int)expWP.getALT()));
 
 
@@ -123,117 +123,34 @@ public class TalkFragment extends Fragment {
             MarkerObject thisWP = markerList.get(segmentIndex);
             atName.setText(thisWP.getText());
             if (segmentIndex==0) {
-                atTime.setText(String.format("%02d", (int)thisWP.getETO()));
+                atTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)thisWP.getETO()%60)));
             } else {
-                atTime.setText(String.format("%02d", (int)thisWP.getATO()));
+                atTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)thisWP.getATO()%60)));
             }
-            atAlt.setText(String.format("%.0f feet",thisWP.getALT()));
+            atAlt.setText(String.format(Locale.ENGLISH, "%.0f feet",thisWP.getALT()));
 
 
             // Expect Card
             MarkerObject expWP = markerList.get(segmentIndex+1);
             expName.setText(expWP.getText());
-            if (segmentIndex==0) {
-                expTime.setText(String.format("%02d", (int)expWP.getETO()));
-            } else {
-                expTime.setText(String.format("%02d", (int)expWP.getRETO()));
-            }
-            Log.d(TAG, "onCreateView: expWP");
-            Log.d(TAG, "onCreateView: getText: "+expWP.getText());
-            Log.d(TAG, "onCreateView: getETO: "+expWP.getETO());
-            Log.d(TAG, "onCreateView: getRETO: "+expWP.getRETO());
-            Log.d(TAG, "onCreateView: getATO: "+expWP.getATO());
+            expTime.setText(String.format(Locale.ENGLISH, "%02d", ((int)expWP.getETO()%60)));
+
+            Log.d(TAG, "expWP"+expWP.getText());
+            Log.d(TAG, "- getETO: "+expWP.getETO());
+            Log.d(TAG, "- getATO: "+expWP.getATO());
+            Log.d(TAG, "this: getATO: "+thisWP.getATO());
+
             expAlt.setText(String.format(Locale.ENGLISH, "%d feet", (int)expWP.getALT()));
 
             // Then Card
             // make it visible, just in case...
             cardThen.setVisibility(View.VISIBLE);
             MarkerObject thenWP = markerList.get(segmentIndex+2);
-            Log.d(TAG, "onCreateView: thenWP");
-            Log.d(TAG, "onCreateView: getText: "+expWP.getText());
-            Log.d(TAG, "onCreateView: getETO: "+thenWP.getETO());
-            Log.d(TAG, "onCreateView: getRETO: "+thenWP.getRETO());
-            Log.d(TAG, "onCreateView: getATO: "+thenWP.getATO());
-
             thenName.setText(thenWP.getText());
         }
 
 
-
-
-
-        /*
-
-
-
-        if (segmentIndex+2<markerList.size()) {
-            // In here, we have at least two segments to work on
-
-            // start with the Expect fields
-            MarkerObject nextWP = markerList.get(segmentIndex+1);
-            tvPositionNextName.setText(nextWP.getText());
-
-            // Use ETO for first point instead of RETO
-            if (segmentIndex==0) {
-                tvPositionNextTime.setText(String.format("%02d",(int)nextWP.getETO()));
-            } else {
-                tvPositionNextTime.setText(String.format("%02d",(int)nextWP.getRETO()));
-            }
-
-            tvPositionNextAlt.setText(String.format("%.0f",nextWP.getALT()));
-
-            // Then info
-            MarkerObject thenWP = markerList.get(segmentIndex+2);
-            tvPositionThenName.setText(thenWP.getText());
-
-        } else if (segmentIndex==markerList.size()-3) {
-            // Just a report point and then final dest in the expect position of the layout
-
-            // Hide the next time and alt fields and labels
-            tvPositionNextAlt.setVisibility(View.INVISIBLE);
-            tvPositionNextAltLabel.setVisibility(View.INVISIBLE);
-            tvPositionNextTime.setVisibility(View.INVISIBLE);
-            tvPositionNextTimeLabel.setVisibility(View.INVISIBLE);
-
-            // change next label to be final destination "Then"
-            tvPositionNextLabel.setText("Then");
-            tvPositionNextName.setText(markerList.get(segmentIndex+2).getText());
-
-            // hide label and textView for original Then field
-            tvPositionThenName.setVisibility(View.INVISIBLE);
-            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
-        } else {
-            // Only one point to report
-
-            tvPositionName.setText("Expecting "+ thisWP.getText()+" at "+ String.format("%2d", (int)thisWP.getRETO()));
-
-            // hide normal time
-            tvPositionTime.setVisibility(View.INVISIBLE);
-
-
-            // Hide altitude
-            tvPositionAlt.setVisibility(View.INVISIBLE);
-
-            // Hide the next time and alt fields and labels
-            tvPositionNextName.setVisibility(View.INVISIBLE);
-            tvPositionNextLabel.setVisibility(View.INVISIBLE);
-            tvPositionNextAlt.setVisibility(View.INVISIBLE);
-            tvPositionNextAltLabel.setVisibility(View.INVISIBLE);
-            tvPositionNextTime.setVisibility(View.INVISIBLE);
-            tvPositionNextTimeLabel.setVisibility(View.INVISIBLE);
-
-            // hide label and textView for original Then field
-            tvPositionThenName.setVisibility(View.INVISIBLE);
-            tvPositionThenNameLabel.setVisibility(View.INVISIBLE);
-            tvPositionFeetLabel.setVisibility(View.INVISIBLE);
-            tvPositionPTLabel.setVisibility(View.INVISIBLE);
-
-        }
-*/
-
         return v;
     }
-
-
 
 }

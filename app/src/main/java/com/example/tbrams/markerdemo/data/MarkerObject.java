@@ -36,11 +36,8 @@ public class MarkerObject implements Parcelable {
     // Timing vars
     private double mTIME;
     private double mETO;
-    private double mRETO;
     private double mATO;
     private double mDiff;
-
-    private MagneticModel magModel=new MagneticModel();
 
     private ArrayList<Pejling> mPejlinger;
 
@@ -62,7 +59,6 @@ public class MarkerObject implements Parcelable {
         mMH = in.readDouble();
         mTIME = in.readDouble();
         mETO = in.readDouble();
-        mRETO = in.readDouble();
         mATO = in.readDouble();
         mDiff = in.readDouble();
     }
@@ -86,7 +82,6 @@ public class MarkerObject implements Parcelable {
         dest.writeDouble(mMH);
         dest.writeDouble(mTIME);
         dest.writeDouble(mETO);
-        dest.writeDouble(mRETO);
         dest.writeDouble(mATO);
         dest.writeDouble(mDiff);
     }
@@ -172,7 +167,6 @@ public class MarkerObject implements Parcelable {
     public double getMH() {return mMH;}
     public double getTIME() {return mTIME;}
     public double getETO() {return mETO;}
-    public double getRETO() { return mRETO; }
     public double getATO() { return mATO; }
     public double getDiff() { return mDiff; }
 
@@ -182,10 +176,9 @@ public class MarkerObject implements Parcelable {
 
     public void setETO(double ETO) { mETO = ETO; }
     public void setATO(double ATO) {
-        mATO = ATO;
+        mATO  = ATO;
         mDiff = mETO-mATO;  // positive means ahead of schedule
     }
-    public void setRETO(double RETO) { mRETO = RETO; }
 
 
 
@@ -247,8 +240,10 @@ public class MarkerObject implements Parcelable {
         mWCA=0;
         mTH=0;
 
+        // Find Magnetic declination
+        MagneticModel magModel = new MagneticModel();
         magModel.setLocation(marker.getPosition().latitude, marker.getPosition().longitude);
-        mVAR=magModel.getDeclination();
+        mVAR= magModel.getDeclination();
         mMH=0;
         mTIME=0;
         mETO=0;
