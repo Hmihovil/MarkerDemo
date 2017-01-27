@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.components.VORdetailDialog;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
@@ -24,10 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static android.content.Context.VIBRATOR_SERVICE;
 import static com.example.tbrams.markerdemo.NavPagerActivity.setSomethingUpdated;
 
 public class InfoEditFragment extends Fragment implements View.OnClickListener {
+
+    private static final int NEAREST_NO1 = 0;
+    private static final int NEAREST_NO2 = 1;
+    private static final int NEAREST_NO3 = 2;
 
     public static final String EXTRA_MARKER_ID = "com.example.tbrams.markerdemo.marker_id";
     public static final int    ACTION_DELETE = 2;
@@ -38,6 +42,10 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
     private EditText mEditName ;
     private EditText mEditAltitude;
     private EditText mEditNote;
+    ArrayList<Pejling> mPejlinger;
+
+    VORdetailDialog mVORdetailDialog = new VORdetailDialog();
+
 
     private Button   btnUpdate, btnDelete, btnCancel;
     private Vibrator mVib;
@@ -94,7 +102,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         // Update Edit Text fields with marker provided info
         mEditName.setText(mo.getText());
         mEditNote.setText(mo.getNote());
-        mEditAltitude.setText(Double.toString(mo.getALT()));
+        mEditAltitude.setText(String.format(Locale.ENGLISH, "%d ft", (int)mo.getALT()));
 
         // set a lost focus event handler to automatically update the position name
         mEditName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -132,31 +140,34 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         }
 
         // VOR Card
-        ArrayList<Pejling> pejlinger = markerList.get(markerIndex).getPejlinger();
+        mPejlinger = markerList.get(markerIndex).getPejlinger();
 
         TextView VORtext1 = (TextView) cardVOR.findViewById(R.id.vor1_txt);
+        VORtext1.setOnClickListener(this);
         TextView VORrad1 = (TextView) cardVOR.findViewById(R.id.vor1rad_txt);
         TextView VORdist1 = (TextView) cardVOR.findViewById(R.id.vor1dist_txt);
 
         TextView VORtext2 = (TextView) cardVOR.findViewById(R.id.vor2_txt);
+        VORtext2.setOnClickListener(this);
         TextView VORrad2 = (TextView) cardVOR.findViewById(R.id.vor2rad_txt);
         TextView VORdist2 = (TextView) cardVOR.findViewById(R.id.vor2dist_txt);
 
         TextView VORtext3 = (TextView) cardVOR.findViewById(R.id.vor3_txt);
+        VORtext3.setOnClickListener(this);
         TextView VORrad3 = (TextView) cardVOR.findViewById(R.id.vor3rad_txt);
         TextView VORdist3 = (TextView) cardVOR.findViewById(R.id.vor3dist_txt);
 
-        VORtext1.setText(mNavAidList.get((pejlinger.get(0).getMarkerIndex())).getName());
-        VORtext2.setText(mNavAidList.get((pejlinger.get(1).getMarkerIndex())).getName());
-        VORtext3.setText(mNavAidList.get((pejlinger.get(2).getMarkerIndex())).getName());
+        VORtext1.setText(mNavAidList.get((mPejlinger.get(NEAREST_NO1).getMarkerIndex())).getName());
+        VORtext2.setText(mNavAidList.get((mPejlinger.get(NEAREST_NO2).getMarkerIndex())).getName());
+        VORtext3.setText(mNavAidList.get((mPejlinger.get(NEAREST_NO3).getMarkerIndex())).getName());
 
-        VORrad1.setText(String.format("%03d \u00B0", (int)(pejlinger.get(0).getHeading() + 360) % 360));
-        VORrad2.setText(String.format("%03d \u00B0", (int)(pejlinger.get(1).getHeading() + 360) % 360));
-        VORrad3.setText(String.format("%03d \u00B0", (int)(pejlinger.get(2).getHeading() + 360) % 360));
+        VORrad1.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(NEAREST_NO1).getHeading() + 360) % 360));
+        VORrad2.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(NEAREST_NO2).getHeading() + 360) % 360));
+        VORrad3.setText(String.format(Locale.ENGLISH, "%03d \u00B0", (int)(mPejlinger.get(NEAREST_NO3).getHeading() + 360) % 360));
 
-        VORdist1.setText(String.format("%.2f nm", pejlinger.get(0).getDistance() / 1852.));
-        VORdist2.setText(String.format("%.2f nm", pejlinger.get(1).getDistance() / 1852.));
-        VORdist3.setText(String.format("%.2f nm", pejlinger.get(2).getDistance() / 1852.));
+        VORdist1.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(NEAREST_NO1).getDistance() / 1852.));
+        VORdist2.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(NEAREST_NO2).getDistance() / 1852.));
+        VORdist3.setText(String.format(Locale.ENGLISH, "%.2f nm", mPejlinger.get(NEAREST_NO3).getDistance() / 1852.));
 
 
 
@@ -165,9 +176,9 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         TextView tvLon = (TextView) cardLocation.findViewById(R.id.lon_txt);
         TextView tvVar = (TextView) cardLocation.findViewById(R.id.mag_txt);
 
-        tvLat.setText(String.format("%.2f  °", mo.getMarker().getPosition().latitude));
-        tvLon.setText(String.format("%.2f  °", mo.getMarker().getPosition().longitude));
-        tvVar.setText(String.format("%.1f  °", mo.getVAR()));
+        tvLat.setText(String.format(Locale.ENGLISH, "%.2f \u00B0", mo.getMarker().getPosition().latitude));
+        tvLon.setText(String.format(Locale.ENGLISH, "%.2f \u00B0", mo.getMarker().getPosition().longitude));
+        tvVar.setText(String.format(Locale.ENGLISH, "%.1f \u00B0", mo.getVAR()));
 
         btnUpdate = (Button) cardInput.findViewById(R.id.btn_update);
         btnDelete = (Button) cardInput.findViewById(R.id.btn_delete);
@@ -176,7 +187,6 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         btnDelete.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 
-        mVib = (Vibrator) getActivity().getSystemService(VIBRATOR_SERVICE);
 
         return v;
     }
@@ -203,39 +213,63 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
      * Will take care of update, delete and cancel. Both delete and cancel will
      * end the activity, but update will merely update the data values with the
      * text provided by the user.
+     *
+     * Also click handler for the VOR names
      */
     @Override
     public void onClick(View view) {
-        if (view == btnUpdate) {
-            String titleString = String.valueOf(mEditName.getText());
-            String snippetString = String.valueOf(mEditNote.getText());
-            Double alt=0.0;
-            if (!mEditAltitude.toString().equals("")) {
-                String altString = mEditAltitude.getText().toString();
-                alt = Double.parseDouble(altString);
-            }
 
-            // update marker data
-            markerList.get(markerIndex).setText(titleString);
-            markerList.get(markerIndex).setNote(snippetString);
-            markerList.get(markerIndex).setALT(alt);
+        switch (view.getId()) {
+            case R.id.vor1_txt:
+                showVORdetails(NEAREST_NO1);
+                break;
 
-            // update physical markers
-            markerList.get(markerIndex).getMarker().setTitle(titleString);
-            markerList.get(markerIndex).getMarker().setSnippet(snippetString);
+            case R.id.vor2_txt:
+                showVORdetails(NEAREST_NO2);
+                break;
 
-            setSomethingUpdated(true);
+            case R.id.vor3_txt:
+                showVORdetails(NEAREST_NO3);
+                break;
 
-        } else if (view == btnDelete) {
-            sendResult(ACTION_DELETE, markerIndex);
+            case R.id.btn_update:
+                String titleString = String.valueOf(mEditName.getText());
+                String snippetString = String.valueOf(mEditNote.getText());
 
+                Double alt=0.0;
+                if (!mEditAltitude.toString().equals("")) {
+                    String altString = mEditAltitude.getText().toString();
+                    alt = Double.parseDouble(altString);
+                }
 
-        } else if (view == btnCancel) {
-            setSomethingUpdated(false);
-            sendResult(ACTION_CANCEL, markerIndex);
+                // update marker data
+                markerList.get(markerIndex).setText(titleString);
+                markerList.get(markerIndex).setNote(snippetString);
+                markerList.get(markerIndex).setALT(alt);
 
+                // update physical markers
+                markerList.get(markerIndex).getMarker().setTitle(titleString);
+                markerList.get(markerIndex).getMarker().setSnippet(snippetString);
 
+                setSomethingUpdated(true);
+                break;
+
+            case R.id.btn_delete:
+                sendResult(ACTION_DELETE, markerIndex);
+                break;
+
+            case R.id.btn_cancel:
+                setSomethingUpdated(false);
+                sendResult(ACTION_CANCEL, markerIndex);
+                break;
         }
+    }
 
+
+
+
+    private void showVORdetails(int i) {
+        mVORdetailDialog.activateVOR(mNavAidList.get((mPejlinger.get(i).getMarkerIndex())));
+        mVORdetailDialog.show(getFragmentManager(),"VORdialogDetail");
     }
 }
