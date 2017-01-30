@@ -575,8 +575,10 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         hideSoftKeyboard(v);
 
         TextView tv = (TextView) findViewById(R.id.editText1);
+        String searched = tv.getText().toString().toUpperCase();
+
         // check for help request
-        if (String.valueOf(tv.getText()).matches(":help")) {
+        if (searched.matches(":HELP")) {
             tv.setError("Special commands:\n:navaids - list navaids\n" +
                     ":ad - list installed aerodromes");
             tv.setText("");
@@ -584,7 +586,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
         // check if special command :navaids
-        if (String.valueOf(tv.getText()).matches(":navaids")) {
+        if (searched.matches(":NAVAIDS")) {
             String miniHelp="Valid names:\n";
             for (NavAid n : mNavAidList) {
                 miniHelp += n.getName() + "\n";
@@ -595,7 +597,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
         // check if special command aerodromes
-        if (String.valueOf(tv.getText()).matches(":ad")) {
+        if (searched.matches(":ad")) {
             String miniHelp="Installed Aerodromes:\n";
             for (Aerodrome n : mAerodromeList) {
                 miniHelp += n.getIcaoName() + "\n";
@@ -606,7 +608,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
 
-        setSearchedFor(tv.getText().toString());
+        setSearchedFor(searched);
         tv.setText("");
 
         // Check existing NavAid names - they are not in Google Places
@@ -625,6 +627,15 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             }
         }
 
+        // Check Reporting Point names - they are (probably) not in Google Places
+        // Format for this is "RP name", for example "RP BORUP"
+        for (ReportingPoint rp : mReportingPointList) {
+            String rpString = String.format("RP %s", rp.getName().toUpperCase());
+            if (getSearchedFor().equals(String.format("RP %s",rp.getName().toUpperCase()))) {
+                placeAndZoomOnMarker(rp.getPosition(), getZoomLevel());
+                return;
+            }
+        }
 
         // Look up location name
         LatLng position = searchLocation(getSearchedFor());

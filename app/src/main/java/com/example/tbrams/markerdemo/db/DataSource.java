@@ -700,16 +700,16 @@ public class DataSource {
      * @Return: A list of Reporting Points
      *
      */
-    public List<ReportingPoint> getAllReportingPoints(String adfilter){
+    public List<ReportingPoint> getAllReportingPoints(String filter){
         List<ReportingPoint> rpList = new ArrayList<>();
         Cursor cursor;
 
-        if (adfilter==null) {
+        if (filter==null) {
             // Fetch all sorted by Name
             cursor = mDb.query(RPTable.TABLE_NAME, RPTable.ALL_COLUMNS, null,null,null,null, RPTable.COLUMN_NAME);
         } else {
             // Pack the type in the required Array object notation before search for matching types and then sorting by name
-            String[] adArg = {adfilter};
+            String[] adArg = {filter};
             cursor = mDb.query(RPTable.TABLE_NAME, RPTable.ALL_COLUMNS, RPTable.COLUMN_AD+"=?",adArg, null, null, RPTable.COLUMN_NAME);
         }
 

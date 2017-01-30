@@ -29,8 +29,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -73,7 +75,7 @@ public class FrontActivity extends AppCompatActivity {
     private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
     private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
     private List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
-
+    private List<ReportingPoint> mReportingPointList=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,7 @@ public class FrontActivity extends AppCompatActivity {
 
         mNavAidList = sExtraMarkers.getNavAidList();
         mAerodromeList = sExtraMarkers.getAerodromeList();
+        mReportingPointList = sExtraMarkers.getReportingPointList();
 
         Log.d(TAG, "onCreate: After prepare DB content, mNavAidList.size(): "+ mNavAidList.size());
         Log.d(TAG, "onCreate: After prepare DB content, AdList.size(): "+ mAerodromeList.size());
@@ -160,6 +163,19 @@ public class FrontActivity extends AppCompatActivity {
             // load this list from the database
             sExtraMarkers.setAerodromeList(adList);
             Log.d(TAG, "onCreate: Using ADs from database");
+        }
+
+
+        // Check if we can load Reporting Points from the database. We do not have samples for this
+        List<ReportingPoint> rpList = mDbAdmin.getAllReportingPoints(null);
+        Log.d(TAG, "onCreate: from DB - rpList.size(): "+rpList.size());
+        if (rpList==null||rpList.size()==0) {
+            Toast.makeText(this, "No reporting points - Please update from server", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "onCreate: Could not get AD data from db, using samples");
+        } else {
+            // load this list from the database
+            sExtraMarkers.setReportingPointList(rpList);
+            Log.d(TAG, "onCreate: Using RPs from database");
         }
     }
 
