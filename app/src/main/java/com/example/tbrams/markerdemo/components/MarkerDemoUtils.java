@@ -15,6 +15,7 @@ import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Pejling;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -554,5 +555,52 @@ public class MarkerDemoUtils extends AppCompatActivity {
         }
     }
 
+
+    // Reporting Points Related
+
+    /*
+     * Plot Reporting Point icons on the map with customized markers
+     * All markers are initially created and filed away in the mRPMarkers list. Everything is
+     * Offset 50% in both directions, so they will center on the position of the RP.
+     *
+     * When the markers are already done, all we need to do is resize the icon depending on
+     * the Zoom level.
+     *
+     * Zooming out over level 7 makes the maps ugly because of the extra large icons, so they
+     * are hidden at these levels as well
+     *
+     */
+    public void plotReportingPoints(List<Marker> rpMarkers, List<ReportingPoint> rpList, GoogleMap gMap ) {
+
+        Log.d(TAG, "plotReportingPoints: Entering, rpList.size(): "+rpList.size());
+
+        // Create the markers if not alrady there
+        int iconReportingPoint = R.drawable.ic_reporting_point;
+        if (rpMarkers.size() == 0) {
+            // Create all RP markers and keep record in an ArrayList
+            for (int i = 0; i < rpList.size(); i++) {
+                Marker m = gMap.addMarker(new MarkerOptions()
+                        .title(rpList.get(i).getName())
+                        .snippet(rpList.get(i).getAerodrome()+" Reporting Point")
+                        .position(rpList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconReportingPoint)));
+
+                m.setAnchor(0.5f, .5f);
+                rpMarkers.add(m);
+            }
+        }
+
+        // TODO: Need to offer hiding RPs
+        if (hideADicons() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel()< AERODROME_MIN_ZOOM) {
+            for (Marker m : rpMarkers) {
+                m.setVisible(false);
+            }
+        } else {
+
+            // Update size of each ADMarker relative to zoom level
+            for (Marker m : rpMarkers) {
+                m.setVisible(true);
+            }
+        }
+    }
 
 }

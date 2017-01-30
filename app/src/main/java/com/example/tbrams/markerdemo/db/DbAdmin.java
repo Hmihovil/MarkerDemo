@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
@@ -21,7 +22,7 @@ import com.example.tbrams.markerdemo.dbModel.WpItem;
 
 import java.util.List;
 
-/*
+/**
  * An attempt to contain all Database Admin facilities to this class, instead of having them
  * all over the place.
  *
@@ -80,8 +81,39 @@ public class DbAdmin extends DataSource {
 
 
 
+    /**
+     * Will reset the Reporting Points table and then populate it from the list provided
+     * as argument to the function.
+     *
+     * After updating the database table, the singleton Storage will be reflecting the database
+     * as well.
+     */
+    public void updateReportingPointsFromMaster(List<ReportingPoint> rpList, boolean purgeDatabase) {
+        // Delete and recreate table
+        super.open();
 
-    /*
+        if (purgeDatabase) {
+            // Delete and recreate table
+            super.resetRPTable();
+        }
+
+        // Copy all Reporting Points from the list to the Database
+        for (ReportingPoint rp : rpList) {
+            super.createReportingPoing(rp);
+        }
+
+        super.close();
+
+        if (sExtraMarkers==null) {
+            sExtraMarkers=ExtraMarkers.get(mContext);
+        }
+        sExtraMarkers.setReportingPointList(rpList);
+
+    }
+
+
+
+    /**
      * Will reset the NavAids table and then populate it with navaids from the list provided
      * as argument to the function.
      *
@@ -108,7 +140,7 @@ public class DbAdmin extends DataSource {
     }
 
 
-    /*
+    /**
      * Will reset the Aerodromes table and then populate it with aerodromes from the list provided
      * as argument to the function.
      *

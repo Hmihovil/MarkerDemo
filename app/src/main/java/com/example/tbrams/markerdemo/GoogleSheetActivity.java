@@ -712,16 +712,16 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                     ReportingPoint rp = new ReportingPoint(icao, name, location);
                     Log.d(TAG, "getData: Reporting Point: "+rp.getName()+" @"+rp.getAerodrome()+" "+rp.getPosition());
-         //           adList.add(ad);
+                    rpList.add(rp);
 
                 }
 
                 // update database
-        //        DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
-        //        dbAdmin.updateAerodromesFromMaster(adList, true);
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateReportingPointsFromMaster(rpList, true);
 
             }
-            return "Reporting Points (Parsed & Checked)";
+            return "Reporting Points (imported)";
         }
 
 

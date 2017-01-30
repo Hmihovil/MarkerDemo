@@ -31,6 +31,7 @@ import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Pejling;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DataSource;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
@@ -76,6 +77,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
     private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
+    private List<ReportingPoint> mReportingPointList = sExtraMarkers.getReportingPointList();
     private final List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
 
     // Special list of VOR only nav. aids
@@ -84,6 +86,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     // This is used for map marker storage
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
     private final List<Marker> mADMarkers = new ArrayList<>();
+    private final List<Marker> mRPMarkers = new ArrayList<>();
 
 
     private static int currentMarkerIndex=-1;
@@ -204,6 +207,9 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
 
+
+
+
     /*
      * Called by getMapAsync when ready
      */
@@ -241,6 +247,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
             plotNavAids(mNavAidMarkers, mNavAidList, mMap);
             plotAerodromes(mADMarkers, mAerodromeList, mMap);
+            plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
 
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -269,6 +276,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     // Update both Aerodrome and Navigational aid icons was well
                     plotNavAids(mNavAidMarkers, mNavAidList, mMap);
                     plotAerodromes(mADMarkers, mAerodromeList, mMap);
+                    plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
 
                 }
             });
@@ -297,6 +305,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     for (Marker m : mADMarkers) {
                         if (marker.getId().equals(m.getId())) {
                             Log.d(TAG,"Aerodrome marker clicked");
+                            return null;
+                        }
+                    }
+
+                    // check if a Reporting Point has been clicked
+                    for (Marker m : mRPMarkers) {
+                        if (marker.getId().equals(m.getId())) {
+                            Log.d(TAG,"Reporting Point marker clicked");
                             return null;
                         }
                     }
