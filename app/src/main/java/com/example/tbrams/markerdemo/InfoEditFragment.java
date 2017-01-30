@@ -1,5 +1,6 @@
 package com.example.tbrams.markerdemo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -78,6 +79,9 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         // CardViews - one updating/deleting, one for Next WP, one for VOR
         final View v = inflater.inflate(R.layout.info_window_edit, container, false);
 
+        mVib  = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+
+
         // Get marker id from argument bundle
         markerIndex = (int) getArguments().getSerializable(EXTRA_MARKER_ID);
 
@@ -102,7 +106,7 @@ public class InfoEditFragment extends Fragment implements View.OnClickListener {
         // Update Edit Text fields with marker provided info
         mEditName.setText(mo.getText());
         mEditNote.setText(mo.getNote());
-        mEditAltitude.setText(String.format(Locale.ENGLISH, "%d ft", (int)mo.getALT()));
+        mEditAltitude.setText(String.format(Locale.ENGLISH, "%d", (int)mo.getALT()));
 
         // set a lost focus event handler to automatically update the position name
         mEditName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
