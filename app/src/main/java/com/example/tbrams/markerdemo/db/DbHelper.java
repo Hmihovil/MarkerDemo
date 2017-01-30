@@ -19,6 +19,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(TripTable.SQL_CREATE);
         db.execSQL(WpTable.SQL_CREATE);
         db.execSQL(NavAidTable.SQL_CREATE);
+        db.execSQL(RPTable.SQL_CREATE);
     }
 
     @Override
@@ -26,6 +27,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(TripTable.SQL_DELETE);
         db.execSQL(WpTable.SQL_DELETE);
         db.execSQL(NavAidTable.SQL_DELETE);
+        db.execSQL(RPTable.SQL_CREATE);
         onCreate(db);
     }
 

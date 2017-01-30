@@ -103,24 +103,24 @@ public class ExtraMarkers {
         sampleNavAidList.add(new NavAid("BILLUND","LO",    NavAid.NDB, "55 44 40.13N 009 16 46.81E", "341", "40 NM", null));
 
         // Localizer
-        sampleNavAidList.add(new NavAid("AALBORG", "GL", NavAid.LOCALIZER, "57 05 03.80N 009 40 53.20E", "398.000", "20NM", 56.80));
-        sampleNavAidList.add(new NavAid("AARHUS","TL",   NavAid.LOCALIZER, "56 18 01.46N 010 37 07.22E", "384.000", "20NM", null));
-        sampleNavAidList.add(new NavAid("BILLUND","GE", NavAid.LOCALIZER, "55 44 10.21N 009 01 06.90E", "395.000", "15 NM", null));
-        sampleNavAidList.add(new NavAid("BORNHOLM/RØNNE","FAU", NavAid.LOCALIZER, "55 01 41.49N 014 54 01.79E", "78.600", "20NM", 78.60));
-        sampleNavAidList.add(new NavAid("DONNA","DN", NavAid.LOCALIZER, "55 28 08.54N 005 07 59.03E", "355.000", "25NM", null));
-        sampleNavAidList.add(new NavAid("ESBJERG","HP", NavAid.LOCALIZER, "55 30 41.17N 008 24 45.79E", "376.000", "30NM", null));
-        sampleNavAidList.add(new NavAid("ESBJERG","EJ", NavAid.LOCALIZER, "55 32 28.51N 008 41 59.11E", "400.500", "20NM", null));
-        sampleNavAidList.add(new NavAid("KARUP","KD", NavAid.LOCALIZER, "56 17 47.51N 008 58 06.53E", "357.000", "25NM", 172.80));
-        sampleNavAidList.add(new NavAid("KARUP","KA", NavAid.LOCALIZER, "56 17 54.42N 009 14 13.05E", "369.000", "20NM", 172.80));
-        sampleNavAidList.add(new NavAid("KOLDING/VAMDRUP","KD", NavAid.LOCALIZER, "55 26 35.87N 009 20 05.42E", "357.000", "15NM", 174.50));
-        sampleNavAidList.add(new NavAid("KOBENHAVN/ROSKILDE","RK", NavAid.LOCALIZER, "55 37 23.27N 011 59 49.81E", "368.000", "30NM", null));
-        sampleNavAidList.add(new NavAid("ODENSE","FE", NavAid.LOCALIZER, "55 31 12.45N 010 27 45.21E", "423.000", "20NM", null));
-        sampleNavAidList.add(new NavAid("SINDAL","SD", NavAid.LOCALIZER, "57 30 02.77N 010 09 02.53E", "339.000", "15NM", null));
-        sampleNavAidList.add(new NavAid("STAUNING","AU", NavAid.LOCALIZER, "55 59 27.58N 008 19 06.09E", "346.000", "15NM", null));
-        sampleNavAidList.add(new NavAid("STAUNING","VJ", NavAid.LOCALIZER, "55 59 19.13N 008 25 27.97E", "328.000", "15NM", null));
-        sampleNavAidList.add(new NavAid("SØNDERBORG","IN", NavAid.LOCALIZER, "55 01 13.86N 009 42 23.16E", "316.000", "15NM", null));
-        sampleNavAidList.add(new NavAid("SØNDERBORG","SB", NavAid.LOCALIZER, "54 56 16.21N 009 49 47.08E", "330.000", "15NM", null));
-        sampleNavAidList.add(new NavAid("VOJENS/SKRYDSTRUP","VO", NavAid.LOCALIZER, "55 13 28.74N 009 16 25.36E", "321.000", "25NM", null));
+        sampleNavAidList.add(new NavAid("AALBORG", "GL", NavAid.LOCATOR, "57 05 03.80N 009 40 53.20E", "398.000", "20NM", 56.80));
+        sampleNavAidList.add(new NavAid("AARHUS","TL",   NavAid.LOCATOR, "56 18 01.46N 010 37 07.22E", "384.000", "20NM", null));
+        sampleNavAidList.add(new NavAid("BILLUND","GE", NavAid.LOCATOR, "55 44 10.21N 009 01 06.90E", "395.000", "15 NM", null));
+        sampleNavAidList.add(new NavAid("BORNHOLM/RØNNE","FAU", NavAid.LOCATOR, "55 01 41.49N 014 54 01.79E", "78.600", "20NM", 78.60));
+        sampleNavAidList.add(new NavAid("DONNA","DN", NavAid.LOCATOR, "55 28 08.54N 005 07 59.03E", "355.000", "25NM", null));
+        sampleNavAidList.add(new NavAid("ESBJERG","HP", NavAid.LOCATOR, "55 30 41.17N 008 24 45.79E", "376.000", "30NM", null));
+        sampleNavAidList.add(new NavAid("ESBJERG","EJ", NavAid.LOCATOR, "55 32 28.51N 008 41 59.11E", "400.500", "20NM", null));
+        sampleNavAidList.add(new NavAid("KARUP","KD", NavAid.LOCATOR, "56 17 47.51N 008 58 06.53E", "357.000", "25NM", 172.80));
+        sampleNavAidList.add(new NavAid("KARUP","KA", NavAid.LOCATOR, "56 17 54.42N 009 14 13.05E", "369.000", "20NM", 172.80));
+        sampleNavAidList.add(new NavAid("KOLDING/VAMDRUP","KD", NavAid.LOCATOR, "55 26 35.87N 009 20 05.42E", "357.000", "15NM", 174.50));
+        sampleNavAidList.add(new NavAid("KOBENHAVN/ROSKILDE","RK", NavAid.LOCATOR, "55 37 23.27N 011 59 49.81E", "368.000", "30NM", null));
+        sampleNavAidList.add(new NavAid("ODENSE","FE", NavAid.LOCATOR, "55 31 12.45N 010 27 45.21E", "423.000", "20NM", null));
+        sampleNavAidList.add(new NavAid("SINDAL","SD", NavAid.LOCATOR, "57 30 02.77N 010 09 02.53E", "339.000", "15NM", null));
+        sampleNavAidList.add(new NavAid("STAUNING","AU", NavAid.LOCATOR, "55 59 27.58N 008 19 06.09E", "346.000", "15NM", null));
+        sampleNavAidList.add(new NavAid("STAUNING","VJ", NavAid.LOCATOR, "55 59 19.13N 008 25 27.97E", "328.000", "15NM", null));
+        sampleNavAidList.add(new NavAid("SØNDERBORG","IN", NavAid.LOCATOR, "55 01 13.86N 009 42 23.16E", "316.000", "15NM", null));
+        sampleNavAidList.add(new NavAid("SØNDERBORG","SB", NavAid.LOCATOR, "54 56 16.21N 009 49 47.08E", "330.000", "15NM", null));
+        sampleNavAidList.add(new NavAid("VOJENS/SKRYDSTRUP","VO", NavAid.LOCATOR, "55 13 28.74N 009 16 25.36E", "321.000", "25NM", null));
 
 
         // TACAN

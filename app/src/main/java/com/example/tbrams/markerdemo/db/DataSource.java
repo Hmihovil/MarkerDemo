@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 import com.google.android.gms.maps.model.LatLng;
@@ -74,15 +75,22 @@ public class DataSource {
         mDb.execSQL(AdTable.SQL_CREATE);
     }
 
+    public void resetRPTable() {
+        mDb.execSQL(RPTable.SQL_DELETE);
+        mDb.execSQL(RPTable.SQL_CREATE);
+    }
+
 
     public void makeSureWeHaveTables() {
         mDb.execSQL(TripTable.SQL_CREATE);
         mDb.execSQL(WpTable.SQL_CREATE);
         mDb.execSQL(NavAidTable.SQL_CREATE);
         mDb.execSQL(AdTable.SQL_CREATE);
+        mDb.execSQL(RPTable.SQL_CREATE);
     }
 
-    /*
+
+    /**
      * This function will return false if the table is not already created
      */
     boolean isTableExists(SQLiteDatabase db, String tableName)
@@ -107,7 +115,7 @@ public class DataSource {
     // --------------------
 
 
-    /*
+    /**
      * createTrip
      * This is the function responsible for inserting data into the Trips Table.  It does that
      * by creating ContentValues for all object attributes and then pass the entire thing to
@@ -130,7 +138,7 @@ public class DataSource {
 
 
 
-    /*
+    /**
      * deleteTrip
      * This function will erase a trip from the Trip table and
      * also the associated way points from the WP table
@@ -152,7 +160,7 @@ public class DataSource {
                 new String[] { trip.getTripId() });
     }
 
-    /*
+    /**
      * deleteTrip
      * This function will erase a trip from the Trip table and
      * also the associated way points from the WP table
@@ -175,7 +183,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * getTripName
      *
      * Lookup and return a String with a single tripname given the tripId as a String
@@ -198,7 +206,7 @@ public class DataSource {
         }
     }
 
-    /*
+    /**
      * getTripCount
      * Return the number of rows in the Trip Table
      *
@@ -213,7 +221,7 @@ public class DataSource {
 
 
 
-    /*
+    /**
      * seedTripTable
      * Insert all Trip objects into the trip table in the database
      *
@@ -257,7 +265,7 @@ public class DataSource {
         return createTrip(trip);
     }
 
-    /*
+    /**
      * getAllTrips
      * Lookup matching records in the database and for each create a matching object and return
      * a list with all of these as the result.
@@ -302,7 +310,7 @@ public class DataSource {
     // WP Table specifics
     // --------------------
 
-    /*
+    /**
      * createWp
      * This is the function responsible for inserting data into the WayPoint Table. Will be returning
      * the same object in case we need to check if something has been changed.
@@ -320,7 +328,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * deleteWp
      * This function will erase a way point from the WP table
      *
@@ -365,7 +373,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
       * getWpCount
       * Return the number of rows in the WayPoint Table
       *
@@ -379,7 +387,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * seedWpTable
      * Insert all Wp objects into the WayPoint table in the database
      *
@@ -402,7 +410,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * getAllWps
      * Lookup matching records in the database and for each create a matching object and return
      * a list with all of these as the result.
@@ -449,7 +457,7 @@ public class DataSource {
 
 
 
-    /*
+    /**
      * createNavAid
      * This is the function responsible for inserting data into the NavAid Table. Will be returning
      * the same object in case we need to check if something has been changed.
@@ -466,7 +474,7 @@ public class DataSource {
         return na;
     }
 
-    /*
+    /**
      * seedNavAidTable
      * Insert all NavAid objects into the NavAids table in the database
      *
@@ -488,7 +496,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * getAllNavAids
      * Lookup matching records in the database and for each create a matching object and return
      * a list with all of these as the result.
@@ -541,7 +549,7 @@ public class DataSource {
 
 
 
-    /*
+    /**
      * createAerodrome
      * This is the function responsible for inserting data into the Aerodrome Table. Will be returning
      * the same object in case we need to check if something has been changed.
@@ -558,7 +566,7 @@ public class DataSource {
         return ad;
     }
 
-    /*
+    /**
      * seedAerodromeTable
      * Insert all Aerodrome objects into the Aerodrome table in the database
      *
@@ -580,7 +588,7 @@ public class DataSource {
     }
 
 
-    /*
+    /**
      * getAllAerodromes
      * Lookup matching records in the database and for each create a matching object and return
      * a list with all of these as the result.
@@ -635,7 +643,94 @@ public class DataSource {
 
 
 
-    /*
+
+    // ================  Reporting Points Table ==========================
+
+
+
+    /**
+     * createReportingPoint
+     * This is the function responsible for inserting data into the RPTable. Will be returning
+     * the same object in case we need to check if something has been changed.
+     *
+     * @Args: ReportingPoint Object
+     *
+     * @Return: ReportingPoing object
+     *
+     */
+    public ReportingPoint createReportingPoing(ReportingPoint rp) {
+        ContentValues values = rp.toContentValues();
+
+        mDb.insert(RPTable.TABLE_NAME, null, values);
+        return rp;
+    }
+
+
+
+    /**
+     * seedReportingPointTable
+     * Insert all ReportingPoing objects into the RP table in the database
+     *
+     * @Args: List of ReportingPoing objects
+     *
+     * @Return: none
+     *
+     */
+    public void seedReportingPoingTable(List<ReportingPoint> rpList) {
+        if (rpList.size()>0) {
+            for (ReportingPoint rp : rpList) {
+                try {
+                    createReportingPoing(rp);
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * getAllReportingPoints
+     * Lookup matching records in the database and for each create a matching object and return
+     * a list with all of these as the result.
+     *
+     * @Args: String,     a filter - if this is null all rows are returned from db, otherwise only
+     *                    Reporting Points belonging to a certain Aerodrome are returned.
+     *
+     * @Return: A list of Reporting Points
+     *
+     */
+    public List<ReportingPoint> getAllReportingPoints(String adfilter){
+        List<ReportingPoint> rpList = new ArrayList<>();
+        Cursor cursor;
+
+        if (adfilter==null) {
+            // Fetch all sorted by Name
+            cursor = mDb.query(RPTable.TABLE_NAME, RPTable.ALL_COLUMNS, null,null,null,null, RPTable.COLUMN_NAME);
+        } else {
+            // Pack the type in the required Array object notation before search for matching types and then sorting by name
+            String[] adArg = {adfilter};
+            cursor = mDb.query(RPTable.TABLE_NAME, RPTable.ALL_COLUMNS, RPTable.COLUMN_AD+"=?",adArg, null, null, RPTable.COLUMN_NAME);
+        }
+
+
+        while (cursor.moveToNext()) {
+            String name = cursor.getString(cursor.getColumnIndex(RPTable.COLUMN_NAME));
+            String adname = cursor.getString(cursor.getColumnIndex(RPTable.COLUMN_AD));
+            double lat = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LON));
+
+            ReportingPoint rp = new ReportingPoint(adname, name, lat, lon);
+
+            rpList.add(rp);
+        }
+        cursor.close();
+
+        return rpList;
+    }
+
+
+    /**
      * get date string
      *
      */

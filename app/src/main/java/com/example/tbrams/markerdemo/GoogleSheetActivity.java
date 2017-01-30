@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -396,6 +397,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             result.add(getDataFromApi());
             result.add(getPublicAerodromes());
             result.add(getPrivateAerodromes());
+            result.add(getReportingPoints());
             return result;
         }
 
@@ -443,7 +445,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     } else if (sType.equals("NDB")) {
                         nType = NavAid.NDB;
                     } else if (sType.equals("L")) {
-                        nType = NavAid.LOCALIZER;
+                        nType = NavAid.LOCATOR;
                     } else if (sType.equals("TACAN")) {
                         nType = NavAid.TACAN;
                     } else if (sType.equals("VORTAC")) {
@@ -586,7 +588,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
 
         /**
-         * Fetch a list of PrivateAerodromes names and locations from a sample spreadsheet:
+         * Fetch a list of Public Aerodromes names and locations from a sample spreadsheet:
          * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
          *
          * @return List of names and majors
@@ -674,11 +676,61 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         }
 
 
+        /**
+         * Fetch a list of Aerodrome Reporting Points from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return List of names and majors
+         * @throws IOException
+         */
+        private String getReportingPoints() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "ReportingPoints!A2:C";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<ReportingPoint> rpList = new ArrayList<>();
+            List<List<Object>> values = response.getValues();
+
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: ICAO AD Name[STRING]
+            // column 1: NAME Reporting Point[STRING]
+            // Column 2: Location [String, format "55 13 44.18N 009 12 50.61E"]
+
+            String link="";
+
+            if (values != null) {
+                for (List row : values) {
+
+                    String icao=row.get(0).toString();
+                    String name=row.get(1).toString();
+                    String location=row.get(2).toString();
+
+
+                    ReportingPoint rp = new ReportingPoint(icao, name, location);
+                    Log.d(TAG, "getData: Reporting Point: "+rp.getName()+" @"+rp.getAerodrome()+" "+rp.getPosition());
+         //           adList.add(ad);
+
+                }
+
+                // update database
+        //        DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+        //        dbAdmin.updateAerodromesFromMaster(adList, true);
+
+            }
+            return "Reporting Points (Parsed & Checked)";
+        }
+
+
         @Override
         protected void onPreExecute() {
             mOutputText.setText("");
             mProgress.show();
         }
+
 
         @Override
         protected void onPostExecute(List<String> output) {
@@ -690,6 +742,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 mOutputText.setText(TextUtils.join("\n", output));
             }
         }
+
 
         @Override
         protected void onCancelled() {

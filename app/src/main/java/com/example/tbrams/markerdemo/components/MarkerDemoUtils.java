@@ -467,9 +467,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         iconInt=R.drawable.ic_device_gps_orange;
                         snippetText = "VORTAC";
                         break;
-                    case NavAid.LOCALIZER:
+                    case NavAid.LOCATOR:
                         iconInt=R.drawable.ic_device_gps_grey;
-                        snippetText = "LZ";
+                        snippetText = "Locator";
                         break;
                 }
 

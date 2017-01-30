@@ -17,7 +17,7 @@ public class NavAid {
     public static final int DME=4;
     public static final int VORDME=5;
     public static final int VORTAC=6;
-    public static final int LOCALIZER=7;
+    public static final int LOCATOR =7;
 
     private String id;
     private int seq_id;
