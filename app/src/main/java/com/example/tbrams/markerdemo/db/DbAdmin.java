@@ -106,6 +106,11 @@ public class DbAdmin extends DataSource {
             super.createReportingPoing(rp);
         }
 
+        if (!purgeDatabase) {
+            // Since this was an append operation, make sure we get all database elements into Extramarkers
+            rpList = super.getAllReportingPoints(null);
+        }
+
         super.close();
 
         if (sExtraMarkers==null) {
@@ -142,6 +147,11 @@ public class DbAdmin extends DataSource {
             super.createNavAid(na);
         }
 
+        if (!purgeDatabase) {
+            // Since this was an append operation, make sure we get all database elements into Extramarkers
+            navAidsList = super.getAllNavAids(null);
+        }
+
         super.close();
 
         if (sExtraMarkers==null) {
@@ -159,7 +169,7 @@ public class DbAdmin extends DataSource {
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      *
-     * @param adList List of AeroDrome objects
+     * @param adList        List of Aerodrome objects
      * @param purgeDatabase Flag - it set, clear the Aerodrome table before inserting
      *                      otherwise just append to existing data
      */
@@ -175,6 +185,11 @@ public class DbAdmin extends DataSource {
         // Copy all navigational aids form the sample list to the Database
         for (Aerodrome ad : adList) {
             super.createAerodrome(ad);
+        }
+
+        if (!purgeDatabase) {
+            // Since this was an append operation, make sure we get all database elements into Extramarkers
+            adList = super.getAllAerodromes(null);
         }
 
         super.close();

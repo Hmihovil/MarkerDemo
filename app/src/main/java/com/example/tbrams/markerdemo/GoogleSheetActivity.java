@@ -616,8 +616,8 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // column 0: NAME [STRING]
             // column 1: ICAO [OPT STRING]
             // Column 2: Location [String, format "56 01 08N 008 40 55E" or "56 00 10.2N 009 05 34.8E"]
-            // column 3: TYPE [OPT String], "P: Parachuting", "HG: Hang GLiders", "G: Gliders", "CL: Cable Launch" and
-            //                              sometimes comma separated
+            // column 3: ACTIVITIES [OPT String], "P: Parachuting", "HG: Hang Gliders", "G: Gliders", "CL: Cable Launch".
+            //                                    sometimes comma separated
             // Column 4: REMARKS [OPT String]
 
             if (values != null) {

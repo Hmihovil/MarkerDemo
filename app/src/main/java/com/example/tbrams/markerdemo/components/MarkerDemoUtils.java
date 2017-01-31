@@ -682,7 +682,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
         Log.d(TAG, "plotAerodromes: Entering, adList.size(): "+adList.size());
 
-        // Create the markers if not alrady there
+        // Create the markers if not already there
         int iconPublicAirfield = R.drawable.ic_public_airfield;
         int iconPrivateAirfield = R.drawable.ic_private_airfield;
         int iconRecreationalAirfield = R.drawable.ic_recreational_airfield;
