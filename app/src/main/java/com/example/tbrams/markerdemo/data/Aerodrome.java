@@ -26,6 +26,7 @@ public class Aerodrome {
     private String web;
     private String phone;
     private boolean PPR;
+    private String activity;
     private String remarks;
     private String link;
 
@@ -45,13 +46,31 @@ public class Aerodrome {
         this.PPR=ppr;
         this.link=link;
 
-
-        // not yet implemented
         this.web=null;
         this.phone=null;
         this.remarks=null;
+        this.activity=null;
     }
 
+
+// Special constructor for recreational airfields
+    public Aerodrome(String fullname, String name, String position, int adType, String activity, String remarks) {
+        this.id = UUID.randomUUID().toString();
+        this.icaoName = name;
+        this.name = fullname;
+        this.position = convertVFG(position);
+        this.adType=adType;
+        this.activity= activity;
+        this.remarks = remarks;
+
+        this.radio=null;
+        this.freq=null;
+        this.PPR=false;
+        this.link=null;
+
+        this.web=null;
+        this.phone=null;
+    }
     public String getName() {
         return name;
     }
@@ -100,6 +119,14 @@ public class Aerodrome {
     public String getLink() { return link; }
     public void setLink(String link) { this.link = link; }
 
+    public String getActivity() {
+        return activity;
+    }
+
+    public void setActivity(String activity) {
+        this.activity = activity;
+    }
+
     // Convert format used in VFG Denmark ADC to internal location form
     // For example "57 05 34.04N 009 50 56.99E"
 
@@ -136,6 +163,7 @@ public class Aerodrome {
         values.put(AdTable.COLUMN_WEB, web);
         values.put(AdTable.COLUMN_PHONE, phone);
         values.put(AdTable.COLUMN_PPR, PPR);
+        values.put(AdTable.COLUMN_ACTIVITY, activity);
         values.put(AdTable.COLUMN_REMARKS, remarks);
 
         return values;

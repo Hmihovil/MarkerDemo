@@ -634,8 +634,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     }
 
                     // TODO: Need a constructor taking Remarks as well
-                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.RECREATIONAL, null, null, false, null);
-                    ad.setRemarks(remarks);
+                    Aerodrome ad = new Aerodrome(name, icao, location, Aerodrome.RECREATIONAL, activities, remarks);
                     Log.d(TAG, "getData: New Recreational Aerodrome: "+ad.getName()+" @"+ad.getPosition());
                     adList.add(ad);
 

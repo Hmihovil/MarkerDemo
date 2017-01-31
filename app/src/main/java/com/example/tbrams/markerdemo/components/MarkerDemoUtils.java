@@ -711,6 +711,26 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         title=adList.get(i).getName();
                         if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
                         note=adList.get(i).getRemarks();
+                        String activity=adList.get(i).getActivity().toUpperCase();
+                        String extraNote="";
+                        if (activity.contains("HG")) {
+                            extraNote+="Hang Gliders";
+                            activity.replace("HG","");
+                        }
+                        if(activity.contains("G")) {
+                            extraNote+=" Gliders";
+                            activity.replace("G","");
+                        }
+                        if(activity.contains("CL")) {
+                            extraNote+=" Cable Launch";
+                            activity.replace("CL","");
+                        }
+                        if(activity.contains("P")) {
+                            extraNote+=" Parachutes";
+                        }
+                        if (note.equals("")) {
+                            note=extraNote;
+                        }
                         break;
                 }
                 Marker m = gMap.addMarker(new MarkerOptions()

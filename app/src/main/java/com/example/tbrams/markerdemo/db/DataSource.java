@@ -632,6 +632,7 @@ public class DataSource {
             ad.setPhone(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_PHONE)));
             ad.setWeb(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_WEB)));
             ad.setLink(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_LINK)));
+            ad.setActivity(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_ACTIVITY)));
             ad.setRemarks(cursor.getString(cursor.getColumnIndex(AdTable.COLUMN_REMARKS)));
 
             adList.add(ad);
