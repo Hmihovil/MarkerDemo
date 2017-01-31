@@ -260,8 +260,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     if(getZoomLevel()> ZOOM_CHANGE_MAP_TYPE) {
                         Log.d(TAG, "onCameraIdle: Changing to hybrid map");
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                        setHideADicons(true);
-                        setHideNavAidIcons(true);
+//                        setHideADicons(true);
+//                        setHideNavAidIcons(true);
                         setMapTypeChangedByZoom(true);
                     } else {
                         // Switch back to preferred map type after "forced" change due to zoom
@@ -528,8 +528,22 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
     private void updatePreferenceFlags() {
-        setHideADicons(! mSharedPrefs.getBoolean("ADs", true));
-        setHideNavAidIcons(! mSharedPrefs.getBoolean("navAids", true));
+//        setHideADicons(! mSharedPrefs.getBoolean("ADs", true));
+//        setHideNavAidIcons(! mSharedPrefs.getBoolean("navAids", true));
+
+        // New way of doing it:
+        setHide_private_ad(! mSharedPrefs.getBoolean("show_private_ad", true));
+        setHide_public_ad(! mSharedPrefs.getBoolean("show_public_ad", true));
+        setHide_recreational_ad(! mSharedPrefs.getBoolean("show_recreational_ad", true));
+        setHide_reporting_points(! mSharedPrefs.getBoolean("show_reporting", true));
+
+        setHide_VOR(! mSharedPrefs.getBoolean("show_VOR", true));
+        setHide_DME(! mSharedPrefs.getBoolean("show_DME", true));
+        setHide_VORDME(! mSharedPrefs.getBoolean("show_VORDME", true));
+        setHide_NDB(! mSharedPrefs.getBoolean("show_NDB", true));
+        setHide_TACAN(! mSharedPrefs.getBoolean("show_TACAN", true));
+        setHide_VORTAC(! mSharedPrefs.getBoolean("show_VORTAC", true));
+        setHide_Locator(! mSharedPrefs.getBoolean("show_Locator", true));
     }
 
 

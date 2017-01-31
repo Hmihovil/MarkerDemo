@@ -47,9 +47,24 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private static Polyline polyline;
     private float mZoomLevel;
     private String mSearchedFor;
-    private boolean mHideNavAidIcons = false;
-    private boolean mHideADicons = false;
+//    private boolean mHideNavAidIcons = false;
+//    private boolean mHideADicons = false;
     private boolean mMapTypeChangedByZoom=false;
+
+    private boolean mHide_public_ad=false;
+    private boolean mHide_private_ad=false;
+    private boolean mHide_recreational_ad=false;
+
+    private boolean mHide_reporting_points=false;
+
+    private boolean mHide_VOR=false;
+    private boolean mHide_VORDME=false;
+    private boolean mHide_NDB=false;
+    private boolean mHide_TACAN=false;
+    private boolean mHide_VORTAC=false;
+    private boolean mHide_DME=false;
+    private boolean mHide_Locator=false;
+
 
 
 
@@ -402,14 +417,96 @@ public class MarkerDemoUtils extends AppCompatActivity {
         mZoomLevel = zoomLevel;
     }
 
-    public boolean hideNavAidIcons() { return mHideNavAidIcons; }
-    public void setHideNavAidIcons(boolean hideNavAidIcons) {
-        mHideNavAidIcons = hideNavAidIcons;
+
+
+    // These are for showing/hiding specific components. Used after restoring preferences
+    public boolean isHide_public_ad() {
+        return mHide_public_ad;
     }
 
-    public boolean hideADicons() { return mHideADicons; }
-    public void setHideADicons(boolean hideADicons) {
-        mHideADicons = hideADicons;
+    public void setHide_public_ad(boolean hide_public_ad) {
+        mHide_public_ad = hide_public_ad;
+    }
+
+    public boolean isHide_private_ad() {
+        return mHide_private_ad;
+    }
+
+    public void setHide_private_ad(boolean hide_private_ad) {
+        mHide_private_ad = hide_private_ad;
+    }
+
+    public boolean isHide_recreational_ad() {
+        return mHide_recreational_ad;
+    }
+
+    public void setHide_recreational_ad(boolean hide_recreational_ad) {
+        mHide_recreational_ad = hide_recreational_ad;
+    }
+
+    public boolean isHide_VOR() {
+        return mHide_VOR;
+    }
+
+    public void setHide_VOR(boolean hide_VOR) {
+        mHide_VOR = hide_VOR;
+    }
+
+    public boolean isHide_VORDME() {
+        return mHide_VORDME;
+    }
+
+    public void setHide_VORDME(boolean hide_VORDME) {
+        mHide_VORDME = hide_VORDME;
+    }
+
+    public boolean isHide_NDB() {
+        return mHide_NDB;
+    }
+
+    public void setHide_NDB(boolean hide_NDB) {
+        mHide_NDB = hide_NDB;
+    }
+
+    public boolean isHide_TACAN() {
+        return mHide_TACAN;
+    }
+
+    public void setHide_TACAN(boolean hide_TACAN) {
+        mHide_TACAN = hide_TACAN;
+    }
+
+    public boolean isHide_VORTAC() {
+        return mHide_VORTAC;
+    }
+
+    public void setHide_VORTAC(boolean hide_VORTAC) {
+        mHide_VORTAC = hide_VORTAC;
+    }
+
+    public boolean isHide_Locator() {
+        return mHide_Locator;
+    }
+
+    public void setHide_Locator(boolean hide_Locator) {
+        mHide_Locator = hide_Locator;
+    }
+
+
+    public boolean isHide_reporting_points() {
+        return mHide_reporting_points;
+    }
+
+    public boolean isHide_DME() {
+        return mHide_DME;
+    }
+
+    public void setHide_DME(boolean hide_DME) {
+        mHide_DME = hide_DME;
+    }
+
+    public void setHide_reporting_points(boolean hide_reporting_points) {
+        mHide_reporting_points = hide_reporting_points;
     }
 
     public boolean isMapTypeChangedByZoom() { return mMapTypeChangedByZoom; }
@@ -486,18 +583,81 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
 
-        if ( hideNavAidIcons() || getZoomLevel() > NAVAID_MAX_ZOOM || getZoomLevel()< NAVAID_MIN_ZOOM) {
-            // Preference off for AD markers - hide them
-            for (Marker m : navAidMarkers) {
+
+        // Hide/show selected markers
+        for (int i = 0; i < navAidList.size(); i++) {
+            NavAid na = navAidList.get(i);
+            Marker m = navAidMarkers.get(i);
+
+            // Double check the zoom level
+            if (getZoomLevel() > NAVAID_MAX_ZOOM || getZoomLevel() < NAVAID_MIN_ZOOM) {
+                // If exceeded then hide all markers in this category
                 m.setVisible(false);
-            }
-        } else {
-            // Update size of each NavAidMarker relative to zoom level
-            for (Marker m : navAidMarkers) {
-                m.setVisible(true);
-                //  m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
+
+            } else {
+
+                // Set visibility according to preferences
+                switch (na.getType()) {
+                    case NavAid.LOCATOR:
+                        if (mHide_Locator) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.VOR:
+                        if (mHide_VOR) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.DME:
+                        if (mHide_DME) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.VORDME:
+                        if (mHide_VORDME) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.NDB:
+                        if (mHide_NDB) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.TACAN:
+                        if (mHide_TACAN) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case NavAid.VORTAC:
+                        if (mHide_VORTAC) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                }
             }
         }
+
     }
 
 
@@ -562,20 +722,48 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
 
+        // Hide/show selected markers
+        for (int i = 0; i < adList.size(); i++) {
+            Aerodrome ad = adList.get(i);
+            Marker m = adMarkers.get(i);
 
+            // Double check the zoom level
+            if (getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel() < AERODROME_MIN_ZOOM) {
 
-        if (hideADicons() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel()< AERODROME_MIN_ZOOM) {
-            for (Marker m : adMarkers) {
+                // If outside limits, hide all markers of this category
                 m.setVisible(false);
-            }
-        } else {
 
-            // Update size of each ADMarker relative to zoom level
-            for (Marker m : adMarkers) {
-                m.setVisible(true);
-                //       m.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(iconName)));
+            } else {
+
+                // Set visibility according to preferences
+                switch (ad.getType()) {
+                    case Aerodrome.PUBLIC:
+                        if (mHide_public_ad) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case Aerodrome.PRIVATE:
+                        if (mHide_private_ad) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+
+                    case Aerodrome.RECREATIONAL:
+                        if (mHide_recreational_ad) {
+                            m.setVisible(false);
+                        } else {
+                            m.setVisible(true);
+                        }
+                        break;
+                }
             }
         }
+
     }
 
 
@@ -612,8 +800,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
 
-        // TODO: Need to offer hiding RPs
-        if (hideADicons() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel()< AERODROME_MIN_ZOOM) {
+        if (isHide_reporting_points() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel()< AERODROME_MIN_ZOOM) {
             for (Marker m : rpMarkers) {
                 m.setVisible(false);
             }

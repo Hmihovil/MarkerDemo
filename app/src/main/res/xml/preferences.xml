@@ -17,14 +17,70 @@
          android:defaultValue="1"
          android:entries="@array/listArrayMapType"
          android:entryValues="@array/listValuesMapType" />
-    <CheckBoxPreference
-        android:key="navAids"
+
+    <PreferenceCategory
         android:title="@string/navaids_title"
-        android:summary="@string/navaids_summary"
-        android:defaultValue="true"/>
-    <CheckBoxPreference
-        android:key="ADs"
-        android:title="@string/AD_title"
-        android:summary="@string/AD_summary"
-        android:defaultValue="true"/>
+        android:key="pref_key_navaids_settings"
+        >
+        <CheckBoxPreference
+            android:key="show_Locator"
+            android:title="Locator"
+            android:summary="Select to show Locators"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_VOR"
+            android:title="VOR"
+            android:summary="Select to show VORs"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_DME"
+            android:title="DME"
+            android:summary="Select to show DMEs"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_VORDME"
+            android:title="VOR/DME"
+            android:summary="Select to show VOR/DMEs"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_NDB"
+            android:title="NDB"
+            android:summary="Select to show NDBs"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_TACAN"
+            android:title="TACAN"
+            android:summary="Select to show TACANs"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="show_VORTAC"
+            android:title="VORTAC"
+            android:summary="Select to show VORTACs"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_key_AD_settings"
+        android:title="Aerodromes">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_public_ad"
+            android:summary="Select to show public airports"
+            android:title="Public"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_private_ad"
+            android:summary="Select to show private airfields"
+            android:title="Private"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_recreational_ad"
+            android:summary="Select to show recreational airfields"
+            android:title="Recreational"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_reporting"
+            android:summary="Select to show reporting points on the map"
+            android:title="Reporting Points"/>
+    </PreferenceCategory>
 </PreferenceScreen>
