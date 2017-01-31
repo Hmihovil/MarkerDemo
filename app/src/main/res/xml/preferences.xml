@@ -18,7 +18,7 @@
          android:entries="@array/listArrayMapType"
          android:entryValues="@array/listValuesMapType" />
 
-    <PreferenceCategory
+    <PreferenceScreen
         android:title="@string/navaids_title"
         android:key="pref_key_navaids_settings"
         >
@@ -57,9 +57,9 @@
             android:title="VORTAC"
             android:summary="Select to show VORTACs"
             android:defaultValue="true"/>
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
         android:key="pref_key_AD_settings"
         android:title="Aerodromes">
         <CheckBoxPreference
@@ -82,5 +82,5 @@
             android:key="show_reporting"
             android:summary="Select to show reporting points on the map"
             android:title="Reporting Points"/>
-    </PreferenceCategory>
+    </PreferenceScreen>
 </PreferenceScreen>
