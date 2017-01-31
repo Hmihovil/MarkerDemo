@@ -701,13 +701,15 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
                     case Aerodrome.PRIVATE:
                         iconAD=iconPrivateAirfield;
-                        title=adList.get(i).getIcaoName();
-                        note=adList.get(i).getName();
+                        title=adList.get(i).getName();
+                        if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
+                        note=adList.get(i).getRemarks();
                         break;
 
                     case Aerodrome.RECREATIONAL:
                         iconAD=iconRecreationalAirfield;
                         title=adList.get(i).getName();
+                        if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
                         note=adList.get(i).getRemarks();
                         break;
                 }
