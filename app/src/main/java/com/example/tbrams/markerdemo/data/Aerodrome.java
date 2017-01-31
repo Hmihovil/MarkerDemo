@@ -14,6 +14,7 @@ public class Aerodrome {
     public static final int PRIVATE=2;
     public static final int GLIDER=3;
     public static final int HELI=4;
+    public static final int RECREATIONAL=5;
 
     private String id;
     private String icaoName;

@@ -397,6 +397,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             result.add(getDataFromApi());
             result.add(getPublicAerodromes());
             result.add(getPrivateAerodromes());
+            result.add(getRecreationalAerodromes());
             result.add(getReportingPoints());
             return result;
         }
@@ -494,8 +495,10 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 }
 
                 // update database
+                // This is a clean up operation, meaning the Nav Aids table will be wiped before
+                // inserting these data again.
                 DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
-                dbAdmin.updateNavAidsFromMaster(navAidsList);
+                dbAdmin.updateNavAidsFromMaster(navAidsList, true);
 
             }
             return "NavAids updated";
@@ -578,11 +581,76 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 }
 
                 // update database
+                // This is an append operation, keep everything in the database with the risk of getting
+                // duplicates now.
+
+                // TODO: Remove existing ads of this type first
                 DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
                 dbAdmin.updateAerodromesFromMaster(adList, false);
 
             }
-            return "Private Aerodromes imported";
+            return "Private Aerodromes updated";
+        }
+
+
+        /**
+         * Fetch a list of Recreational Aerodromes names and locations from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return List of names and majors
+         * @throws IOException
+         */
+        private String getRecreationalAerodromes() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "Recreational!A2:E";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<Aerodrome> adList = new ArrayList<>();
+            List<List<Object>> values = response.getValues();
+
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: NAME [STRING]
+            // column 1: ICAO [OPT STRING]
+            // Column 2: Location [String, format "56 01 08N 008 40 55E" or "56 00 10.2N 009 05 34.8E"]
+            // column 3: TYPE [OPT String], "P: Parachuting", "HG: Hang GLiders", "G: Gliders", "CL: Cable Launch" and
+            //                              sometimes comma separated
+            // Column 4: REMARKS [OPT String]
+
+            if (values != null) {
+                for (List row : values) {
+
+                    String name=row.get(0).toString();
+                    String icao=row.get(1).toString();
+                    String location=row.get(2).toString();
+                    String activities=row.get(3).toString();
+
+                    String remarks="";
+                    if (row.size()>4) {
+                        remarks = row.get(4).toString();
+                    }
+
+                    // TODO: Need a constructor taking Remarks as well
+                    Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.RECREATIONAL, null, null, false, null);
+                    ad.setRemarks(remarks);
+                    Log.d(TAG, "getData: New Recreational Aerodrome: "+ad.getName()+" @"+ad.getPosition());
+                    adList.add(ad);
+
+                }
+
+                // update database
+                // This is an append operation, keep everything in the database with the risk of getting
+                // duplicates now.
+
+                // TODO: Remove existing ads of this type first
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateAerodromesFromMaster(adList, false);
+
+            }
+            return "Recreational Aerodromes updated";
         }
 
 
@@ -667,12 +735,13 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                 }
 
-                // update database
+                // update database - with publich being the first, we will clear out the database as well
+                // And start on a clean sheet.
                 DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
                 dbAdmin.updateAerodromesFromMaster(adList, true);
 
             }
-            return "Public Aerodromes imported";
+            return "Public Aerodromes updated";
         }
 
 
@@ -721,7 +790,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 dbAdmin.updateReportingPointsFromMaster(rpList, true);
 
             }
-            return "Reporting Points (imported)";
+            return "Reporting Points updated";
         }
 
 

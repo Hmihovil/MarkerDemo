@@ -525,14 +525,37 @@ public class MarkerDemoUtils extends AppCompatActivity {
         // Create the markers if not alrady there
         int iconPublicAirfield = R.drawable.ic_public_airfield;
         int iconPrivateAirfield = R.drawable.ic_private_airfield;
+        int iconRecreationalAirfield = R.drawable.ic_recreational_airfield;
         if (adMarkers.size() == 0) {
             // Create all AD markers and keep record in an ArrayList
             for (int i = 0; i < adList.size(); i++) {
-                int iconInt = (adList.get(i).getType()==Aerodrome.PUBLIC?iconPublicAirfield:iconPrivateAirfield);
+                int iconAD = 0;
+                String title="";
+                String note="";
+                switch (adList.get(i).getType()) {
+                    case Aerodrome.PUBLIC:
+                        iconAD=iconPublicAirfield;
+                        title=adList.get(i).getIcaoName();
+                        note=adList.get(i).getName();
+                        break;
+
+                    case Aerodrome.PRIVATE:
+                        iconAD=iconPrivateAirfield;
+                        title=adList.get(i).getIcaoName();
+                        note=adList.get(i).getName();
+                        break;
+
+                    case Aerodrome.RECREATIONAL:
+                        iconAD=iconRecreationalAirfield;
+                        title=adList.get(i).getName();
+                        note=adList.get(i).getRemarks();
+                        break;
+                }
                 Marker m = gMap.addMarker(new MarkerOptions()
-                        .title(adList.get(i).getIcaoName())
-                        .snippet(adList.get(i).getName())
-                        .position(adList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
+                        .title(title)
+                        .snippet(note)
+                        .position(adList.get(i).getPosition())
+                        .icon(BitmapDescriptorFactory.fromResource(iconAD)));
 
                 m.setAnchor(0.5f, .5f);
                 adMarkers.add(m);
@@ -584,7 +607,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         .snippet(rpList.get(i).getAerodrome()+" Reporting Point")
                         .position(rpList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconReportingPoint)));
 
-                m.setAnchor(0.5f, .5f);
+                m.setAnchor(0.5f, .6f);
                 rpMarkers.add(m);
             }
         }

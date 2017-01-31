@@ -69,7 +69,7 @@ public class DbAdmin extends DataSource {
         List<NavAid> navAidsSampleList = sExtraMarkers.getSampleNavAidList();
 
         // Then update the NavAid table
-        updateNavAidsFromMaster(navAidsSampleList);
+        updateNavAidsFromMaster(navAidsSampleList, true);
 
         // Fetch the Aerodrome samples we will use for resetting
         List<Aerodrome> adSampleList = sExtraMarkers.getSampleAerodromeList();
@@ -87,6 +87,10 @@ public class DbAdmin extends DataSource {
      *
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
+     *
+     * @param rpList List of Reporting Point objects
+     * @param purgeDatabase Flag - it set, clear the Reporting Points table before inserting
+     *                      otherwise just append to existing data
      */
     public void updateReportingPointsFromMaster(List<ReportingPoint> rpList, boolean purgeDatabase) {
         // Delete and recreate table
@@ -119,11 +123,19 @@ public class DbAdmin extends DataSource {
      *
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
+     *
+     * @param navAidsList   List of Navigational Aid Objects
+     * @param purgeDatabase Flag - it set, clear the Navigational Aids table before inserting
+     *                      otherwise just append to existing data
+
      */
-    public void updateNavAidsFromMaster(List<NavAid> navAidsList) {
-        // Delete and recreate table
+    public void updateNavAidsFromMaster(List<NavAid> navAidsList, boolean purgeDatabase) {
         super.open();
-        super.resetNavAidTable();
+
+        if (purgeDatabase) {
+            // Delete and recreate table
+            super.resetNavAidTable();
+        }
 
         // Copy all navigational aids form the sample list to the Database
         for (NavAid na : navAidsList) {
@@ -146,6 +158,10 @@ public class DbAdmin extends DataSource {
      *
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
+     *
+     * @param adList List of AeroDrome objects
+     * @param purgeDatabase Flag - it set, clear the Aerodrome table before inserting
+     *                      otherwise just append to existing data
      */
     public void updateAerodromesFromMaster(List<Aerodrome> adList, boolean purgeDatabase) {
 
