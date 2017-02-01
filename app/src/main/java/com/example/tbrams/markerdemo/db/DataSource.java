@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
@@ -79,6 +80,11 @@ public class DataSource {
         mDb.execSQL(RPTable.SQL_CREATE);
     }
 
+    public void resetObstaclesTable() {
+        mDb.execSQL(ObstacleTable.SQL_DELETE);
+        mDb.execSQL(ObstacleTable.SQL_CREATE);
+    }
+
 
     public void makeSureWeHaveTables() {
         mDb.execSQL(TripTable.SQL_CREATE);
@@ -86,6 +92,7 @@ public class DataSource {
         mDb.execSQL(NavAidTable.SQL_CREATE);
         mDb.execSQL(AdTable.SQL_CREATE);
         mDb.execSQL(RPTable.SQL_CREATE);
+        mDb.execSQL(ObstacleTable.SQL_CREATE);
     }
 
 
@@ -717,8 +724,8 @@ public class DataSource {
         while (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndex(RPTable.COLUMN_NAME));
             String adname = cursor.getString(cursor.getColumnIndex(RPTable.COLUMN_AD));
-            double lat = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LAT));
-            double lon = cursor.getDouble(cursor.getColumnIndex(AdTable.COLUMN_LON));
+            double lat = cursor.getDouble(cursor.getColumnIndex(RPTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(RPTable.COLUMN_LON));
 
             ReportingPoint rp = new ReportingPoint(adname, name, lat, lon);
 
@@ -727,6 +734,96 @@ public class DataSource {
         cursor.close();
 
         return rpList;
+    }
+
+
+
+    // ================  Obstacles Table ==========================
+
+
+
+    /**
+     * createObstacle
+     * This is the function responsible for inserting data into the ObstacleTable. Will be returning
+     * the same object in case we need to check if something has been changed.
+     *
+     * @Args: Obstacle Object
+     *
+     * @Return: Obstacle object
+     *
+     */
+    public Obstacle createObstacle(Obstacle obstacle) {
+        ContentValues values = obstacle.toContentValues();
+
+        mDb.insert(ObstacleTable.TABLE_NAME, null, values);
+        return obstacle;
+    }
+
+
+
+    /**
+     * seedObstacleTable
+     * Insert all Obstacle objects into the RP table in the database
+     *
+     * @Args: List of Obstacle objects
+     *
+     * @Return: none
+     *
+     */
+    public void seedObstacleTable(List<Obstacle> obstacleList) {
+        if (obstacleList.size()>0) {
+            for (Obstacle obstacle : obstacleList) {
+                try {
+                    createObstacle(obstacle);
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
+    /**
+     * getAllObstacles
+     * Lookup matching records in the database and for each create a matching object and return
+     * a list with all of these as the result.
+     *
+     * @Args: String,     a filter - if this is null all rows are returned from db, otherwise only
+     *                    Obstacles belonging to a certain What type are returned.
+     *
+     * @Return: A list of Obstacles
+     *
+     */
+    public List<Obstacle> getAllObstacles(String filter){
+        List<Obstacle> obstacleList = new ArrayList<>();
+        Cursor cursor;
+
+        if (filter==null) {
+            // Fetch all sorted by Name
+            cursor = mDb.query(ObstacleTable.TABLE_NAME, ObstacleTable.ALL_COLUMNS, null,null,null,null, ObstacleTable.COLUMN_NAME);
+        } else {
+            // Pack the type in the required Array object notation before search for matching types and then sorting by name
+            String[] adArg = {filter};
+            cursor = mDb.query(ObstacleTable.TABLE_NAME, ObstacleTable.ALL_COLUMNS, ObstacleTable.COLUMN_WHAT+"=?",adArg, null, null, ObstacleTable.COLUMN_NAME);
+        }
+
+
+        while (cursor.moveToNext()) {
+            String name = cursor.getString(cursor.getColumnIndex(ObstacleTable.COLUMN_NAME));
+            String what = cursor.getString(cursor.getColumnIndex(ObstacleTable.COLUMN_WHAT));
+            double lat = cursor.getDouble(cursor.getColumnIndex(ObstacleTable.COLUMN_LAT));
+            double lon = cursor.getDouble(cursor.getColumnIndex(ObstacleTable.COLUMN_LON));
+            int elevation = cursor.getInt(cursor.getColumnIndex(ObstacleTable.COLUMN_ELEVATION));
+            int height = cursor.getInt(cursor.getColumnIndex(ObstacleTable.COLUMN_HEIGHT));
+
+            Obstacle obstacle = new Obstacle(name, what, lat, lon, elevation, height);
+
+            obstacleList.add(obstacle);
+        }
+        cursor.close();
+
+        return obstacleList;
     }
 
 }

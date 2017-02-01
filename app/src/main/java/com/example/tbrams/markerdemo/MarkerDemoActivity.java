@@ -30,6 +30,7 @@ import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.MarkerLab;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DataSource;
@@ -75,19 +76,21 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private final MarkerLab markerLab = MarkerLab.getMarkerLab(this);
     private final List<MarkerObject> markerList = markerLab.getMarkers();
 
+    // Get markers from singleton storage
     private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
     private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
     private List<ReportingPoint> mReportingPointList = sExtraMarkers.getReportingPointList();
     private final List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
+    private final List<Obstacle> mObstacleList = sExtraMarkers.getObstaclesList();
 
     // Special list of VOR only nav. aids
     private final List<NavAid> mVorList = new ArrayList<>();
 
-    // This is used for map marker storage
+    // This is used for map marker storage locally
     private final List<Marker> mNavAidMarkers = new ArrayList<>();
     private final List<Marker> mADMarkers = new ArrayList<>();
     private final List<Marker> mRPMarkers = new ArrayList<>();
-
+    private final List<Marker> mObstacleMarkers = new ArrayList<>();
 
     private static int currentMarkerIndex=-1;
 
@@ -242,12 +245,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             // Disable the navigation toolbar that will otherwise pop up after setting a marker
             mMap.getUiSettings().setMapToolbarEnabled(false);
 
-            // Enable my location button though
-            //       mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            // Disable my location button though
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
             plotNavAids(mNavAidMarkers, mNavAidList, mMap);
             plotAerodromes(mADMarkers, mAerodromeList, mMap);
             plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
+            plotObstacles(mObstacleMarkers, mObstacleList, mMap);
+
 
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -260,8 +265,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     if(getZoomLevel()> ZOOM_CHANGE_MAP_TYPE) {
                         Log.d(TAG, "onCameraIdle: Changing to hybrid map");
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-//                        setHideADicons(true);
-//                        setHideNavAidIcons(true);
                         setMapTypeChangedByZoom(true);
                     } else {
                         // Switch back to preferred map type after "forced" change due to zoom
@@ -277,6 +280,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     plotNavAids(mNavAidMarkers, mNavAidList, mMap);
                     plotAerodromes(mADMarkers, mAerodromeList, mMap);
                     plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
+                    plotObstacles(mObstacleMarkers, mObstacleList, mMap);
 
                 }
             });
@@ -313,6 +317,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     for (Marker m : mRPMarkers) {
                         if (marker.getId().equals(m.getId())) {
                             Log.d(TAG,"Reporting Point marker clicked");
+                            return null;
+                        }
+                    }
+
+                    // check if an obstacle has been clicked
+                    for (Marker m : mObstacleMarkers) {
+                        if (marker.getId().equals(m.getId())) {
+                            Log.d(TAG,"Obstacle marker clicked");
                             return null;
                         }
                     }
@@ -528,14 +540,12 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
     private void updatePreferenceFlags() {
-//        setHideADicons(! mSharedPrefs.getBoolean("ADs", true));
-//        setHideNavAidIcons(! mSharedPrefs.getBoolean("navAids", true));
 
-        // New way of doing it:
         setHide_private_ad(! mSharedPrefs.getBoolean("show_private_ad", true));
         setHide_public_ad(! mSharedPrefs.getBoolean("show_public_ad", true));
         setHide_recreational_ad(! mSharedPrefs.getBoolean("show_recreational_ad", true));
         setHide_reporting_points(! mSharedPrefs.getBoolean("show_reporting", true));
+        setHide_obstacles(!mSharedPrefs.getBoolean("show_obstacles", true));
 
         setHide_VOR(! mSharedPrefs.getBoolean("show_VOR", true));
         setHide_DME(! mSharedPrefs.getBoolean("show_DME", true));

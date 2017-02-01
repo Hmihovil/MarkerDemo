@@ -14,6 +14,7 @@ import com.example.tbrams.markerdemo.R;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.MarkerObject;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.maps.android.SphericalUtil.computeDistanceBetween;
 import static com.google.maps.android.SphericalUtil.computeHeading;
@@ -37,8 +39,10 @@ import static com.google.maps.android.SphericalUtil.interpolate;
 public class MarkerDemoUtils extends AppCompatActivity {
 
     private static final String TAG = "TBR:MarkerDemoUtils";
-    public static final int AERODROME_MAX_ZOOM = 14;  // At this point normal map icons show up
+    public static final int AERODROME_MAX_ZOOM = 15;  // At this point normal map icons show up
     public static final int AERODROME_MIN_ZOOM = 7;   // At this point the cluttering is too high
+    public static final int OBSTACLE_MAX_ZOOM = 17;  // At this point normal map icons show up
+    public static final int OBSTACLE_MIN_ZOOM = 7;   // At this point the cluttering is too high
     public static final int NAVAID_MAX_ZOOM = 17;     // At this point we have switched to sat mode
     public static final int NAVAID_MIN_ZOOM = 7;      // At this point the cluttering is too high
     public static final int ZOOM_CHANGE_MAP_TYPE = 16;
@@ -47,8 +51,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private static Polyline polyline;
     private float mZoomLevel;
     private String mSearchedFor;
-//    private boolean mHideNavAidIcons = false;
-//    private boolean mHideADicons = false;
     private boolean mMapTypeChangedByZoom=false;
 
     private boolean mHide_public_ad=false;
@@ -56,6 +58,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private boolean mHide_recreational_ad=false;
 
     private boolean mHide_reporting_points=false;
+    private boolean mHide_obstacles=false;
 
     private boolean mHide_VOR=false;
     private boolean mHide_VORDME=false;
@@ -64,9 +67,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private boolean mHide_VORTAC=false;
     private boolean mHide_DME=false;
     private boolean mHide_Locator=false;
-
-
-
 
 
     // MidPoint related
@@ -436,6 +436,14 @@ public class MarkerDemoUtils extends AppCompatActivity {
         mHide_private_ad = hide_private_ad;
     }
 
+    public boolean isHide_obstacles() {
+        return mHide_obstacles;
+    }
+
+    public void setHide_obstacles(boolean hide_obstacles) {
+        mHide_obstacles = hide_obstacles;
+    }
+
     public boolean isHide_recreational_ad() {
         return mHide_recreational_ad;
     }
@@ -792,16 +800,15 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     // Reporting Points Related
 
-    /*
-     * Plot Reporting Point icons on the map with customized markers
+    /**
+     * Plot Reporting Point icons on the map with customized markers.
+     *
      * All markers are initially created and filed away in the mRPMarkers list. Everything is
-     * Offset 50% in both directions, so they will center on the position of the RP.
+     * Offset in both directions, so they will center on the position of the RP.
      *
-     * When the markers are already done, all we need to do is resize the icon depending on
-     * the Zoom level.
-     *
-     * Zooming out over level 7 makes the maps ugly because of the extra large icons, so they
-     * are hidden at these levels as well
+     * param rpMarkers  A list of Reporting Point Markers
+     * param rpList     A list of Reporting Point Objects
+     * param gMap       A handle to the map object
      *
      */
     public void plotReportingPoints(List<Marker> rpMarkers, List<ReportingPoint> rpList, GoogleMap gMap ) {
@@ -836,4 +843,46 @@ public class MarkerDemoUtils extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Plot Reporting Point icons on the map with customized markers.
+     *
+     * All markers are initially created and filed away in the mRPMarkers list. Everything is
+     * Offset in both directions, so they will center on the position of the RP.
+     *
+     * param rpMarkers  A list of Reporting Point Markers
+     * param rpList     A list of Reporting Point Objects
+     * param gMap       A handle to the map object
+     *
+     */
+    public void plotObstacles(List<Marker> oMarkers, List<Obstacle> oList, GoogleMap gMap ) {
+
+        Log.d(TAG, "plotObstacles: Entering, oList.size(): "+oList.size());
+
+        // Create the markers if not already there
+        int iconObstacle = R.drawable.ic_obstacle;
+        if (oMarkers.size() == 0) {
+            // Create all Obstacle markers and keep record in an ArrayList
+            for (int i = 0; i < oList.size(); i++) {
+                Marker m = gMap.addMarker(new MarkerOptions()
+                        .title(oList.get(i).getName())
+                        .snippet(String.format(Locale.ENGLISH, "%d ft/ %d ft", oList.get(i).getElevation(), oList.get(i).getHeight()))
+                        .position(oList.get(i).getPosition())
+                        .icon(BitmapDescriptorFactory.fromResource(iconObstacle)));
+
+                m.setAnchor(0.5f, .5f);
+                oMarkers.add(m);
+            }
+        }
+
+        if (isHide_obstacles() || getZoomLevel() > OBSTACLE_MAX_ZOOM || getZoomLevel()< OBSTACLE_MIN_ZOOM) {
+            for (Marker m : oMarkers) {
+                m.setVisible(false);
+            }
+        } else {
+            for (Marker m : oMarkers) {
+                m.setVisible(true);
+            }
+        }
+    }
 }

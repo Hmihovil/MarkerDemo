@@ -12,12 +12,14 @@ public class ExtraMarkers {
     private static List<NavAid> sNavAidList;
     private static List<Aerodrome> sAerodromeList;
     private static List<ReportingPoint> sReportingPointList;
+    private static List<Obstacle> sObstaclesList;
 
 
     public ExtraMarkers(Context context) {
         sAerodromeList = new ArrayList<>();
         sNavAidList = new ArrayList<>();
         sReportingPointList = new ArrayList<>();
+        sObstaclesList = new ArrayList<>();
     }
 
     public static ExtraMarkers get(Context context){
@@ -37,6 +39,7 @@ public class ExtraMarkers {
 
     public List<NavAid> getNavAidList() { return sNavAidList; }
 
+    public List<Obstacle> getObstaclesList() {return sObstaclesList; }
 
     public void setNavAidList(List<NavAid> navList) {
         sNavAidList = navList;
@@ -49,6 +52,7 @@ public class ExtraMarkers {
         sReportingPointList = rpList;
     }
 
+    public void setObstaclesList(List<Obstacle> oList) {sObstaclesList = oList; }
 
     public List<Aerodrome> getSampleAerodromeList() {
 

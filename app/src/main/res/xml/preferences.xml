@@ -83,4 +83,9 @@
             android:summary="Select to show reporting points on the map"
             android:title="Reporting Points"/>
     </PreferenceScreen>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="show_obstacles"
+        android:summary="Select to show obstacles on the map"
+        android:title="Obstacles"/>
 </PreferenceScreen>

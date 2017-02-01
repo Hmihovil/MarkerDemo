@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
@@ -120,6 +121,47 @@ public class DbAdmin extends DataSource {
 
     }
 
+
+
+
+    /**
+     * Will reset the Obstacles table and then populate it from the list provided
+     * as argument to the function.
+     *
+     * After updating the database table, the singleton Storage will be reflecting the database
+     * as well.
+     *
+     * @param obstacleList  List of Obstacle objects
+     * @param purgeDatabase Flag - it set, clear the table before inserting
+     *                      otherwise just append to existing data
+     */
+    public void updateObstaclesFromMaster(List<Obstacle> obstacleList, boolean purgeDatabase) {
+        // Delete and recreate table
+        super.open();
+
+        if (purgeDatabase) {
+            // Delete and recreate table
+            super.resetObstaclesTable();
+        }
+
+        // Copy all Obstacles from the list to the Database
+        for (Obstacle obstacle : obstacleList) {
+            super.createObstacle(obstacle);
+        }
+
+        if (!purgeDatabase) {
+            // Since this was an append operation, make sure we get all database elements into Extramarkers
+            obstacleList = super.getAllObstacles(null);
+        }
+
+        super.close();
+
+        if (sExtraMarkers==null) {
+            sExtraMarkers=ExtraMarkers.get(mContext);
+        }
+        sExtraMarkers.setObstaclesList(obstacleList);
+
+    }
 
 
     /**

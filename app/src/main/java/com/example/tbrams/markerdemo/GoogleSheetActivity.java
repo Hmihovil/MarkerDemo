@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
+import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.google.android.gms.common.ConnectionResult;
@@ -399,6 +400,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             result.add(getPrivateAerodromes());
             result.add(getRecreationalAerodromes());
             result.add(getReportingPoints());
+            result.add(getObstacles());
             return result;
         }
 
@@ -791,6 +793,60 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             }
             return "Reporting Points updated";
         }
+
+
+        /**
+         * Fetch a list of Obstacles from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return List of names and majors
+         * @throws IOException
+         */
+        private String getObstacles() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "Obstacles!A2:E";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<Obstacle> obstacleList = new ArrayList<>();
+            List<List<Object>> values = response.getValues();
+
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: NAME [STRING]
+            // column 1: WHAT [STRING]
+            // Column 2: Location [String, format "55 13 44.18N 009 12 50.61E"]
+            // Column 3: ELEVATION INT
+            // Column 4: HEIGHT    INT
+
+            String link="";
+
+            if (values != null) {
+                for (List row : values) {
+
+                    String name=row.get(0).toString();
+                    String what=row.get(1).toString();
+                    String location=row.get(2).toString();
+                    int    elevation = Integer.parseInt(row.get(3).toString());
+                    int    height = Integer.parseInt(row.get(4).toString());
+
+                    Obstacle obstacle = new Obstacle(name, what, location, elevation, height);
+
+                    Log.d(TAG, "getData: Obstacle: "+obstacle.getName()+" height: "+ obstacle.getElevation()+ " @"+obstacle.getPosition());
+                    obstacleList.add(obstacle);
+
+                }
+
+                // update database
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateObstaclesFromMaster(obstacleList, true);
+
+            }
+            return "Obstacles updated";
+        }
+
 
 
         @Override
