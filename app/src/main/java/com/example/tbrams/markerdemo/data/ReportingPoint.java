@@ -8,6 +8,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
+import static com.example.tbrams.markerdemo.components.Util.convertVFG;
+
 public class ReportingPoint {
     private String sid;
     private LatLng position;
@@ -47,29 +49,6 @@ public class ReportingPoint {
 
     public String getName() {
         return name;
-    }
-
-
-
-    // Convert format used in VFG Denmark ADC to internal location form
-    // For example "57 05 34.04N 009 50 56.99E"
-
-    // Also supports the format "57 05 34 04N 009 50 56 99E" sometimes used for private aerodromes
-
-    private LatLng convertVFG(String input) {
-        String[] parts;
-        parts = input.split(" ");
-        parts[2] = removeLastChar(parts[2]);
-        parts[5] = removeLastChar(parts[5]);
-
-        Double lat = Double.parseDouble(parts[0])+Double.parseDouble(parts[1])/60+Double.parseDouble(parts[2])/3600;
-        Double lon = Double.parseDouble(parts[3])+Double.parseDouble(parts[4])/60+Double.parseDouble(parts[5])/3600;
-
-        return new LatLng(lat, lon);
-    }
-
-    private static String removeLastChar(String str) {
-        return str.substring(0,str.length()-1);
     }
 
 

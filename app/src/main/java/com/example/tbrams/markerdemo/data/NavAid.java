@@ -2,12 +2,13 @@ package com.example.tbrams.markerdemo.data;
 
 import android.content.ContentValues;
 
+import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.db.NavAidTable;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static com.example.tbrams.markerdemo.components.Util.parseLimitations;
 
 public class NavAid {
 
@@ -46,7 +47,7 @@ public class NavAid {
     public void setSeq_id(int seq_id) { this.seq_id = seq_id; }
 
     public NavAid(String name, String ident, int kind, String latlong, String freq, String limitString, Double elevation) {
-        position = parseCoordinates(latlong);
+        position = Util.convertVFG(latlong);
 
         this.id = UUID.randomUUID().toString();
 
@@ -67,32 +68,6 @@ public class NavAid {
             this.elevation=0.0;
     }
 
-
-
-    /*
-     * convert position from degrees, minutes and seconds format as found
-     * in the NavAid list under VFG Denmark to decimal format used in Google Maps.
-     *
-     * Accepts input format like these:
-     *    "570613N"
-     *   "0095944E"
-     */
-    private static double convert(String ll) {
-        double result=0;
-        double dd,mm,ss;
-
-        if (ll.charAt(ll.length()-1)=='E') {
-            dd = Integer.parseInt(ll.substring(0, 3));
-            mm = Integer.parseInt(ll.substring(3, 5));
-            ss = Integer.parseInt(ll.substring(5, 7));
-        }
-        else {
-            dd = Integer.parseInt(ll.substring(0,2));
-            mm = Integer.parseInt(ll.substring(2,4));
-            ss = Integer.parseInt(ll.substring(4,6));
-        }
-        return dd+mm/60+ss/3600;
-    }
 
     public int getMax_range() {
         return max_range;
@@ -157,58 +132,6 @@ public class NavAid {
     public void setElevation(Double elevation) {
         this.elevation = elevation;
     }
-
-    /*
-         * Convert the different variation of limitations from VFG Denmark to
-         * an integer array with the FL and the NM as first and second element.
-         *
-         * Accepts Strings like "FL 500/60 NM", "20NM", "FL 500/200NM"
-         */
-    private static int[] parseLimitations(String input) {
-        int[] result = {0,0};
-        if (input != null) {
-             String[] parts=input.trim().replace(" ","").split("/");
-            for (String s : parts) {
-                if (s.indexOf("NM")>=0) {
-                    result[1]= Integer.parseInt(s.replace("NM",""));
-                } else if (s.indexOf("FL")>=0) {
-                    result[0]=Integer.parseInt(s.replace("FL",""));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /*
-     * Convert a Location String in the format from VFG Denmark and converts it to an
-     * array with two strings - the first for lat, and the second for lon with N and E
-     * stripped.
-     *
-     * Accepts formats like "57 05 03.80N 009 40 53.20E"
-     */
-    public static LatLng parseCoordinates(String line) {
-        Pattern pattern = Pattern.compile("(.*?)N (.*)E");
-        Matcher matcher = pattern.matcher(line);
-
-        if (matcher.find()) {
-            String lat = matcher.group(1);
-            String lon = matcher.group(2);
-            return new LatLng(parseComponent(lat), parseComponent(lon));
-        } else {
-            return null;
-        }
-    }
-
-    private static double parseComponent(String component) {
-        String[] parts = component.split(" ");
-        int dd = Integer.parseInt(parts[0]);
-        int mm = Integer.parseInt(parts[1]);
-        Double ss = Double.parseDouble(parts[2]);
-
-        return  dd + mm / 60. + ss / 3600.;
-    }
-
 
 
     public ContentValues toContentValues() {

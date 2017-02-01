@@ -17,11 +17,10 @@ import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
+import static com.example.tbrams.markerdemo.components.Util.getDate;
 
 public class DataSource {
     private static final String TAG = "TBR:DataSource";
@@ -730,14 +729,4 @@ public class DataSource {
         return rpList;
     }
 
-
-    /**
-     * get date string
-     *
-     */
-    private String getDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
-    }
 }

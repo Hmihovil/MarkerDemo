@@ -703,7 +703,8 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         iconAD=iconPrivateAirfield;
                         title=adList.get(i).getName();
                         if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
-                        note=adList.get(i).getRemarks();
+                        note="Private airfield ";
+                        if (adList.get(i).getRemarks()!=null) note+=adList.get(i).getRemarks();
                         break;
 
                     case Aerodrome.RECREATIONAL:
