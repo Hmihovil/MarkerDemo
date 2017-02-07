@@ -418,7 +418,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
 
-    /*
+    /**
      * This is where we will get to when another activity is terminated. We should be able
      * to process a markerIndex along with a code indicating how we are supposed to act on it
      */
