@@ -2,6 +2,11 @@ package com.example.tbrams.markerdemo.data;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.example.tbrams.markerdemo.components.Area;
+import com.example.tbrams.markerdemo.components.Util;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +19,15 @@ public class ExtraMarkers {
     private static List<ReportingPoint> sReportingPointList;
     private static List<Obstacle> sObstaclesList;
 
+    private static List<Area> sAreaList;
+
 
     public ExtraMarkers(Context context) {
         sAerodromeList = new ArrayList<>();
         sNavAidList = new ArrayList<>();
         sReportingPointList = new ArrayList<>();
         sObstaclesList = new ArrayList<>();
+        sAreaList = new ArrayList<>();
     }
 
     public static ExtraMarkers get(Context context){
@@ -29,6 +37,40 @@ public class ExtraMarkers {
         return sExtraMarkers;
     }
 
+
+
+    public List<Area> getSampleAreaList() {
+
+
+        // Make Roskilde CTR as a single test area
+
+        String[] input = {"55 39 00N 011 58 30E", "55 40 30N 012 04 30E", "55 41 00N 012 11 30E",
+                "55 39 40N 012 15 00E", "55:36:30 N 012:17:00 E", "55:34:00 N 012:18:00 E", "55:31:00 N 012:16:00 E",
+                "55:29:30 N 012:10:00 E", "55:29:00 N 012:04:00 E", "55:31:00 N 011:58:00 E", "55:36:30 N 011:56:30 E"};
+
+        Area area = new Area("RK CTR", Area.CTR, 0, 1500, getLatLngs(input));
+        sAreaList.add(area);
+
+
+        // Add RK TMA E, 1500-2500
+        String[] input2 = {"55 51 44N 012 30 16E", "55 27 23N 012 08 06E", "55 43 38N 012 08 26E",
+        "55 50 47N 012 17 02E", "55 51 44N 012 30 16E"};
+
+        Area area2 = new Area("RK TMA", Area.TMA, 1500, 2500, getLatLngs(input2));
+        area2.setExtraName("E");
+        sAreaList.add(area2);
+
+        return sAreaList;
+    }
+
+    @NonNull
+    private List<LatLng> getLatLngs(String[] input2) {
+        List<LatLng> vList = new ArrayList<>();
+        for (String s: input2) {
+            vList.add(Util.convertVFG(s));
+        }
+        return vList;
+    }
 
     public List<Aerodrome> getAerodromeList() { return sAerodromeList;}
 

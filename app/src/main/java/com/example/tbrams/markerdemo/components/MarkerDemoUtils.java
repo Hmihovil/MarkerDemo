@@ -4,6 +4,7 @@ package com.example.tbrams.markerdemo.components;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -47,6 +50,11 @@ public class MarkerDemoUtils extends AppCompatActivity {
     public static final int NAVAID_MIN_ZOOM = 7;      // At this point the cluttering is too high
     public static final int ZOOM_CHANGE_MAP_TYPE = 16;
 
+    private static final String CONTROL_AREA_COLOR = "#10aa0000";
+    private static final float CONTROL_AREA_BORDER = 1f;
+    private static final String TERMINAL_AREA_COLOR = "#100000aa";
+    private static final float TERMINAL_AREA_BORDER = 1f;
+
     private final static List<Marker> midpointList = new ArrayList<>();
     private static Polyline polyline;
     private float mZoomLevel;
@@ -59,6 +67,8 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     private boolean mHide_reporting_points=false;
     private boolean mHide_obstacles=false;
+    private boolean mHide_TMA=false;
+    private boolean mHide_CTR=false;
 
     private boolean mHide_VOR=false;
     private boolean mHide_VORDME=false;
@@ -450,6 +460,22 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public void setHide_recreational_ad(boolean hide_recreational_ad) {
         mHide_recreational_ad = hide_recreational_ad;
+    }
+
+    public boolean isHide_TMA() {
+        return mHide_TMA;
+    }
+
+    public void setHide_TMA(boolean hide_TMA) {
+        mHide_TMA = hide_TMA;
+    }
+
+    public boolean isHide_CTR() {
+        return mHide_CTR;
+    }
+
+    public void setHide_CTR(boolean hide_CTR) {
+        mHide_CTR = hide_CTR;
     }
 
     public boolean isHide_VOR() {
@@ -885,4 +911,62 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
     }
+
+
+    public void plotAreas(List<Polygon> polygonList, List<Area> areaList, GoogleMap gMap) {
+
+        Log.d(TAG, "plotAreas: ...");
+        String color;
+
+        if (polygonList.size() == 0) {
+            // Create all area Polygons and keep record in an ArrayList
+
+             for (Area area : areaList) {
+                List<LatLng> coords = area.getPolygon().getVertexList();
+                String name = area.getName();
+
+                if (area.getCategory()==Area.CTR) {
+                    color = CONTROL_AREA_COLOR;
+                } else {
+                    color = TERMINAL_AREA_COLOR;
+                }
+
+                Polygon polygon = gMap.addPolygon(new PolygonOptions()
+                        .addAll(coords)
+                        .strokeColor(Color.LTGRAY)
+                        .strokeWidth(.5f)
+                        .fillColor(Color.parseColor(color)));
+
+                polygon.setClickable(true);
+                polygonList.add(polygon);
+            }
+        }
+
+
+        // show/hide each area depending on type and settings
+        for (int i = 0; i < areaList.size(); i++) {
+            switch (areaList.get(i).getCategory()) {
+                case Area.CTR:
+                    if (isHide_CTR()) {
+                        polygonList.get(i).setVisible(false);
+                    } else {
+                        polygonList.get(i).setVisible(true);
+                    }
+                    break;
+
+                case Area.TMA:
+                    if (isHide_TMA()) {
+                        polygonList.get(i).setVisible(false);
+                    } else {
+                        polygonList.get(i).setVisible(true);
+                    }
+                    break;
+
+                default:
+                    polygonList.get(i).setVisible(true);
+            }
+        }
+
+    }
+
 }

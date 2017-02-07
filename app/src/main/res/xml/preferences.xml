@@ -88,4 +88,14 @@
         android:key="show_obstacles"
         android:summary="Select to show obstacles on the map"
         android:title="Obstacles"/>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="show_CTR"
+        android:summary="Select to show CTRs on the map"
+        android:title="CTR"/>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="show_TMA"
+        android:summary="Select to show TMAs on the map"
+        android:title="TMA" />
 </PreferenceScreen>

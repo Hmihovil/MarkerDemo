@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tbrams.markerdemo.components.Area;
 import com.example.tbrams.markerdemo.components.MarkerDemoUtils;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
@@ -45,6 +46,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,6 +84,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private List<ReportingPoint> mReportingPointList = sExtraMarkers.getReportingPointList();
     private final List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
     private final List<Obstacle> mObstacleList = sExtraMarkers.getObstaclesList();
+    private final List<Area> mAreaList = sExtraMarkers.getSampleAreaList();
 
     // Special list of VOR only nav. aids
     private final List<NavAid> mVorList = new ArrayList<>();
@@ -91,6 +94,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private final List<Marker> mADMarkers = new ArrayList<>();
     private final List<Marker> mRPMarkers = new ArrayList<>();
     private final List<Marker> mObstacleMarkers = new ArrayList<>();
+    private final List<Polygon> mPolygons = new ArrayList<>();
 
     private static int currentMarkerIndex=-1;
 
@@ -252,8 +256,24 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             plotAerodromes(mADMarkers, mAerodromeList, mMap);
             plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
             plotObstacles(mObstacleMarkers, mObstacleList, mMap);
+            plotAreas(mPolygons, mAreaList, mMap);
 
+            mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener(){
 
+                @Override
+                public void onPolygonClick(Polygon polygon) {
+                    Log.d(TAG, "onPolygonClick: polygon clicked, id: "+polygon.getId());
+                    for(int i=0;i<mPolygons.size();i++) {
+                        Log.d(TAG, "check polygon with id: "+polygon.getId());
+                        Log.d(TAG, "mPolygons.get(i).getId(): "+mPolygons.get(i).getId());
+                        if (mPolygons.get(i).getId().equals(polygon.getId().toString())) {
+                            // Then we know what to show, just now how...
+                            Log.d(TAG, "that is "+mAreaList.get(i).getName()+" "+mAreaList.get(i).getExtraName());
+                            break;
+                        }
+                    }
+                }
+            });
 
             mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                 @Override
@@ -281,6 +301,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     plotAerodromes(mADMarkers, mAerodromeList, mMap);
                     plotReportingPoints(mRPMarkers, mReportingPointList, mMap);
                     plotObstacles(mObstacleMarkers, mObstacleList, mMap);
+                    plotAreas(mPolygons, mAreaList, mMap);
 
                 }
             });
@@ -546,6 +567,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         setHide_recreational_ad(! mSharedPrefs.getBoolean("show_recreational_ad", true));
         setHide_reporting_points(! mSharedPrefs.getBoolean("show_reporting", true));
         setHide_obstacles(!mSharedPrefs.getBoolean("show_obstacles", true));
+        setHide_CTR(!mSharedPrefs.getBoolean("show_CTR", false));
+        setHide_TMA(!mSharedPrefs.getBoolean("show_TMA", false));
 
         setHide_VOR(! mSharedPrefs.getBoolean("show_VOR", true));
         setHide_DME(! mSharedPrefs.getBoolean("show_DME", true));
