@@ -269,6 +269,9 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                         if (mPolygons.get(i).getId().equals(polygon.getId().toString())) {
                             // Then we know what to show, just now how...
                             Log.d(TAG, "that is "+mAreaList.get(i).getName()+" "+mAreaList.get(i).getExtraName());
+                            Snackbar.make(getCurrentFocus(), "that is "+mAreaList.get(i).getName()+" "+mAreaList.get(i).getExtraName()+
+                                    String.format("\nFrom: %d to %d ft", mAreaList.get(i).getFromAlt(),mAreaList.get(i).getToAlt()), Snackbar.LENGTH_LONG).show();
+
                             break;
                         }
                     }
@@ -834,17 +837,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
             String name = wp.getWpName();
             LatLng location = new LatLng(wp.getWpLat(), wp.getWpLon());
-
-            /* Debug only
-
-            Log.d(TAG, "getWpName: "+name);
-            Log.d(TAG, "getWpId: "+wp.getWpId());
-            Log.d(TAG, "getWpAltitude: "+wp.getWpAltitude());
-            Log.d(TAG, "getWpDistance: "+wp.getWpDistance());
-            Log.d(TAG, "getWpLat: "+wp.getWpLat());
-            Log.d(TAG, "getWpLon: "+wp.getWpLon());
-            */
-
 
             MarkerOptions options = new MarkerOptions()
                     .draggable(true)

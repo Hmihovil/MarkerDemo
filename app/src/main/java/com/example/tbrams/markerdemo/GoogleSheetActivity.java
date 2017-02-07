@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.tbrams.markerdemo.components.Area;
+import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
@@ -27,6 +29,7 @@ import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -46,8 +49,6 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static android.content.ContentValues.TAG;
-
 public class GoogleSheetActivity extends Activity implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
@@ -57,6 +58,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+    public static final String TAG="TBR:";
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {SheetsScopes.SPREADSHEETS_READONLY};
@@ -81,20 +83,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        /*
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mCallApiButton);
-*/
+
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
@@ -393,12 +382,16 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         private List<String> getAllData() throws IOException {
             List<String> result=new ArrayList<>();
 
+
             result.add(getDataFromApi());
             result.add(getPublicAerodromes());
             result.add(getPrivateAerodromes());
             result.add(getRecreationalAerodromes());
             result.add(getReportingPoints());
             result.add(getObstacles());
+
+// WIP:
+//            result.add(getAreas());
             return result;
         }
 
@@ -502,6 +495,117 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
             }
             return "NavAids updated";
+        }
+
+
+        /**
+         * Fetch a list of Area definitions from a sample spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+         *
+         * @return Status message
+         * @throws IOException
+         */
+        private String getAreas() throws IOException {
+            String spreadsheetId = "1G3rMDgZqItvOUVfxZOaIpTTg1YnR4UfxKvX9wEeZUkc";
+            String range = "TMA!A2:H";
+            List<String> results = new ArrayList<String>();
+            ValueRange response = this.mService.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute();
+
+
+            List<List<Object>> values = response.getValues();
+            // Now we have an array packed with Strings from the spreadsheet
+            // column 0: AREA NAME  [STRING]
+            // column 1: AREA TYPE [STRING] (CTR or TMA for now)
+            // Column 2: IDENT [STRING] [OPT] for example RK TMA "E"
+            // column 3: LOCATION [STRING], format "55 13 44N 009 12 50E" or "55:13:44 N 009:12:50 E"]
+            // Column 4: SEQUENCE [INT] Sequence# in the polygon for sorting
+            // Column 5: FROM [INT] [OPT] ("GND" or xx or "FLxx", where xx is a number)
+            // Column 6: TO [INT]   (xx or FLXX, where xx is a number)
+            // Column 7: CLASS      ("C", "D", "E", "G", "G/E")
+
+
+            List<Area> areaList = new ArrayList<>();
+
+            int nType=0;
+
+            if (values != null) {
+
+                String name="";
+                String nextName="";
+                String nextIdent="";
+                String nextCategory="";
+                String nextFrom="";
+                String nextTo="";
+
+                int category=0;
+                int from=0;
+                int to=0;
+                List<LatLng> vList = new ArrayList<>();
+
+                for (int i = 0; i < values.size() ; i++) {
+                    List row = values.get(i);
+                    String tempName = row.get(0).toString();
+
+                    if (!tempName.equals("") || i==(values.size()-1)) {
+
+                        // Make sure we have the very record stored away for construction
+                        if (name.equals("")) {
+                            nextName=tempName;
+                            nextIdent = row.get(2).toString();
+                            nextCategory = row.get(1).toString();
+                            nextFrom = row.get(5).toString();
+                            nextTo = row.get(6).toString();
+                        }
+
+                        if (vList.size() != 0) {
+                            // We have something, store it
+                            name = nextName;
+                            if (nextCategory.equals("CTR")) {
+                                category = 1;
+                            } else if (nextCategory.equals("TMA")) {
+                                category = 2;
+                            }
+
+                            from = Util.parseAltitude(nextFrom);
+                            to = Util.parseAltitude(nextTo);
+
+
+                            Area area = new Area(name, category, from, to, vList);
+                            area.setExtraName(nextIdent);
+                            areaList.add(area);
+
+                            Log.d(TAG, "Created new area: " + area.getName() + " " + area.getExtraName());
+
+                            if (i!=(values.size()-1)) {
+                                // Start building a new area components
+                                nextName = tempName;
+                                nextIdent = row.get(2).toString();
+                                nextCategory = row.get(1).toString();
+                                nextFrom = row.get(5).toString();
+                                nextTo = row.get(6).toString();
+
+                                // Clear vList
+                                vList = new ArrayList<>();
+                            }
+                        }
+                    } else {
+                            // need to create a new coordinate and add it to the vList
+                            LatLng pos = Util.convertVFG(row.get(3).toString());
+                            vList.add(pos);
+                    }
+                }
+
+
+                // update database
+                // This is a clean up operation, meaning the Nav Aids table will be wiped before
+                // inserting these data again.
+//                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+//                dbAdmin.updateAreasFromMaster(navAidsList, true);
+
+            }
+            return "Areas parsed";
         }
 
 

@@ -121,6 +121,33 @@ public class Util {
 
 
     /**
+     * Parse the different variation of altitude notations.
+     *
+     * @param input String  For example "FL 500", "GND" or "2300"
+     * @return      int     The altitude
+     *
+     */
+    public static int parseAltitude(String input) {
+        int result=0;
+        if (input != null) {
+            if (input.toUpperCase().equals("GND")) {
+                result=0;
+            } else {
+                if (input.indexOf("FL")>=0) {
+                    result = Integer.parseInt(input.replace("FL",""))*100;
+                } else  {
+                    result = Integer.parseInt(input);
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+
+
+    /**
      * Get current date.
      *
      * @return String  Current Date formatted as "dd-MM-yyyy"
