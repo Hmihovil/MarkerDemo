@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tbrams.markerdemo.components.Area;
 import com.example.tbrams.markerdemo.components.MarkerDemoUtils;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.ExtraMarkers;
@@ -35,6 +34,7 @@ import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DataSource;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
 import com.example.tbrams.markerdemo.dbModel.WpItem;
 import com.google.android.gms.maps.CameraUpdate;
@@ -87,7 +87,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private List<ReportingPoint> mReportingPointList = sExtraMarkers.getReportingPointList();
     private final List<Aerodrome> mAerodromeList = sExtraMarkers.getAerodromeList();
     private final List<Obstacle> mObstacleList = sExtraMarkers.getObstaclesList();
-    private final List<Area> mAreaList = sExtraMarkers.getSampleAreaList();
+    private final List<AreaItem> mAreaList = sExtraMarkers.getAreaItemList();
 
     // Special list of VOR only nav. aids
     private final List<NavAid> mVorList = new ArrayList<>();
@@ -271,9 +271,9 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                         Log.d(TAG, "mPolygons.get(i).getId(): "+mPolygons.get(i).getId());
                         if (mPolygons.get(i).getId().equals(polygon.getId().toString())) {
                             // Then we know what to show, just now how...
-                            Log.d(TAG, "that is "+mAreaList.get(i).getName()+" "+mAreaList.get(i).getExtraName());
-                            Snackbar.make(getCurrentFocus(), "that is "+mAreaList.get(i).getName()+" "+mAreaList.get(i).getExtraName()+
-                                    String.format("\nFrom: %d to %d ft", mAreaList.get(i).getFromAlt(),mAreaList.get(i).getToAlt()), Snackbar.LENGTH_LONG).show();
+                            Log.d(TAG, "that is "+mAreaList.get(i).getAreaName()+" "+mAreaList.get(i).getAreaIdent());
+                            Snackbar.make(getCurrentFocus(), "that is "+mAreaList.get(i).getAreaName()+" "+mAreaList.get(i).getAreaIdent()+
+                                    String.format("\nFrom: %d to %d ft", mAreaList.get(i).getAreaFromAlt(),mAreaList.get(i).getAreaToAlt()), Snackbar.LENGTH_LONG).show();
 
                             break;
                         }

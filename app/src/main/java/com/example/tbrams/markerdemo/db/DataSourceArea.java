@@ -1,0 +1,313 @@
+package com.example.tbrams.markerdemo.db;
+
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
+import com.example.tbrams.markerdemo.dbModel.CoordItem;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DataSourceArea extends DbAdmin {
+    private static final String TAG = "TBR:DataSourceArea";
+
+
+    private Context             mContext;
+    private SQLiteDatabase      mDb;
+    private SQLiteOpenHelper    mDbOpenHelper;
+
+    public DataSourceArea(Context context) {
+        super(context);
+
+        mContext = context;
+        mDbOpenHelper = new DbHelper(context);
+        mDb = mDbOpenHelper.getWritableDatabase();
+    }
+
+
+
+
+    //
+    //Area Table specifics
+    // --------------------
+
+
+    /**
+     * createArea
+     * This is the function responsible for inserting data into the Area Table.  It does that
+     * by creating ContentValues for all object attributes and then pass the entire thing to
+     * the DB helper insert function.
+     *
+     * Will be returning the same object in case we need to check if something has been changed.
+     *
+     * @Args: area Object
+     *
+     * @Return: area object
+     *
+     */
+
+    public AreaItem createArea(AreaItem areaItem) {
+        ContentValues values = areaItem.toContentValues();
+
+        mDb.insert(AreaTable.TABLE_NAME, null, values);
+        return areaItem;
+    }
+
+
+
+    /**
+     *
+     * This function will erase an area from the Area table. And
+     * also the associated coordinates from the Coords table
+     *
+     * @params:  area AreaItem to be deleted
+     * @Returns: none
+     */
+    public void deleteArea(AreaItem areaItem) {
+        // Get a list of all associated coords
+        List<CoordItem> coordItemList = getAllCoords(areaItem.getAreaId());
+
+        // delete them one by one and do not waste time on re-calculating trip distance
+        for (CoordItem coordItem : coordItemList) {
+            deleteCoord(coordItem);
+        }
+
+        // Finally delete the AreaItem from the Area Table
+        mDb.delete(AreaTable.TABLE_NAME, AreaTable.COLUMN_ID + " = ?",
+                new String[] { areaItem.getAreaId() });
+    }
+
+
+
+    /**
+     * Insert all Area objects into the area table in the database.
+     *
+     * @param areaItemList : List of AreaItem objects
+     *
+     * @Return none
+     *
+     */
+    public void seedAreaTable(List<AreaItem> areaItemList) {
+        if (areaItemList.size()>0) {
+            for (AreaItem areaItem : areaItemList) {
+                try {
+                    createArea(areaItem);
+
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     *
+     * A super constructor populating both the Area Table and the Coords table with all points.
+     * @param name      Area Name
+     * @param ident     Area Ident
+     * @param areaType  Area Type
+     * @param areaClass Airspace class
+     * @param fromAlt   Lowest altitude
+     * @param toAlt     Highest Altitude
+     * @param coordList A list of LatLng objects - one for each point on the polygon of the area
+     * @return          An AreaItem object
+     */
+    public AreaItem addFullArea(String name, String ident, int areaType, String areaClass, int fromAlt, int toAlt, List<LatLng> coordList) {
+        AreaItem areaItem = new AreaItem(null, name, areaType, ident, areaClass, fromAlt, toAlt);
+        for (int i = 0; i < coordList.size(); i++) {
+
+            LatLng location=coordList.get(i);
+
+            // Create a new object and write it do the database
+            CoordItem coordItem = new CoordItem(null, areaItem.getAreaId(), location, i);
+            createCoord(coordItem);
+        }
+
+        return createArea(areaItem);
+    }
+
+
+
+
+    /**
+     * Lookup matching records in the database and return a list of fully populated objects.
+     * For each matching area create an object create an object and populate it with database
+     * values. Finally find all polygon coordinates from the database and add that to the object
+     * before returning a list with all of these as the result.
+     *
+     * @param  areaType Integer, a filter - if this is null all rows are returned from db, otherwise only
+     *                   areas with a areaType matching the filter is returned.
+     *
+     * @Return A list of AreaItem objects
+     *
+     */
+    public List<AreaItem> getAllAreas(Integer areaType){
+        List<AreaItem> areaList = new ArrayList<>();
+        Cursor cursor;
+
+        super.open();
+        if (areaType==null) {
+            cursor = mDb.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, null,null,null,null,AreaTable.COLUMN_NAME);
+        } else {
+            String[] areaTypes = {areaType.toString()};
+            cursor = mDb.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, AreaTable.COLUMN_TYPE+"=?",areaTypes,null,null,AreaTable.COLUMN_NAME);
+        }
+
+
+        while (cursor.moveToNext()) {
+            AreaItem areaItem = new AreaItem();
+            areaItem.setAreaId(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_ID)));
+            areaItem.setAreaName(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_NAME)));
+            areaItem.setAreaClass(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_CLASS)));
+            areaItem.setAreaIdent(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_IDENT)));
+            areaItem.setAreaType(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TYPE)));
+            areaItem.setAreaFromAlt(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_FROM_ALT)));
+            areaItem.setAreaToAlt(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TO_ALT)));
+            areaList.add(areaItem);
+        }
+        cursor.close();
+        super.close();
+
+        // Populate the polygon for each of these areas by looping through the Coords table
+        List<LatLng> locList = new ArrayList<>();
+        for (AreaItem areaItem: areaList) {
+            for (CoordItem coordItem: getAllCoords(areaItem.getAreaId())) {
+                locList.add(coordItem.getCoordPosistion());
+            }
+            areaItem.setCoordinates(locList);
+        }
+
+        return areaList;
+    }
+
+
+    //
+    // Coord Table specifics
+    // --------------------
+
+    /**
+     * This is the function responsible for inserting data into the coord Table.
+     * Will be returning the same object in case we need to check if something has been changed.
+     *
+     * @param coordItem CoordItem Object
+     *
+     * @Return CoordItem object
+     *
+     */
+    public CoordItem createCoord(CoordItem coordItem) {
+        ContentValues values = coordItem.toContentValues();
+
+        super.open();
+        mDb.insert(CoordTable.TABLE_NAME, null, values);
+        super.close();
+        return coordItem;
+    }
+
+
+
+    /**
+     * This function will erase a coordinate from the Coords table.
+     *
+     * @param coordItem   The CoordItem to be deleted
+     * @Return none
+     */
+    public void deleteCoord(CoordItem coordItem) {
+
+        super.open();
+        // Re-sequence the subsequent Coordinates
+        String sql="UPDATE "+CoordTable.TABLE_NAME+" SET " + CoordTable.COLUMN_SEQ+ "=" + CoordTable.COLUMN_SEQ+"-1"
+                  +" WHERE "+CoordTable.COLUMN_SEQ+" > (SELECT "+CoordTable.COLUMN_SEQ+" FROM "+CoordTable.TABLE_NAME+" WHERE "+
+                CoordTable.COLUMN_ID+"=?)";
+        mDb.execSQL(sql, new String[]{coordItem.getCoordId()});
+
+        // Now delete the way point
+        mDb.delete(CoordTable.TABLE_NAME, CoordTable.COLUMN_ID + " = ?", new String[]{coordItem.getCoordId() });
+        super.close();
+    }
+
+
+    /**
+      * Return the number of rows in the Coord Table
+      *
+      * @Return long
+      *
+      */
+    public long getCoordCount() {
+        return DatabaseUtils.queryNumEntries(mDb, CoordTable.TABLE_NAME);
+    }
+
+
+    /**
+     * Insert all CoordItem objects into the Coord table in the database.
+     *
+     * @param  coordList of CoordItems
+     *
+     * @Return none
+     *
+     */
+    public void seedCoordTable(List<CoordItem> coordList) {
+         if (coordList.size()>0) {
+            for (CoordItem coordItem : coordList) {
+                try {
+                    createCoord(coordItem);
+                } catch (SQLiteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * Lookup matching records in the database and for each create a matching object and return
+     * a list with all of these as the result.
+     *
+     * @param area_id,  String, a filter - if this is null all rows are returned from db, otherwise only
+     *                  CoordItems with a matching area ID are returned.
+     *
+     * @Return A list of CoordItem objects
+     *
+     */
+    public List<CoordItem> getAllCoords(String area_id){
+        List<CoordItem> coordItemList = new ArrayList<>();
+        Cursor cursor;
+        super.open();
+
+        if (area_id==null) {
+            cursor = mDb.query(CoordTable.TABLE_NAME, CoordTable.ALL_COLUMNS, null,null,null,null, null);
+        } else {
+            String filterQuery = "SELECT  * FROM " + CoordTable.TABLE_NAME + " WHERE "+CoordTable.COLUMN_AREA_ID
+                                +"=? ORDER BY "+CoordTable.COLUMN_SEQ+" ASC";
+            Log.d(TAG, "Query: "+filterQuery);
+             cursor = mDb.rawQuery(filterQuery, new String[]{area_id});
+        }
+
+        while (cursor.moveToNext()) {
+            CoordItem coordItem = new CoordItem();
+
+            coordItem.setCoordId(cursor.getString(cursor.getColumnIndex(CoordTable.COLUMN_ID)));
+            coordItem.setAreaId(cursor.getString(cursor.getColumnIndex(CoordTable.COLUMN_AREA_ID)));
+            coordItem.setCoordNumber(cursor.getInt(cursor.getColumnIndex(CoordTable.COLUMN_SEQ)));
+            coordItem.setCoordPosition(
+                    new LatLng( cursor.getDouble(cursor.getColumnIndex(CoordTable.COLUMN_LAT)),
+                                cursor.getDouble(cursor.getColumnIndex(CoordTable.COLUMN_LON))));
+            coordItemList.add(coordItem);
+        }
+        cursor.close();
+        super.close();
+
+        return coordItemList;
+    }
+}

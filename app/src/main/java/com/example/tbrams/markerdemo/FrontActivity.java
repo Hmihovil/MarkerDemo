@@ -31,7 +31,9 @@ import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
+import com.example.tbrams.markerdemo.db.DataSourceArea;
 import com.example.tbrams.markerdemo.db.DbAdmin;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,7 @@ public class FrontActivity extends AppCompatActivity {
 
     // DB Related
     DbAdmin mDbAdmin;
+    DataSourceArea mDataSourceArea;
 
     private ExtraMarkers sExtraMarkers = ExtraMarkers.get(this);
     private List<NavAid> mNavAidList = sExtraMarkers.getNavAidList();
@@ -135,10 +138,12 @@ public class FrontActivity extends AppCompatActivity {
     private void prepareDbContent() {
         // Get a handle to the Database Admin helper
         mDbAdmin = new DbAdmin(this);
+        mDataSourceArea = new DataSourceArea(this);
 
         // Just in case it is a new installation, make sure we have the empty tables at least
         mDbAdmin.makeSureWeHaveTables();
 
+        Log.d(TAG, "prepareDbContent: after mDbAdmin make sure....");
         // check if we can load Nav Aids list from database or we need to load from samples
         List<NavAid> navList = mDbAdmin.getAllNavAids(null);
         Log.d(TAG, "onCreate: from DB - navList.size(): "+navList.size());
@@ -191,6 +196,18 @@ public class FrontActivity extends AppCompatActivity {
             sExtraMarkers.setObstaclesList(oList);
         }
 
+
+        // Check if we can load Areas and Coordinates from the database.
+        List<AreaItem> areaList = mDataSourceArea.getAllAreas(null);
+        Log.d(TAG, "onCreate: Areas from DB - areaList.size(): "+areaList.size());
+        if (areaList==null||areaList.size()==0) {
+            // use the build in sample area items as backup
+            Log.d(TAG, "Could not get area data from db, using samples");
+            sExtraMarkers.setAreaItemList(sExtraMarkers.getSampleAreaItemList());
+        } else {
+            // use the area list from the database
+            sExtraMarkers.setAreaItemList(areaList);
+        }
     }
 
 

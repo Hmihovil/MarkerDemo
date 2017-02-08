@@ -16,6 +16,7 @@ import com.example.tbrams.markerdemo.data.ExtraMarkers;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
 import com.example.tbrams.markerdemo.dbModel.JSONHelper;
 import com.example.tbrams.markerdemo.dbModel.SampleDataProvider;
 import com.example.tbrams.markerdemo.dbModel.TripItem;
@@ -26,18 +27,18 @@ import java.util.List;
 /**
  * An attempt to contain all Database Admin facilities to this class, instead of having them
  * all over the place.
- *
  */
 public class DbAdmin extends DataSource {
     private static final int REQUEST_PERMISSION_WRITE = 101;
     private static final String TAG = "TBR:DbAdmin";
-    private static boolean mDbMaintenance=false;
+    private static boolean mDbMaintenance = false;
 
     List<String> mTripSampleList = SampleDataProvider.sTrips;
     List<List<WpItem>> mWpSampleList = SampleDataProvider.sWpListsForTrips;
 
     private ExtraMarkers sExtraMarkers;
 
+    DataSourceArea mDataSourceArea;
     private boolean mPermissionGranted;
     private Context mContext;
 
@@ -46,12 +47,13 @@ public class DbAdmin extends DataSource {
 
         mContext = context;
         mPermissionGranted = false;
+        mDataSourceArea = new DataSourceArea(mContext);
+
     }
 
 
-
     public void populateDatabase() {
-        // Delete and recreate both tables
+        // Delete and recreate both trip and way point tables
         super.open();
         super.resetDB();
 
@@ -63,7 +65,7 @@ public class DbAdmin extends DataSource {
             super.addFullTrip(tripName, wpList);
         }
 
-       super.close();
+        super.close();
 
         // Get hold of ExtraMarker storage and fetch the NavAid samples we will use for resetting
         sExtraMarkers = ExtraMarkers.get(mContext);
@@ -78,18 +80,21 @@ public class DbAdmin extends DataSource {
         // Then update the Aerodromes table
         updateAerodromesFromMaster(adSampleList, true);
 
-    }
+        // Fetch the Aerodrome samples we will use for resetting both the Area and the Coords table
+        List<AreaItem> areaSampleList = sExtraMarkers.getSampleAreaItemList();
+        updateAreasFromMaster(areaSampleList, true);
 
+    }
 
 
     /**
      * Will reset the Reporting Points table and then populate it from the list provided
      * as argument to the function.
-     *
+     * <p>
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      *
-     * @param rpList List of Reporting Point objects
+     * @param rpList        List of Reporting Point objects
      * @param purgeDatabase Flag - it set, clear the Reporting Points table before inserting
      *                      otherwise just append to existing data
      */
@@ -114,20 +119,18 @@ public class DbAdmin extends DataSource {
 
         super.close();
 
-        if (sExtraMarkers==null) {
-            sExtraMarkers=ExtraMarkers.get(mContext);
+        if (sExtraMarkers == null) {
+            sExtraMarkers = ExtraMarkers.get(mContext);
         }
         sExtraMarkers.setReportingPointList(rpList);
 
     }
 
 
-
-
     /**
      * Will reset the Obstacles table and then populate it from the list provided
      * as argument to the function.
-     *
+     * <p>
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      *
@@ -156,8 +159,8 @@ public class DbAdmin extends DataSource {
 
         super.close();
 
-        if (sExtraMarkers==null) {
-            sExtraMarkers=ExtraMarkers.get(mContext);
+        if (sExtraMarkers == null) {
+            sExtraMarkers = ExtraMarkers.get(mContext);
         }
         sExtraMarkers.setObstaclesList(obstacleList);
 
@@ -167,14 +170,13 @@ public class DbAdmin extends DataSource {
     /**
      * Will reset the NavAids table and then populate it with navaids from the list provided
      * as argument to the function.
-     *
+     * <p>
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      *
      * @param navAidsList   List of Navigational Aid Objects
      * @param purgeDatabase Flag - it set, clear the Navigational Aids table before inserting
      *                      otherwise just append to existing data
-
      */
     public void updateNavAidsFromMaster(List<NavAid> navAidsList, boolean purgeDatabase) {
         super.open();
@@ -196,8 +198,8 @@ public class DbAdmin extends DataSource {
 
         super.close();
 
-        if (sExtraMarkers==null) {
-            sExtraMarkers=ExtraMarkers.get(mContext);
+        if (sExtraMarkers == null) {
+            sExtraMarkers = ExtraMarkers.get(mContext);
         }
         sExtraMarkers.setNavAidList(navAidsList);
 
@@ -207,7 +209,7 @@ public class DbAdmin extends DataSource {
     /**
      * Will reset the Aerodromes table and then populate it with aerodromes from the list provided
      * as argument to the function.
-     *
+     * <p>
      * After updating the database table, the singleton Storage will be reflecting the database
      * as well.
      *
@@ -236,11 +238,50 @@ public class DbAdmin extends DataSource {
 
         super.close();
 
-        if (sExtraMarkers==null) {
-            sExtraMarkers=ExtraMarkers.get(mContext);
+        if (sExtraMarkers == null) {
+            sExtraMarkers = ExtraMarkers.get(mContext);
         }
         sExtraMarkers.setAerodromeList(adList);
 
+    }
+
+
+    /**
+     * Will reset the Areas and Coords tables and then populate it with data from the list provided
+     * as argument to the function.
+     * <p>
+     * After updating the database table, the singleton Storage will be reflecting the database
+     * as well.
+     *
+     * @param areaItemList  List of AeraItem objects
+     * @param purgeDatabase Flag - it set, clear the Aerodrome table before inserting
+     *                      otherwise just append to existing data
+     */
+    public void updateAreasFromMaster(List<AreaItem> areaItemList, boolean purgeDatabase) {
+
+        mDataSourceArea.open();
+
+        if (purgeDatabase) {
+            // Delete and recreate both tables
+            super.resetAreaTables();
+        }
+
+        // Copy all AreaItems from the sample list to the Database
+        for (AreaItem areaItem : areaItemList) {
+            mDataSourceArea.createArea(areaItem);
+        }
+
+        if (!purgeDatabase) {
+            // Since this was an append operation, make sure we get all database elements into Extramarkers
+            areaItemList = mDataSourceArea.getAllAreas(null);
+        }
+
+        mDataSourceArea.close();
+
+        if (sExtraMarkers == null) {
+            sExtraMarkers = ExtraMarkers.get(mContext);
+        }
+        sExtraMarkers.setAreaItemList(areaItemList);
     }
 
 
@@ -275,7 +316,7 @@ public class DbAdmin extends DataSource {
     }
 
 
-    public void exportJSON(){
+    public void exportJSON() {
 
         // Need storage access permission for export
         if (!mPermissionGranted) {
@@ -287,7 +328,7 @@ public class DbAdmin extends DataSource {
 
             // Get all WPs from database
             List<WpItem> wps = super.getAllWps(null);
-            Log.d(TAG, "exportJSON: wps.size(): "+wps.size());
+            Log.d(TAG, "exportJSON: wps.size(): " + wps.size());
 
             // Export the WPs using JSONHelper
             if (JSONHelper.exportWpsToJSON(wps)) {
@@ -299,7 +340,7 @@ public class DbAdmin extends DataSource {
 
             // Get all Trips from database
             List<TripItem> mListFromDB = super.getAllTrips(null);
-            Log.d(TAG, "exportJSON: mListFromDB.size():"+mListFromDB.size());
+            Log.d(TAG, "exportJSON: mListFromDB.size():" + mListFromDB.size());
 
             // Export the Trips using JSONHelper
             if (JSONHelper.exportTripsToJSON(mListFromDB)) {

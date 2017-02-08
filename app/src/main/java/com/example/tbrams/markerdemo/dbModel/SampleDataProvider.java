@@ -1,8 +1,6 @@
 package com.example.tbrams.markerdemo.dbModel;
 
 
-import com.example.tbrams.markerdemo.data.NavAid;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +16,7 @@ public class SampleDataProvider {
     private static List<WpItem> sWpListForTrip;
     public static List<List<WpItem>> sWpListsForTrips;
 
-    public static List<NavAid> sNavAidList;
-
-
     static {
-
 
 
         // ========================================================================================

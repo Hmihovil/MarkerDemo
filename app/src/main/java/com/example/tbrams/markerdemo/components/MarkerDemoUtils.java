@@ -22,6 +22,7 @@ import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.Pejling;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -393,7 +394,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
     /**
      * This function is looking up a location and doing the reverse geo coding.
      *
-     * @param LatLng Location object
+     * @param location LatLng Location object
      * @Return Address An address object or null if nothing is found
      */
     public Address findAddress(LatLng location) {
@@ -931,7 +932,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-    public void plotAreas(List<Polygon> polygonList, List<Area> areaList, GoogleMap gMap) {
+    public void plotAreas(List<Polygon> polygonList, List<AreaItem> areaItemList, GoogleMap gMap) {
 
         Log.d(TAG, "plotAreas: ...");
         String color;
@@ -939,11 +940,11 @@ public class MarkerDemoUtils extends AppCompatActivity {
         if (polygonList.size() == 0) {
             // Create all area Polygons and keep record in an ArrayList
 
-             for (Area area : areaList) {
-                List<LatLng> coords = area.getPolygon().getVertexList();
-                String name = area.getName();
+             for (AreaItem areaItem : areaItemList) {
+                List<LatLng> coords = areaItem.getCoordinates();
+                String name = areaItem.getAreaName();
 
-                if (area.getCategory()==Area.CTR) {
+                if (areaItem.getAreaType()==Area.CTR) {
                     color = CONTROL_AREA_COLOR;
                 } else {
                     color = TERMINAL_AREA_COLOR;
@@ -951,8 +952,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
                 Polygon polygon = gMap.addPolygon(new PolygonOptions()
                         .addAll(coords)
-                        .strokeColor(Color.LTGRAY)
-                        .strokeWidth(.5f)
+                      //  .strokeColor(Color.LTGRAY)
+                        .strokeColor(Color.BLACK)
+                     //   .strokeWidth(.5f)
                         .fillColor(Color.parseColor(color)));
 
                 polygon.setClickable(true);
@@ -962,9 +964,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
 
         // show/hide each area depending on type and settings
-        for (int i = 0; i < areaList.size(); i++) {
-            switch (areaList.get(i).getCategory()) {
-                case Area.CTR:
+        for (int i = 0; i < areaItemList.size(); i++) {
+            switch (areaItemList.get(i).getAreaType()) {
+                case AreaItem.CTR:
                     if (isHide_CTR()) {
                         polygonList.get(i).setVisible(false);
                     } else {
@@ -972,7 +974,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
                     }
                     break;
 
-                case Area.TMA:
+                case AreaItem.TMA:
                     if (isHide_TMA()) {
                         polygonList.get(i).setVisible(false);
                     } else {

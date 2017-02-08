@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.example.tbrams.markerdemo.components.Area;
 import com.example.tbrams.markerdemo.components.Util;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -18,8 +19,7 @@ public class ExtraMarkers {
     private static List<Aerodrome> sAerodromeList;
     private static List<ReportingPoint> sReportingPointList;
     private static List<Obstacle> sObstaclesList;
-
-    private static List<Area> sAreaList;
+    private static List<AreaItem> sAreaItemList;
 
 
     public ExtraMarkers(Context context) {
@@ -27,7 +27,7 @@ public class ExtraMarkers {
         sNavAidList = new ArrayList<>();
         sReportingPointList = new ArrayList<>();
         sObstaclesList = new ArrayList<>();
-        sAreaList = new ArrayList<>();
+        sAreaItemList = new ArrayList<>();
     }
 
     public static ExtraMarkers get(Context context){
@@ -39,48 +39,144 @@ public class ExtraMarkers {
 
 
 
-    public List<Area> getSampleAreaList() {
+    public List<AreaItem> getSampleAreaItemList() {
 
 
-        // Make Roskilde CTR as a single test area
+        // Roskilde CTR
 
+        // Create an area object without polygon
+        AreaItem areaItem = new AreaItem("area_1", "RK CTR", Area.CTR, "", "D", 0, 1500);
+
+        // then parse the coordinates, create a list of LatLng objects and use that for the area
         String[] input = {"55 39 00N 011 58 30E", "55 40 30N 012 04 30E", "55 41 00N 012 11 30E",
                 "55 39 40N 012 15 00E", "55:36:30 N 012:17:00 E", "55:34:00 N 012:18:00 E", "55:31:00 N 012:16:00 E",
                 "55:29:30 N 012:10:00 E", "55:29:00 N 012:04:00 E", "55:31:00 N 011:58:00 E", "55:36:30 N 011:56:30 E"};
+        areaItem.setCoordinates(getLatLngs(input));
 
-        Area area = new Area("RK CTR", Area.CTR, 0, 1500, getLatLngs(input));
-        sAreaList.add(area);
+        // Add this area to the list of areas
+        sAreaItemList.add(areaItem);
 
 
-        // Add RK TMA E, 1500-2500
+        // Roskilde TMA E
+
+        areaItem = new AreaItem("area_2", "RK TMA", Area.TMA, "E", "C", 1500, 2500);
+
         String[] input2 = {"55 51 44N 012 30 16E", "55 27 23N 012 08 06E", "55 43 38N 012 08 26E",
         "55 50 47N 012 17 02E", "55 51 44N 012 30 16E"};
+        areaItem.setCoordinates(getLatLngs(input2));
+        sAreaItemList.add(areaItem);
 
-        Area area2 = new Area("RK TMA", Area.TMA, 1500, 2500, getLatLngs(input2));
-        area2.setExtraName("E");
-        sAreaList.add(area2);
+        // CPH TMA A
+        areaItem = new AreaItem("area_3", "CPH TMA", Area.TMA, "A", "C", 5500, 19500);
+        String[] input3 = {
+                "55 59 06N 011 49 33E",
+                "55 42 58N 011 40 56E",
+                "55 22 14N 011 56 17E",
+                "55 11 43N 011 58 46E",
+                "55 14 58N 011 40 51E",
+                "55 25 38N 011 24 36 ",
+                "55 50 48N 011 21 46E",
+                "55 59 06N 011 49 33E"
+        };
+        areaItem.setCoordinates(getLatLngs(input3));
+        sAreaItemList.add(areaItem);
 
-        return sAreaList;
+
+        // RK TMA D
+        areaItem = new AreaItem("area_4", "RK TMA", Area.TMA, "D", "C", 1500, 3500);
+        String[] input4 = {
+                "55 50 47N 012 17 02E",
+                "55 43 38N 012 08 26E",
+                "55 27 23N 012 08 06E",
+                "55 22 14N 011 56 17E",
+                "55 42 58N 011 40 56E",
+                "55 45 38N 011 42 21E",
+                "55 48 39N 011 49 01E",
+                "55 50 47N 012 17 02E"
+        };
+        areaItem.setCoordinates(getLatLngs(input4));
+        sAreaItemList.add(areaItem);
+
+        // RK TMA C
+        areaItem = new AreaItem("area_5", "RK TMA", Area.TMA, "C", "C", 2500, 3500);
+        String[] input5 = {
+                "55 57 18N 012 24 56E",
+                "55 50 47N 012 17 02E",
+                "55 48 39N 011 49 01E",
+                "55 54 38N 012 02 16E",
+                "55 57 18N 012 24 56E"
+        };
+        areaItem.setCoordinates(getLatLngs(input5));
+        sAreaItemList.add(areaItem);
+
+        // RK TMA B
+        areaItem = new AreaItem("area_6", "RK TMA", Area.TMA, "B", "C", 2500, 4500);
+        String[] input6 = {
+                "56 09 23N 012 24 46E",
+                "55 57 18N 012 24 56E",
+                "55 54 38N 012 02 16E",
+                "55 45 38N 011 42 21E",
+                "55 59 06N 011 49 33E",
+                "56 09 23N 012 24 46E"
+        };
+        areaItem.setCoordinates(getLatLngs(input6));
+        sAreaItemList.add(areaItem);
+
+        // RK TMA A
+        areaItem = new AreaItem("area_7", "RK TMA", Area.TMA, "A", "C", 2500, 5500);
+        String[] input7 = {
+                "55 59 06N 011 49 33E",
+                "55 42 58N 011 40 56E",
+                "55 22 14N 011 56 17E",
+                "55 11 43N 011 58 46E",
+                "55 14 58N 011 40 51E",
+                "55 25 38N 011 24 36E",
+                "55 50 48N 011 21 46E",
+                "55 59 06N 011 49 33E"
+        };
+        areaItem.setCoordinates(getLatLngs(input7));
+        sAreaItemList.add(areaItem);
+
+
+        return sAreaItemList;
     }
 
+
+
+    public static List<AreaItem> getAreaItemList() {
+        return sAreaItemList;
+    }
+
+
+    /**
+     * Utility used to convert a list of String coordinates to real LatLng objects.
+     * @param input String[] with coordinates
+     * @return List of LatLng objects
+     */
     @NonNull
-    private List<LatLng> getLatLngs(String[] input2) {
+    private List<LatLng> getLatLngs(String[] input) {
         List<LatLng> vList = new ArrayList<>();
-        for (String s: input2) {
+        for (String s: input) {
             vList.add(Util.convertVFG(s));
         }
         return vList;
     }
 
+
+
+    public static void setAreaItemList(List<AreaItem> areaItemList) {
+        sAreaItemList = areaItemList;
+    }
+
+
+
     public List<Aerodrome> getAerodromeList() { return sAerodromeList;}
-
-
     public void setAerodromeList(List<Aerodrome> adList) {
         sAerodromeList = adList;
     }
 
-    public List<NavAid> getNavAidList() { return sNavAidList; }
 
+    public List<NavAid> getNavAidList() { return sNavAidList; }
     public List<Obstacle> getObstaclesList() {return sObstaclesList; }
 
     public void setNavAidList(List<NavAid> navList) {

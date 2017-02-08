@@ -86,13 +86,29 @@ public class DataSource {
     }
 
 
+    public void resetAreaTables() {
+        mDb.execSQL(AreaTable.SQL_DELETE);
+        mDb.execSQL(CoordTable.SQL_DELETE);
+        mDb.execSQL(AreaTable.SQL_CREATE);
+        mDb.execSQL(CoordTable.SQL_CREATE);
+    }
+
+
     public void makeSureWeHaveTables() {
+        if (!mDb.isOpen()) {
+            Log.d(TAG, "makeSureWeHaveTables: mDb not open");
+        }
+        this.open();
         mDb.execSQL(TripTable.SQL_CREATE);
         mDb.execSQL(WpTable.SQL_CREATE);
         mDb.execSQL(NavAidTable.SQL_CREATE);
         mDb.execSQL(AdTable.SQL_CREATE);
         mDb.execSQL(RPTable.SQL_CREATE);
         mDb.execSQL(ObstacleTable.SQL_CREATE);
+        mDb.execSQL(AreaTable.SQL_CREATE);
+        mDb.execSQL(CoordTable.SQL_CREATE);
+
+        this.close();
     }
 
 
