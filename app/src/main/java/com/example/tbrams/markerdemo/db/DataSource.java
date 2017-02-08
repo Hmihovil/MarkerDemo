@@ -95,6 +95,7 @@ public class DataSource {
 
 
     public void makeSureWeHaveTables() {
+        Log.d(TAG, "makeSureWeHaveTables: entered");
         if (!mDb.isOpen()) {
             Log.d(TAG, "makeSureWeHaveTables: mDb not open");
         }
