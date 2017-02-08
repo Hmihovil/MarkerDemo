@@ -52,9 +52,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.example.tbrams.markerdemo.TripAdapter.TRIP_KEY;
 import static com.example.tbrams.markerdemo.TripAdapter.WP_KEY;
+import static com.example.tbrams.markerdemo.components.Util.parseComponent;
 
 public class MarkerDemoActivity extends MarkerDemoUtils implements
         OnMapReadyCallback,
@@ -614,11 +617,16 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    /*
-     * Search button is pressed
+    /**
+     * This function is called when the Search button is pressed.
      *
      * Look up a place name and find the coordinates, then pass the coordinates to
-     * the normal appending addMarker
+     * the normal appending addMarker.
+     *
+     * Based on normal Google Search, but includes support for NavAids, Airfields, Reporting points
+     * and coordinates, for example:
+     *
+     * "KORSA", "EKOD", "RP Køge" and "55 12 64N 011 42 96E"
      */
     private void geoLocate(View v) throws IOException {
 
@@ -635,6 +643,20 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             return;
         }
 
+        // check if special this is a GPS coordinate
+        Pattern pattern = Pattern.compile("(.*?)N (.*)E");
+        Matcher matcher = pattern.matcher(searched);
+        if (matcher.find()) {
+            String lat = matcher.group(1);
+            String lon = matcher.group(2);
+            LatLng coordinate = new LatLng(parseComponent(lat), parseComponent(lon));
+            System.out.println(String.format(Locale.ENGLISH, "Searching for coordinate: (%f, %f)", coordinate.latitude, coordinate.longitude));
+
+            placeAndZoomOnMarker(coordinate, getZoomLevel());
+            return;
+
+        }
+
         // check if special command :navaids
         if (searched.matches(":NAVAIDS")) {
             String miniHelp="Valid names:\n";
@@ -647,7 +669,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
         // check if special command aerodromes
-        if (searched.matches(":ad")) {
+        if (searched.matches(":AD")) {
             String miniHelp="Installed Aerodromes:\n";
             for (Aerodrome n : mAerodromeList) {
                 miniHelp += n.getIcaoName() + "\n";
@@ -694,6 +716,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
 
+    /**
+     * Find the location based on Google Maps Search and return the location.
+     *
+     * @param searchedFor String, for example "Slaglille"
+     * @return            LatLng  object with position
+     *
+     * @throws IOException
+     */
     private LatLng searchLocation(String searchedFor) throws IOException {
         Geocoder gc = new Geocoder(this);
         List<Address> list = gc.getFromLocationName(String.valueOf(searchedFor), 1);

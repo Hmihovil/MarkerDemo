@@ -82,6 +82,21 @@ public class Util {
     }
 
 
+    /**
+     * Utility to parse a coordinate string without letters but with spaces.
+     * Example input is "011 42 68" or "55 23 11.22"
+     *
+     * @param component String in one of these formats.
+     * @return decimal notation double
+     */
+    public static double parseComponent(String component) {
+        String[] parts = component.split(" ");
+        int dd = Integer.parseInt(parts[0]);
+        int mm = Integer.parseInt(parts[1]);
+        Double ss = Double.parseDouble(parts[2]);
+
+        return dd + mm / 60. + ss / 3600.;
+    }
 
     /**
      * A utility for chopping off the last character of a string

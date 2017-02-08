@@ -7,7 +7,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -386,9 +390,11 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     // Address related
 
-    /*
-     * This function is looking up a location and doing the geocoding.
-     * Returning an address
+    /**
+     * This function is looking up a location and doing the reverse geo coding.
+     *
+     * @param LatLng Location object
+     * @Return Address An address object or null if nothing is found
      */
     public Address findAddress(LatLng location) {
         Geocoder gc = new Geocoder(getApplicationContext());
@@ -401,7 +407,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
         }
 
         Address adr=null;
-        if (list!=null) {
+        if (list!=null && list.size()!=0) {
             adr = list.get(0);
             Log.d(TAG, "findAddress: Got adr from lookup: "+adr);
         } else {
@@ -424,7 +430,19 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public float getZoomLevel() { return mZoomLevel; }
     public void setZoomLevel(float zoomLevel) {
-        mZoomLevel = zoomLevel;
+        if (getZoomLevel()!=zoomLevel) {
+            Log.d(TAG, "setZoomLevel: " + zoomLevel);
+
+            String msg = String.format(Locale.ENGLISH,"Zoom level: %.1f", zoomLevel);
+            SpannableStringBuilder ssb = new SpannableStringBuilder().append(msg);
+            ssb.setSpan(new ForegroundColorSpan(Color.parseColor("#ff333333")), 0, msg.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            Snackbar snackbar=Snackbar.make(getCurrentFocus(), ssb, Snackbar.LENGTH_SHORT);
+            snackbar.getView().setBackgroundColor(0xdddddddd);
+            snackbar.show();
+
+            mZoomLevel = zoomLevel;
+        }
     }
 
 
