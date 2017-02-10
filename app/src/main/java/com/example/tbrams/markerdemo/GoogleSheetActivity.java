@@ -59,7 +59,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-    public static final String TAG="TBR:";
+    public static final String TAG = "TBR:";
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {SheetsScopes.SPREADSHEETS_READONLY};
@@ -102,13 +102,10 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         setContentView(activityLayout);
 
 
-
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
-
-
 
 
         getResultsFromApi();
@@ -356,9 +353,8 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         }
 
 
-
         private List<String> getAllData() throws IOException {
-            List<String> result=new ArrayList<>();
+            List<String> result = new ArrayList<>();
 
 
             result.add(getDataFromApi());
@@ -367,7 +363,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             result.add(getRecreationalAerodromes());
             result.add(getReportingPoints());
             result.add(getObstacles());
-
             result.add(getAreas());
             return result;
         }
@@ -401,7 +396,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 6: ELEV [OPT Double]
             // Column 7: MIL FREQ [OPT String]
 
-            int nType=0;
+            int nType = 0;
 
             if (values != null) {
 
@@ -422,35 +417,35 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     } else if (sType.equals("VORTAC")) {
                         nType = NavAid.VORTAC;
                     } else {
-                        Log.d(TAG, "getDataFromApi: Unrecognized NavAid Type: "+row.get(2));
+                        Log.d(TAG, "getDataFromApi: Unrecognized NavAid Type: " + row.get(2));
                     }
 
-                    Log.d(TAG, "getDataFromApi: nType: "+nType);
+                    Log.d(TAG, "getDataFromApi: nType: " + nType);
 
 
-                    String station=row.get(0).toString();
-                    String ident=row.get(1).toString();
-                    String location=row.get(3).toString();
+                    String station = row.get(0).toString();
+                    String ident = row.get(1).toString();
+                    String location = row.get(3).toString();
 
-                    String freq=null;
+                    String freq = null;
                     if (!row.get(4).toString().equals("")) {
                         freq = row.get(4).toString();
                     }
 
-                    String usage=null;
+                    String usage = null;
                     if (!row.get(5).toString().equals("")) {
                         usage = row.get(5).toString();
                     }
 
                     double elev = 0;
-                    if (row.size()>6) {
+                    if (row.size() > 6) {
                         if (!row.get(6).toString().equals("")) {
                             elev = Double.parseDouble(row.get(6).toString());
                         }
                     }
 
-                    String milfreq=null;
-                    if (row.size()>7) {
+                    String milfreq = null;
+                    if (row.size() > 7) {
                         if (!row.get(7).toString().equals("")) {
                             milfreq = row.get(7).toString();
                         }
@@ -459,7 +454,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
 //                    // TODO: Need a constructor taking MilFreq as well
                     NavAid na = new NavAid(station, ident, nType, location, freq, usage, elev);
-                    Log.d(TAG, "getDataFromApi: New Navaid name: "+na.getName()+" @"+na.getPosition());
+                    Log.d(TAG, "getDataFromApi: New Navaid name: " + na.getName() + " @" + na.getPosition());
                     navAidsList.add(na);
 
                 }
@@ -505,46 +500,36 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
             List<AreaItem> areaList = new ArrayList<>();
 
-            int nType=0;
+            int nType = 0;
 
             if (values != null) {
 
-                String name="";
-                String nextName="";
-                String nextIdent="";
-                String nextCategory="";
-                String nextClass="";
-                String nextFrom="";
-                String nextTo="";
+                String name = "";
+                String nextName = "";
+                String nextIdent = "";
+                String nextCategory = "";
+                String nextClass = "";
+                String nextFrom = "";
+                String nextTo = "";
 
-                int category=0;
-                int from=0;
-                int to=0;
-                AreaItem area=null;
+                int category = 0;
+                int from = 0;
+                int to = 0;
+                AreaItem area = null;
 
-                List<LatLng> nextCoordList= new ArrayList<>();
+                boolean create_in_progress = false;
 
-                for (int i = 0; i < values.size() ; i++) {
+                List<LatLng> nextCoordList = new ArrayList<>();
+
+                for (int i = 0; i < values.size(); i++) {
                     List row = values.get(i);
                     String tempName = row.get(0).toString();
 
-                    if (!tempName.equals("") || i==(values.size()-1)) {
+                    if (!tempName.equals("")) {
 
-                        // Make sure we have the very first record stored away for construction
-                        if (name.equals("")) {
-                            nextName=tempName;
-                            nextIdent = row.get(2).toString();
-                            nextCategory = row.get(1).toString();
-                            nextClass = row.get(7).toString();
-                            nextFrom = row.get(5).toString();
-                            nextTo = row.get(6).toString();
-                            nextCoordList = new ArrayList<>();
+                        if (create_in_progress) {
+                            // create object
 
-                        }
-
-                        if (nextCoordList.size() != 0) {
-                            // At this point we have already build a list of coordinates, so we are
-                            // finally ready to create AreaItem object
                             name = nextName;
                             if (nextCategory.equals("CTR")) {
                                 category = 1;
@@ -557,35 +542,41 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                             area = new AreaItem(null, name, category, nextIdent, nextClass, from, to);
 
+                            // Build a list of Coordinate Item Object from the LatLng list we already have
                             List<CoordItem> coordinateList = new ArrayList<>();
-                            for (int j=0; j<nextCoordList.size(); j++) {
+                            for (int j = 0; j < nextCoordList.size(); j++) {
                                 coordinateList.add(new CoordItem(null, area.getAreaId(), nextCoordList.get(j), j));
                             }
+                            // Add them to the AreaItem object and then append the new object to the list
                             area.setCoordItemList(coordinateList);
-
                             areaList.add(area);
 
                             Log.d(TAG, "Created new area: " + area.getAreaName() + " " + area.getAreaIdent());
 
-                            if (i!=(values.size()-1)) {
-                                // Start building a new area components
-                                nextName = tempName;
-                                nextIdent = row.get(2).toString();
-                                nextCategory = row.get(1).toString();
-                                nextClass = row.get(7).toString();
-                                nextFrom = row.get(5).toString();
-                                nextTo = row.get(6).toString();
-
-                                // Clear vertex list
-                                nextCoordList = new ArrayList<>();
-                            }
+                            // We are done
+                            create_in_progress = false;
                         }
+
+                        // Prepare new object
+                        create_in_progress = true;
+
+                        nextName = tempName;
+                        nextIdent = row.get(2).toString();
+                        nextCategory = row.get(1).toString();
+                        nextClass = row.get(7).toString();
+                        nextFrom = row.get(5).toString();
+                        nextTo = row.get(6).toString();
+
+                        nextCoordList = new ArrayList<>();
+
                     } else {
-                        // New coordinate
+
+                        // New coordinate - we do not have a name in column 0
                         // need to create a new coordinate and add it to the vList
                         LatLng pos = Util.convertVFG(row.get(3).toString());
                         nextCoordList.add(pos);
                     }
+
                 }
 
 
@@ -596,6 +587,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 dbAdmin.updateAreasFromMaster(areaList, true);
 
             }
+
             return "Areas parsed";
         }
 
@@ -630,39 +622,39 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 7: PPR [OPT String, "Yes"]
             // Column 8: REMARKS [OPT String]
 
-            boolean PPR=false;
+            boolean PPR = false;
 
             if (values != null) {
                 for (List row : values) {
-                    if (row.size()>6) {
+                    if (row.size() > 6) {
                         String sPPR = row.get(7).toString().toUpperCase();
                         if (sPPR.equals("YES")) {
                             PPR = true;
                         } else {
-                            PPR=false;
+                            PPR = false;
                         }
                     }
 
-                    String name=row.get(0).toString();
-                    String icao=row.get(1).toString();
-                    String location=row.get(2).toString();
+                    String name = row.get(0).toString();
+                    String icao = row.get(1).toString();
+                    String location = row.get(2).toString();
 
-                    String radio=null;
+                    String radio = null;
                     if (!row.get(3).toString().equals("")) {
                         radio = row.get(4).toString();
                     }
 
-                    String freq=null;
+                    String freq = null;
                     if (!row.get(4).toString().equals("")) {
                         freq = row.get(4).toString();
                     }
 
-                    String phone=null;
+                    String phone = null;
                     if (!row.get(5).toString().equals("")) {
                         phone = row.get(5).toString();
                     }
 
-                    String web=null;
+                    String web = null;
                     if (!row.get(5).toString().equals("")) {
                         web = row.get(5).toString();
                     }
@@ -670,7 +662,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                     // TODO: Need a constructor taking Remarks as well
                     Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PRIVATE, radio, freq, PPR, null);
-                    Log.d(TAG, "getData: New Private Aerodrome: "+ad.getName()+" @"+ad.getPosition());
+                    Log.d(TAG, "getData: New Private Aerodrome: " + ad.getName() + " @" + ad.getPosition());
                     adList.add(ad);
 
                 }
@@ -718,19 +710,19 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             if (values != null) {
                 for (List row : values) {
 
-                    String name=row.get(0).toString();
-                    String icao=row.get(1).toString();
-                    String location=row.get(2).toString();
-                    String activities=row.get(3).toString();
+                    String name = row.get(0).toString();
+                    String icao = row.get(1).toString();
+                    String location = row.get(2).toString();
+                    String activities = row.get(3).toString();
 
-                    String remarks="";
-                    if (row.size()>4) {
+                    String remarks = "";
+                    if (row.size() > 4) {
                         remarks = row.get(4).toString();
                     }
 
                     // TODO: Need a constructor taking Remarks as well
                     Aerodrome ad = new Aerodrome(name, icao, location, Aerodrome.RECREATIONAL, activities, remarks);
-                    Log.d(TAG, "getData: New Recreational Aerodrome: "+ad.getName()+" @"+ad.getPosition());
+                    Log.d(TAG, "getData: New Recreational Aerodrome: " + ad.getName() + " @" + ad.getPosition());
                     adList.add(ad);
 
                 }
@@ -746,7 +738,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             }
             return "Recreational Aerodromes updated";
         }
-
 
 
         /**
@@ -780,51 +771,51 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 8: REMARKS [OPT String]
             // Column 9: LINK (OPT String)
 
-            boolean PPR=false;
-            String link="";
+            boolean PPR = false;
+            String link = "";
 
             if (values != null) {
                 for (List row : values) {
-                    if (row.size()>6) {
+                    if (row.size() > 6) {
                         String sPPR = row.get(7).toString().toUpperCase();
                         if (sPPR.equals("YES")) {
                             PPR = true;
                         } else {
-                            PPR=false;
+                            PPR = false;
                         }
                     }
 
-                    String name=row.get(0).toString();
-                    String icao=row.get(1).toString();
-                    String location=row.get(2).toString();
+                    String name = row.get(0).toString();
+                    String icao = row.get(1).toString();
+                    String location = row.get(2).toString();
 
-                    String radio=null;
+                    String radio = null;
                     if (!row.get(3).toString().equals("")) {
                         radio = row.get(4).toString();
                     }
 
-                    String freq=null;
+                    String freq = null;
                     if (!row.get(4).toString().equals("")) {
                         freq = row.get(4).toString();
                     }
 
-                    String phone=null;
+                    String phone = null;
                     if (!row.get(5).toString().equals("")) {
                         phone = row.get(5).toString();
                     }
 
-                    String web=null;
+                    String web = null;
                     if (!row.get(5).toString().equals("")) {
                         web = row.get(5).toString();
                     }
 
-                    if (row.size()>8) {
+                    if (row.size() > 8) {
                         link = row.get(8).toString().toUpperCase();
                     }
 
                     // TODO: Need a constructor taking Remarks as well
                     Aerodrome ad = new Aerodrome(icao, name, location, Aerodrome.PUBLIC, radio, freq, PPR, link);
-                    Log.d(TAG, "getData: New Public Aerodrome: "+ad.getName()+" @"+ad.getPosition());
+                    Log.d(TAG, "getData: New Public Aerodrome: " + ad.getName() + " @" + ad.getPosition());
                     adList.add(ad);
 
                 }
@@ -863,18 +854,18 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // column 1: NAME Reporting Point[STRING]
             // Column 2: Location [String, format "55 13 44.18N 009 12 50.61E"]
 
-            String link="";
+            String link = "";
 
             if (values != null) {
                 for (List row : values) {
 
-                    String icao=row.get(0).toString();
-                    String name=row.get(1).toString();
-                    String location=row.get(2).toString();
+                    String icao = row.get(0).toString();
+                    String name = row.get(1).toString();
+                    String location = row.get(2).toString();
 
 
                     ReportingPoint rp = new ReportingPoint(icao, name, location);
-                    Log.d(TAG, "getData: Reporting Point: "+rp.getName()+" @"+rp.getAerodrome()+" "+rp.getPosition());
+                    Log.d(TAG, "getData: Reporting Point: " + rp.getName() + " @" + rp.getAerodrome() + " " + rp.getPosition());
                     rpList.add(rp);
 
                 }
@@ -914,20 +905,20 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 3: ELEVATION INT
             // Column 4: HEIGHT    INT
 
-            String link="";
+            String link = "";
 
             if (values != null) {
                 for (List row : values) {
 
-                    String name=row.get(0).toString();
-                    String what=row.get(1).toString();
-                    String location=row.get(2).toString();
-                    int    elevation = Integer.parseInt(row.get(3).toString());
-                    int    height = Integer.parseInt(row.get(4).toString());
+                    String name = row.get(0).toString();
+                    String what = row.get(1).toString();
+                    String location = row.get(2).toString();
+                    int elevation = Integer.parseInt(row.get(3).toString());
+                    int height = Integer.parseInt(row.get(4).toString());
 
                     Obstacle obstacle = new Obstacle(name, what, location, elevation, height);
 
-                    Log.d(TAG, "getData: Obstacle: "+obstacle.getName()+" height: "+ obstacle.getElevation()+ " @"+obstacle.getPosition());
+                    Log.d(TAG, "getData: Obstacle: " + obstacle.getName() + " height: " + obstacle.getElevation() + " @" + obstacle.getPosition());
                     obstacleList.add(obstacle);
 
                 }
@@ -939,7 +930,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             }
             return "Obstacles updated";
         }
-
 
 
         @Override
