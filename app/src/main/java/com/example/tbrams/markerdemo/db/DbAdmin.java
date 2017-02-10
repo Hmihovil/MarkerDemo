@@ -47,11 +47,21 @@ public class DbAdmin extends DataSource {
 
         mContext = context;
         mPermissionGranted = false;
-        mDataSourceArea = new DataSourceArea(mContext);
+ //       mDataSourceArea = new DataSourceArea(mContext);
 
     }
 
 
+    /**
+     * Use Sample data to build fresh tables. Primarily build with focus on Trip and Waypoint tables
+     * but also updatea a couple of other tables with sample data.
+     *
+     * <ul>
+     *     <li>NavAids</li>
+     *     <ul>Aerodromes</ul>
+     *     <ul>Areas</ul>
+     * </ul>
+     */
     public void populateDatabase() {
         // Delete and recreate both trip and way point tables
         super.open();
@@ -79,11 +89,11 @@ public class DbAdmin extends DataSource {
 
         // Then update the Aerodromes table
         updateAerodromesFromMaster(adSampleList, true);
-
-        // Fetch the Aerodrome samples we will use for resetting both the Area and the Coords table
+/*
+        // Fetch the Area samples we will use for resetting both the Area and the Coords table
         List<AreaItem> areaSampleList = sExtraMarkers.getSampleAreaItemList();
         updateAreasFromMaster(areaSampleList, true);
-
+*/
     }
 
 

@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.tbrams.markerdemo.dbModel.AreaItem;
@@ -17,20 +16,16 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSourceArea extends DbAdmin {
+public class DataSourceArea extends DataSource {
     private static final String TAG = "TBR:DataSourceArea";
 
 
-    private Context             mContext;
-    private SQLiteDatabase      mDb;
-    private SQLiteOpenHelper    mDbOpenHelper;
+    private Context        mContext;
+    private SQLiteDatabase mDb;
 
     public DataSourceArea(Context context) {
         super(context);
-
         mContext = context;
-        mDbOpenHelper = new DbHelper(context);
-        mDb = mDbOpenHelper.getWritableDatabase();
     }
 
 
@@ -57,8 +52,11 @@ public class DataSourceArea extends DbAdmin {
 
     public AreaItem createArea(AreaItem areaItem) {
         ContentValues values = areaItem.toContentValues();
+        SQLiteDatabase dB;
+        dB=openAndGetDb();
 
-        mDb.insert(AreaTable.TABLE_NAME, null, values);
+        dB.insert(AreaTable.TABLE_NAME, null, values);
+        close();
         return areaItem;
     }
 
@@ -82,8 +80,10 @@ public class DataSourceArea extends DbAdmin {
         }
 
         // Finally delete the AreaItem from the Area Table
-        mDb.delete(AreaTable.TABLE_NAME, AreaTable.COLUMN_ID + " = ?",
+        SQLiteDatabase dB=openAndGetDb();
+        dB.delete(AreaTable.TABLE_NAME, AreaTable.COLUMN_ID + " = ?",
                 new String[] { areaItem.getAreaId() });
+        close();
     }
 
 
@@ -156,12 +156,12 @@ public class DataSourceArea extends DbAdmin {
         List<AreaItem> areaList = new ArrayList<>();
         Cursor cursor;
 
-        super.open();
+        SQLiteDatabase dB=openAndGetDb();
         if (areaType==null) {
-            cursor = mDb.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, null,null,null,null,AreaTable.COLUMN_NAME);
+            cursor = dB.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, null,null,null,null,AreaTable.COLUMN_NAME);
         } else {
             String[] areaTypes = {areaType.toString()};
-            cursor = mDb.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, AreaTable.COLUMN_TYPE+"=?",areaTypes,null,null,AreaTable.COLUMN_NAME);
+            cursor = dB.query(AreaTable.TABLE_NAME, AreaTable.ALL_COLUMNS, AreaTable.COLUMN_TYPE+"=?",areaTypes,null,null,AreaTable.COLUMN_NAME);
         }
 
 
@@ -177,7 +177,7 @@ public class DataSourceArea extends DbAdmin {
             areaList.add(areaItem);
         }
         cursor.close();
-        super.close();
+        close();
 
         // Populate the polygon for each of these areas by looping through the Coords table
         List<LatLng> locList = new ArrayList<>();
@@ -208,9 +208,9 @@ public class DataSourceArea extends DbAdmin {
     public CoordItem createCoord(CoordItem coordItem) {
         ContentValues values = coordItem.toContentValues();
 
-        super.open();
-        mDb.insert(CoordTable.TABLE_NAME, null, values);
-        super.close();
+        SQLiteDatabase dB = openAndGetDb();
+        dB.insert(CoordTable.TABLE_NAME, null, values);
+        close();
         return coordItem;
     }
 
@@ -224,16 +224,16 @@ public class DataSourceArea extends DbAdmin {
      */
     public void deleteCoord(CoordItem coordItem) {
 
-        super.open();
+        SQLiteDatabase dB = openAndGetDb();
         // Re-sequence the subsequent Coordinates
         String sql="UPDATE "+CoordTable.TABLE_NAME+" SET " + CoordTable.COLUMN_SEQ+ "=" + CoordTable.COLUMN_SEQ+"-1"
                   +" WHERE "+CoordTable.COLUMN_SEQ+" > (SELECT "+CoordTable.COLUMN_SEQ+" FROM "+CoordTable.TABLE_NAME+" WHERE "+
                 CoordTable.COLUMN_ID+"=?)";
-        mDb.execSQL(sql, new String[]{coordItem.getCoordId()});
+        dB.execSQL(sql, new String[]{coordItem.getCoordId()});
 
         // Now delete the way point
-        mDb.delete(CoordTable.TABLE_NAME, CoordTable.COLUMN_ID + " = ?", new String[]{coordItem.getCoordId() });
-        super.close();
+        dB.delete(CoordTable.TABLE_NAME, CoordTable.COLUMN_ID + " = ?", new String[]{coordItem.getCoordId() });
+        close();
     }
 
 
@@ -244,7 +244,12 @@ public class DataSourceArea extends DbAdmin {
       *
       */
     public long getCoordCount() {
-        return DatabaseUtils.queryNumEntries(mDb, CoordTable.TABLE_NAME);
+        long numberEntries;
+        SQLiteDatabase dB=openAndGetDb();
+        numberEntries = DatabaseUtils.queryNumEntries(dB, CoordTable.TABLE_NAME);
+        close();
+
+        return numberEntries;
     }
 
 
@@ -283,7 +288,8 @@ public class DataSourceArea extends DbAdmin {
     public List<CoordItem> getAllCoords(String area_id){
         List<CoordItem> coordItemList = new ArrayList<>();
         Cursor cursor;
-        super.open();
+
+        SQLiteDatabase dB = openAndGetDb();
 
         if (area_id==null) {
             cursor = mDb.query(CoordTable.TABLE_NAME, CoordTable.ALL_COLUMNS, null,null,null,null, null);
@@ -291,7 +297,7 @@ public class DataSourceArea extends DbAdmin {
             String filterQuery = "SELECT  * FROM " + CoordTable.TABLE_NAME + " WHERE "+CoordTable.COLUMN_AREA_ID
                                 +"=? ORDER BY "+CoordTable.COLUMN_SEQ+" ASC";
             Log.d(TAG, "Query: "+filterQuery);
-             cursor = mDb.rawQuery(filterQuery, new String[]{area_id});
+             cursor = dB.rawQuery(filterQuery, new String[]{area_id});
         }
 
         while (cursor.moveToNext()) {
@@ -306,7 +312,7 @@ public class DataSourceArea extends DbAdmin {
             coordItemList.add(coordItem);
         }
         cursor.close();
-        super.close();
+        close();
 
         return coordItemList;
     }

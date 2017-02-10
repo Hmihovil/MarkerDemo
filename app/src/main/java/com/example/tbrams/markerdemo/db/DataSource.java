@@ -47,11 +47,16 @@ public class DataSource {
     public void open() {
         mDb = mDbOpenHelper.getWritableDatabase();
     }
+    public SQLiteDatabase openAndGetDb() {
+        mDb = mDbOpenHelper.getWritableDatabase();
+        return mDb;
+    }
 
 
     public void close() {
         mDbOpenHelper.close();
     }
+
 
 
     public void resetDB() {
@@ -96,10 +101,7 @@ public class DataSource {
 
     public void makeSureWeHaveTables() {
         Log.d(TAG, "makeSureWeHaveTables: entered");
-        if (!mDb.isOpen()) {
-            Log.d(TAG, "makeSureWeHaveTables: mDb not open");
-        }
-        this.open();
+
         mDb.execSQL(TripTable.SQL_CREATE);
         mDb.execSQL(WpTable.SQL_CREATE);
         mDb.execSQL(NavAidTable.SQL_CREATE);
@@ -109,7 +111,7 @@ public class DataSource {
         mDb.execSQL(AreaTable.SQL_CREATE);
         mDb.execSQL(CoordTable.SQL_CREATE);
 
-        this.close();
+
     }
 
 
