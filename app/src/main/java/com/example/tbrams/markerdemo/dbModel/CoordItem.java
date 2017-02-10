@@ -66,7 +66,7 @@ public class CoordItem {
     }
 
     public ContentValues toContentValues() {
-        ContentValues values = new ContentValues(4);
+        ContentValues values = new ContentValues();
 
         values.put(CoordTable.COLUMN_ID, coordId);
         values.put(CoordTable.COLUMN_AREA_ID, areaId);

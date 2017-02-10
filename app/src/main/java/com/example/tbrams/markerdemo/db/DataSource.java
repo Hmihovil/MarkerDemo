@@ -28,14 +28,10 @@ public class DataSource {
 
 
     private Context             mContext;
-    private SQLiteDatabase      mDb;
-    private SQLiteOpenHelper    mDbOpenHelper;
+    private static SQLiteDatabase      mDb;
+    private static SQLiteOpenHelper    mDbOpenHelper;
 
 
-    /*
-     * Generic Database functionality
-     * Constructor, open and close methods
-     */
     public DataSource(Context context) {
         mContext = context;
         mDbOpenHelper = new DbHelper(context);
@@ -47,13 +43,16 @@ public class DataSource {
     public void open() {
         mDb = mDbOpenHelper.getWritableDatabase();
     }
-    public SQLiteDatabase openAndGetDb() {
+
+
+    public static SQLiteDatabase openAndGetDb() {
         mDb = mDbOpenHelper.getWritableDatabase();
         return mDb;
     }
 
 
-    public void close() {
+    public static void close() {
+        mDb=null;
         mDbOpenHelper.close();
     }
 

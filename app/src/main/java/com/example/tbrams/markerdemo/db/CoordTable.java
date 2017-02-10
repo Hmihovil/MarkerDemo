@@ -17,7 +17,8 @@ public class CoordTable {
                     COLUMN_ID + " TEXT PRIMARY KEY," +
                     COLUMN_AREA_ID + " TEXT," +
                     COLUMN_LAT + " REAL," +
-                    COLUMN_LON + " REAL" +
+                    COLUMN_LON + " REAL," +
+                    COLUMN_SEQ + " INT" +
                     ");";
 
     public static final String SQL_DELETE =

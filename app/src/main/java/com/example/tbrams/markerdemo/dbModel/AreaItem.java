@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import com.example.tbrams.markerdemo.db.AreaTable;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public class AreaItem {
     private String AreaClass;
     private int AreaFromAlt;
     private int AreaToAlt;
-    private List<LatLng> coordinates;
+    private List<CoordItem> mCoordItemList;
 
     public AreaItem() {
         this.AreaId = UUID.randomUUID().toString();
@@ -108,11 +109,15 @@ public class AreaItem {
     }
 
     public List<LatLng> getCoordinates() {
-        return coordinates;
+        List<LatLng> posList = new ArrayList<>();
+        for (CoordItem ci: mCoordItemList) {
+            posList.add(ci.getCoordPosistion());
+        }
+        return posList;
     }
 
-    public void setCoordinates(List<LatLng> coordinates) {
-        this.coordinates = coordinates;
+    public void setCoordItemList(List<CoordItem> coordItemList) {
+        this.mCoordItemList = coordItemList;
     }
 
     public ContentValues toContentValues() {

@@ -20,13 +20,14 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.tbrams.markerdemo.components.Area;
 import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
+import com.example.tbrams.markerdemo.dbModel.AreaItem;
+import com.example.tbrams.markerdemo.dbModel.CoordItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
@@ -354,29 +355,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             }
         }
 
-        /**
-         * Fetch a list of names and majors of students in a sample spreadsheet:
-         * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-         *
-         * @return List of names and majors
-         * @throws IOException
-         */
-        private List<String> getDataFromApiOld() throws IOException {
-            String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
-            String range = "Class Data!A2:E";
-            List<String> results = new ArrayList<String>();
-            ValueRange response = this.mService.spreadsheets().values()
-                    .get(spreadsheetId, range)
-                    .execute();
-            List<List<Object>> values = response.getValues();
-            if (values != null) {
-                results.add("Name, Major");
-                for (List row : values) {
-                    results.add(row.get(0) + ", " + row.get(4));
-                }
-            }
-            return results;
-        }
 
 
         private List<String> getAllData() throws IOException {
@@ -390,8 +368,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             result.add(getReportingPoints());
             result.add(getObstacles());
 
-// WIP:
-//            result.add(getAreas());
+            result.add(getAreas());
             return result;
         }
 
@@ -526,7 +503,7 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
             // Column 7: CLASS      ("C", "D", "E", "G", "G/E")
 
 
-            List<Area> areaList = new ArrayList<>();
+            List<AreaItem> areaList = new ArrayList<>();
 
             int nType=0;
 
@@ -536,13 +513,16 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 String nextName="";
                 String nextIdent="";
                 String nextCategory="";
+                String nextClass="";
                 String nextFrom="";
                 String nextTo="";
 
                 int category=0;
                 int from=0;
                 int to=0;
-                List<LatLng> vList = new ArrayList<>();
+                AreaItem area=null;
+
+                List<LatLng> nextCoordList= new ArrayList<>();
 
                 for (int i = 0; i < values.size() ; i++) {
                     List row = values.get(i);
@@ -550,17 +530,21 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                     if (!tempName.equals("") || i==(values.size()-1)) {
 
-                        // Make sure we have the very record stored away for construction
+                        // Make sure we have the very first record stored away for construction
                         if (name.equals("")) {
                             nextName=tempName;
                             nextIdent = row.get(2).toString();
                             nextCategory = row.get(1).toString();
+                            nextClass = row.get(7).toString();
                             nextFrom = row.get(5).toString();
                             nextTo = row.get(6).toString();
+                            nextCoordList = new ArrayList<>();
+
                         }
 
-                        if (vList.size() != 0) {
-                            // We have something, store it
+                        if (nextCoordList.size() != 0) {
+                            // At this point we have already build a list of coordinates, so we are
+                            // finally ready to create AreaItem object
                             name = nextName;
                             if (nextCategory.equals("CTR")) {
                                 category = 1;
@@ -571,29 +555,36 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                             from = Util.parseAltitude(nextFrom);
                             to = Util.parseAltitude(nextTo);
 
+                            area = new AreaItem(null, name, category, nextIdent, nextClass, from, to);
 
-                            Area area = new Area(name, category, from, to, vList);
-                            area.setExtraName(nextIdent);
+                            List<CoordItem> coordinateList = new ArrayList<>();
+                            for (int j=0; j<nextCoordList.size(); j++) {
+                                coordinateList.add(new CoordItem(null, area.getAreaId(), nextCoordList.get(j), j));
+                            }
+                            area.setCoordItemList(coordinateList);
+
                             areaList.add(area);
 
-                            Log.d(TAG, "Created new area: " + area.getName() + " " + area.getExtraName());
+                            Log.d(TAG, "Created new area: " + area.getAreaName() + " " + area.getAreaIdent());
 
                             if (i!=(values.size()-1)) {
                                 // Start building a new area components
                                 nextName = tempName;
                                 nextIdent = row.get(2).toString();
                                 nextCategory = row.get(1).toString();
+                                nextClass = row.get(7).toString();
                                 nextFrom = row.get(5).toString();
                                 nextTo = row.get(6).toString();
 
-                                // Clear vList
-                                vList = new ArrayList<>();
+                                // Clear vertex list
+                                nextCoordList = new ArrayList<>();
                             }
                         }
                     } else {
-                            // need to create a new coordinate and add it to the vList
-                            LatLng pos = Util.convertVFG(row.get(3).toString());
-                            vList.add(pos);
+                        // New coordinate
+                        // need to create a new coordinate and add it to the vList
+                        LatLng pos = Util.convertVFG(row.get(3).toString());
+                        nextCoordList.add(pos);
                     }
                 }
 
@@ -601,8 +592,8 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 // update database
                 // This is a clean up operation, meaning the Nav Aids table will be wiped before
                 // inserting these data again.
-//                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
-//                dbAdmin.updateAreasFromMaster(navAidsList, true);
+                DbAdmin dbAdmin = new DbAdmin(GoogleSheetActivity.this);
+                dbAdmin.updateAreasFromMaster(areaList, true);
 
             }
             return "Areas parsed";

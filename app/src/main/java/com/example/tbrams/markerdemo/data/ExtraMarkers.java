@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.example.tbrams.markerdemo.components.Area;
 import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.dbModel.AreaItem;
+import com.example.tbrams.markerdemo.dbModel.CoordItem;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class ExtraMarkers {
         String[] input = {"55 39 00N 011 58 30E", "55 40 30N 012 04 30E", "55 41 00N 012 11 30E",
                 "55 39 40N 012 15 00E", "55:36:30 N 012:17:00 E", "55:34:00 N 012:18:00 E", "55:31:00 N 012:16:00 E",
                 "55:29:30 N 012:10:00 E", "55:29:00 N 012:04:00 E", "55:31:00 N 011:58:00 E", "55:36:30 N 011:56:30 E"};
-        areaItem.setCoordinates(getLatLngs(input));
+        areaItem.setCoordItemList(getCoords(input, areaItem.getAreaId()));
 
         // Add this area to the list of areas
         sAreaItemList.add(areaItem);
@@ -63,7 +64,7 @@ public class ExtraMarkers {
 
         String[] input2 = {"55 51 44N 012 30 16E", "55 27 23N 012 08 06E", "55 43 38N 012 08 26E",
         "55 50 47N 012 17 02E", "55 51 44N 012 30 16E"};
-        areaItem.setCoordinates(getLatLngs(input2));
+        areaItem.setCoordItemList(getCoords(input2, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
         // CPH TMA A
@@ -78,7 +79,7 @@ public class ExtraMarkers {
                 "55 50 48N 011 21 46E",
                 "55 59 06N 011 49 33E"
         };
-        areaItem.setCoordinates(getLatLngs(input3));
+        areaItem.setCoordItemList(getCoords(input3, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
 
@@ -94,7 +95,7 @@ public class ExtraMarkers {
                 "55 48 39N 011 49 01E",
                 "55 50 47N 012 17 02E"
         };
-        areaItem.setCoordinates(getLatLngs(input4));
+        areaItem.setCoordItemList(getCoords(input4, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
         // RK TMA C
@@ -106,7 +107,7 @@ public class ExtraMarkers {
                 "55 54 38N 012 02 16E",
                 "55 57 18N 012 24 56E"
         };
-        areaItem.setCoordinates(getLatLngs(input5));
+        areaItem.setCoordItemList(getCoords(input5, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
         // RK TMA B
@@ -119,7 +120,7 @@ public class ExtraMarkers {
                 "55 59 06N 011 49 33E",
                 "56 09 23N 012 24 46E"
         };
-        areaItem.setCoordinates(getLatLngs(input6));
+        areaItem.setCoordItemList(getCoords(input6, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
         // RK TMA A
@@ -134,7 +135,7 @@ public class ExtraMarkers {
                 "55 50 48N 011 21 46E",
                 "55 59 06N 011 49 33E"
         };
-        areaItem.setCoordinates(getLatLngs(input7));
+        areaItem.setCoordItemList(getCoords(input7, areaItem.getAreaId()));
         sAreaItemList.add(areaItem);
 
 
@@ -162,6 +163,21 @@ public class ExtraMarkers {
         return vList;
     }
 
+
+    /**
+     * Utility used to convert a list of String coordinates to real CoordItem objects.
+     * @param input String[] with coordinates
+     * @return List of CoordItem objects
+     */
+    @NonNull
+    private List<CoordItem> getCoords(String[] input, String areaId) {
+        List<CoordItem> coordList = new ArrayList<>();
+        for (int i=0; i< input.length; i++) {
+            CoordItem coordItem = new CoordItem(null, areaId, Util.convertVFG(input[i]), i);
+            coordList.add(coordItem);
+        }
+        return coordList;
+    }
 
 
     public static void setAreaItemList(List<AreaItem> areaItemList) {

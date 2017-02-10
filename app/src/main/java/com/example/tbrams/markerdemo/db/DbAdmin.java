@@ -38,7 +38,6 @@ public class DbAdmin extends DataSource {
 
     private ExtraMarkers sExtraMarkers;
 
-    DataSourceArea mDataSourceArea;
     private boolean mPermissionGranted;
     private Context mContext;
 
@@ -47,7 +46,6 @@ public class DbAdmin extends DataSource {
 
         mContext = context;
         mPermissionGranted = false;
- //       mDataSourceArea = new DataSourceArea(mContext);
 
     }
 
@@ -89,11 +87,10 @@ public class DbAdmin extends DataSource {
 
         // Then update the Aerodromes table
         updateAerodromesFromMaster(adSampleList, true);
-/*
+
         // Fetch the Area samples we will use for resetting both the Area and the Coords table
         List<AreaItem> areaSampleList = sExtraMarkers.getSampleAreaItemList();
         updateAreasFromMaster(areaSampleList, true);
-*/
     }
 
 
@@ -256,6 +253,7 @@ public class DbAdmin extends DataSource {
     }
 
 
+
     /**
      * Will reset the Areas and Coords tables and then populate it with data from the list provided
      * as argument to the function.
@@ -269,7 +267,7 @@ public class DbAdmin extends DataSource {
      */
     public void updateAreasFromMaster(List<AreaItem> areaItemList, boolean purgeDatabase) {
 
-        mDataSourceArea.open();
+        super.open();
 
         if (purgeDatabase) {
             // Delete and recreate both tables
@@ -278,23 +276,29 @@ public class DbAdmin extends DataSource {
 
         // Copy all AreaItems from the sample list to the Database
         for (AreaItem areaItem : areaItemList) {
-            mDataSourceArea.createArea(areaItem);
+            DataSourceArea.createArea(areaItem);
         }
 
         if (!purgeDatabase) {
             // Since this was an append operation, make sure we get all database elements into Extramarkers
-            areaItemList = mDataSourceArea.getAllAreas(null);
+            areaItemList = DataSourceArea.getAllAreas(null);
         }
 
-        mDataSourceArea.close();
+        super.close();
 
         if (sExtraMarkers == null) {
             sExtraMarkers = ExtraMarkers.get(mContext);
         }
+
         sExtraMarkers.setAreaItemList(areaItemList);
     }
 
 
+
+
+    // ====================================================
+    // Import/Export section
+    // ====================================================
 
 
     public void importJSON() {

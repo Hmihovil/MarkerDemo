@@ -12,7 +12,7 @@ public class AreaTable {
     public static final String COLUMN_TO_ALT = "AreaTo";
 
 
-    public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_NAME, COLUMN_IDENT, COLUMN_TYPE, COLUMN_TYPE, COLUMN_FROM_ALT, COLUMN_TO_ALT};
+    public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_NAME, COLUMN_IDENT, COLUMN_TYPE, COLUMN_CLASS, COLUMN_FROM_ALT, COLUMN_TO_ALT};
 
     public static final String SQL_CREATE =
             "CREATE TABLE  IF NOT EXISTS " + TABLE_NAME + "(" +
