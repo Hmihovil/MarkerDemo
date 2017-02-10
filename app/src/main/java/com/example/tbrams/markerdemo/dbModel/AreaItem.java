@@ -108,6 +108,9 @@ public class AreaItem {
         AreaToAlt = areaToAlt;
     }
 
+    public List<CoordItem> getCoordItemList() {return mCoordItemList;}
+
+
     public List<LatLng> getCoordinates() {
         List<LatLng> posList = new ArrayList<>();
         for (CoordItem ci: mCoordItemList) {

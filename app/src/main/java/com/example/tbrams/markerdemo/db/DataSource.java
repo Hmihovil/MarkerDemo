@@ -109,8 +109,6 @@ public class DataSource {
         mDb.execSQL(ObstacleTable.SQL_CREATE);
         mDb.execSQL(AreaTable.SQL_CREATE);
         mDb.execSQL(CoordTable.SQL_CREATE);
-
-
     }
 
 

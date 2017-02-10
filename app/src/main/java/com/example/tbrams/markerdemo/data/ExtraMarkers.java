@@ -46,7 +46,7 @@ public class ExtraMarkers {
         // Roskilde CTR
 
         // Create an area object without polygon
-        AreaItem areaItem = new AreaItem("area_1", "RK CTR", Area.CTR, "", "D", 0, 1500);
+        AreaItem areaItem = new AreaItem(null, "RK CTR", Area.CTR, "", "D", 0, 1500);
 
         // then parse the coordinates, create a list of LatLng objects and use that for the area
         String[] input = {"55 39 00N 011 58 30E", "55 40 30N 012 04 30E", "55 41 00N 012 11 30E",
@@ -60,7 +60,7 @@ public class ExtraMarkers {
 
         // Roskilde TMA E
 
-        areaItem = new AreaItem("area_2", "RK TMA", Area.TMA, "E", "C", 1500, 2500);
+        areaItem = new AreaItem(null, "RK TMA", Area.TMA, "E", "C", 1500, 2500);
 
         String[] input2 = {"55 51 44N 012 30 16E", "55 27 23N 012 08 06E", "55 43 38N 012 08 26E",
         "55 50 47N 012 17 02E", "55 51 44N 012 30 16E"};
@@ -68,7 +68,7 @@ public class ExtraMarkers {
         sAreaItemList.add(areaItem);
 
         // CPH TMA A
-        areaItem = new AreaItem("area_3", "CPH TMA", Area.TMA, "A", "C", 5500, 19500);
+        areaItem = new AreaItem(null, "CPH TMA", Area.TMA, "A", "C", 5500, 19500);
         String[] input3 = {
                 "55 59 06N 011 49 33E",
                 "55 42 58N 011 40 56E",
@@ -84,7 +84,7 @@ public class ExtraMarkers {
 
 
         // RK TMA D
-        areaItem = new AreaItem("area_4", "RK TMA", Area.TMA, "D", "C", 1500, 3500);
+        areaItem = new AreaItem(null, "RK TMA", Area.TMA, "D", "C", 1500, 3500);
         String[] input4 = {
                 "55 50 47N 012 17 02E",
                 "55 43 38N 012 08 26E",
@@ -99,7 +99,7 @@ public class ExtraMarkers {
         sAreaItemList.add(areaItem);
 
         // RK TMA C
-        areaItem = new AreaItem("area_5", "RK TMA", Area.TMA, "C", "C", 2500, 3500);
+        areaItem = new AreaItem(null, "RK TMA", Area.TMA, "C", "C", 2500, 3500);
         String[] input5 = {
                 "55 57 18N 012 24 56E",
                 "55 50 47N 012 17 02E",
@@ -111,7 +111,7 @@ public class ExtraMarkers {
         sAreaItemList.add(areaItem);
 
         // RK TMA B
-        areaItem = new AreaItem("area_6", "RK TMA", Area.TMA, "B", "C", 2500, 4500);
+        areaItem = new AreaItem(null, "RK TMA", Area.TMA, "B", "C", 2500, 4500);
         String[] input6 = {
                 "56 09 23N 012 24 46E",
                 "55 57 18N 012 24 56E",
@@ -124,7 +124,7 @@ public class ExtraMarkers {
         sAreaItemList.add(areaItem);
 
         // RK TMA A
-        areaItem = new AreaItem("area_7", "RK TMA", Area.TMA, "A", "C", 2500, 5500);
+        areaItem = new AreaItem(null, "RK TMA", Area.TMA, "A", "C", 2500, 5500);
         String[] input7 = {
                 "55 59 06N 011 49 33E",
                 "55 42 58N 011 40 56E",

@@ -44,6 +44,13 @@ public class DataSourceArea extends DataSource {
      */
 
     public static AreaItem createArea(AreaItem areaItem) {
+
+        // First make sure we get all the coordinates saved to the database
+        for (CoordItem coordItem: areaItem.getCoordItemList()) {
+            createCoord(coordItem);
+        }
+
+        // Then add the AreaItem to the database as well
         ContentValues values = areaItem.toContentValues();
         SQLiteDatabase dB;
         dB = openAndGetDb();
@@ -52,6 +59,8 @@ public class DataSourceArea extends DataSource {
         close();
         return areaItem;
     }
+
+
 
 
     /**
@@ -126,6 +135,7 @@ public class DataSourceArea extends DataSource {
     }
 
 
+
     /**
      * Lookup matching records in the database and return a list of fully populated objects.
      * For each matching area create an object create an object and populate it with database
@@ -188,7 +198,7 @@ public class DataSourceArea extends DataSource {
      * @param coordItem CoordItem Object
      * @Return CoordItem object
      */
-    public CoordItem createCoord(CoordItem coordItem) {
+    public static CoordItem createCoord(CoordItem coordItem) {
         ContentValues values = coordItem.toContentValues();
 
         SQLiteDatabase dB = openAndGetDb();
