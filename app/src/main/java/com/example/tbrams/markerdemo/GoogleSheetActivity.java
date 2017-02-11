@@ -81,8 +81,6 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
         mOutputText.setMovementMethod(new ScrollingMovementMethod());
         mOutputText.setText("");
 
-        //mOutputText.setText(
-        //        "Click the \'" + BUTTON_TEXT + "\' button to test the API.");
         activityLayout.addView(mOutputText);
 
         mProgress = new ProgressDialog(this);
