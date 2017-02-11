@@ -530,34 +530,11 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                         if (create_in_progress) {
                             // create object
 
-                            name = nextName;
-                            if (nextCategory.equals("CTR")) {
-                                category = AreaItem.CTR;
-                            } else if (nextCategory.equals("TMA")) {
-                                category = AreaItem.TMA;
-                            } else if (nextCategory.equals("TIA")) {
-                                category = AreaItem.TIZ;
-                            } else if (nextCategory.equals("LTA")) {
-                                category = AreaItem.LTA;
-                            }
-
-                            from = Util.parseAltitude(nextFrom);
-                            to = Util.parseAltitude(nextTo);
-
-                            areaItem = new AreaItem(null, name, category, nextIdent, nextClass, from, to);
-
-                            // Build a list of Coordinate Item Object from the LatLng list we already have
-                            List<CoordItem> coordinateList = new ArrayList<>();
-                            for (int j = 0; j < nextCoordList.size(); j++) {
-                                coordinateList.add(new CoordItem(null, areaItem.getAreaId(), nextCoordList.get(j), j));
-                            }
-                            // Add them to the AreaItem object and then append the new object to the list
-                            areaItem.setCoordItemList(coordinateList);
+                            areaItem = constructAreaItem(nextName, nextCategory, nextIdent, nextClass, nextFrom, nextTo, nextCoordList);
                             areaList.add(areaItem);
 
                             Log.d(TAG, "Created new area: " + areaItem.getAreaName() + " " + areaItem.getAreaIdent());
 
-                            // We are done
                             create_in_progress = false;
                         }
 
@@ -581,33 +558,10 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                     LatLng pos = Util.convertVFG(row.get(3).toString());
                     nextCoordList.add(pos);
 
-
                 }
 
-
-                name = nextName;
-                if (nextCategory.equals("CTR")) {
-                    category = AreaItem.CTR;
-                } else if (nextCategory.equals("TMA")) {
-                    category = AreaItem.TMA;
-                } else if (nextCategory.equals("TIA")) {
-                    category = AreaItem.TIZ;
-                } else if (nextCategory.equals("LTA")) {
-                    category = AreaItem.LTA;
-                }
-
-                from = Util.parseAltitude(nextFrom);
-                to = Util.parseAltitude(nextTo);
-
-                areaItem = new AreaItem(null, name, category, nextIdent, nextClass, from, to);
-
-                // Build a list of Coordinate Item Object from the LatLng list we already have
-                List<CoordItem> coordinateList = new ArrayList<>();
-                for (int j = 0; j < nextCoordList.size(); j++) {
-                    coordinateList.add(new CoordItem(null, areaItem.getAreaId(), nextCoordList.get(j), j));
-                }
-                // Add them to the AreaItem object and then append the new object to the list
-                areaItem.setCoordItemList(coordinateList);
+                // This is for the last AreaItem, still need to be constructed and added to the list
+                areaItem = constructAreaItem(nextName, nextCategory, nextIdent, nextClass, nextFrom, nextTo, nextCoordList);
                 areaList.add(areaItem);
 
                 Log.d(TAG, "Created last new area: " + areaItem.getAreaName() + " " + areaItem.getAreaIdent());
@@ -1004,6 +958,43 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
                 mOutputText.setText("Request cancelled.");
             }
         }
+    }
+
+    private AreaItem constructAreaItem(String nextName, String nextCategory, String nextIdent, String nextClass, String nextFrom, String nextTo, List<LatLng> nextCoordList) {
+
+        int category = getAirspaceCategory(nextCategory);
+        int from = Util.parseAltitude(nextFrom);
+        int to = Util.parseAltitude(nextTo);
+
+        AreaItem areaItem = new AreaItem(null, nextName, category, nextIdent, nextClass, from, to);
+
+        // Build a list of Coordinate Item Object from the LatLng list we already have
+        List<CoordItem> coordinateList = new ArrayList<>();
+        for (int j = 0; j < nextCoordList.size(); j++) {
+            coordinateList.add(new CoordItem(null, areaItem.getAreaId(), nextCoordList.get(j), j));
+        }
+        // Add them to the AreaItem object and then append the new object to the list
+        areaItem.setCoordItemList(coordinateList);
+
+        return areaItem;
+    }
+
+
+
+    private int getAirspaceCategory(String nextCategory) {
+        int category = 0;
+        if (nextCategory.equals("CTR")) {
+            category = AreaItem.CTR;
+        } else if (nextCategory.equals("TMA")) {
+            category = AreaItem.TMA;
+        } else if (nextCategory.equals("TIA")) {
+            category = AreaItem.TIA;
+        } else if (nextCategory.equals("TIZ")) {
+            category = AreaItem.TIZ;
+        } else if (nextCategory.equals("LTA")) {
+            category = AreaItem.LTA;
+        }
+        return category;
     }
 }
 
