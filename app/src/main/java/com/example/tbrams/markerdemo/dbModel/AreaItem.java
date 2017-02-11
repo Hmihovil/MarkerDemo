@@ -13,10 +13,13 @@ public class AreaItem {
     public static final int CTR = 1;
     public static final int TMA = 2;
     public static final int TIZ = 3;
-    public static final int RESTRICTED = 4;
-    public static final int PROHIBITED = 5;
-    public static final int DANGER = 6;
-    public static final int SENSITIVE = 7;
+    public static final int TIA = 4;
+    public static final int LTA = 5;
+
+    public static final int RESTRICTED = 10;
+    public static final int PROHIBITED = 11;
+    public static final int DANGER = 12;
+    public static final int SENSITIVE = 13;
 
     private String AreaId;
     private String AreaName;
