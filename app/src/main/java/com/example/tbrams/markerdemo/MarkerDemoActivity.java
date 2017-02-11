@@ -64,16 +64,16 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         GoogleMap.OnInfoWindowClickListener,
         AlertDialogFragment.SimpleDialogListener {
 
-    private static final int REQUEST_M_ID=1;
-    private static final int REQUEST_GLOBAL_VARS=2;
+    private static final int REQUEST_M_ID = 1;
+    private static final int REQUEST_GLOBAL_VARS = 2;
     private static final int SETTINGS_RESULT = 3;
 
     private static final float ZOOM_OVERVIEW = 10.0f;
 
-    private static final String TAG = "TBR:MDA" ;
+    private static final String TAG = "TBR:MDA";
 
-    private  MarkerObject mUndoDeleteMarker = null;
-    private  int mUndoDeleteIndex= -1;
+    private MarkerObject mUndoDeleteMarker = null;
+    private int mUndoDeleteIndex = -1;
 
     private static GoogleMap mMap;
     private SharedPreferences mSharedPrefs;
@@ -99,22 +99,21 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private final List<Marker> mObstacleMarkers = new ArrayList<>();
     private final List<Polygon> mPolygons = new ArrayList<>();
 
-    private static int currentMarkerIndex=-1;
+    private static int currentMarkerIndex = -1;
 
     private Vibrator mVib;
     private static String mTripId;
     private String mWpId;
-    private boolean mPlanUpdated=false;
-    DataSource      mDataSource;
-
+    private boolean mPlanUpdated = false;
+    DataSource mDataSource;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate: mNavAidList.size(): "+ mNavAidList.size());
-        Log.d(TAG, "onCreate: mAerodromeList.size(): "+ mAerodromeList.size());
+        Log.d(TAG, "onCreate: mNavAidList.size(): " + mNavAidList.size());
+        Log.d(TAG, "onCreate: mAerodromeList.size(): " + mAerodromeList.size());
 
         setContentView(R.layout.activity_marker_demo);
 
@@ -126,8 +125,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         // Get trip and wp index from extra arguments
         mTripId = getIntent().getStringExtra(TRIP_KEY);
-        mWpId   = getIntent().getStringExtra(WP_KEY);
-        Log.d(TAG,"Received Trip id: " + mTripId +" and wp id: "+ mWpId);
+        mWpId = getIntent().getStringExtra(WP_KEY);
+        Log.d(TAG, "Received Trip id: " + mTripId + " and wp id: " + mWpId);
 
         this.setTitle(markerLab.getTripName());
 
@@ -139,7 +138,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                                                                .findFragmentById(R.id.map);
+                .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
         mapFragment.setRetainInstance(true);
@@ -205,19 +204,16 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     private void prepareListOfVORs() {
         // Prepare a list with VOR's for navigation101
         for (int i = 0; i < mNavAidList.size(); i++) {
-            NavAid na= mNavAidList.get(i);
-            if (na.getType()==NavAid.VOR || na.getType()==NavAid.VORDME) {
+            NavAid na = mNavAidList.get(i);
+            if (na.getType() == NavAid.VOR || na.getType() == NavAid.VORDME) {
                 // We need an easy way to find this navaid again, keep original index
                 na.setSeq_id(i);
                 mVorList.add(na);
             }
         }
 
-        Log.d(TAG, "onCreate: mVorList.size(): "+ mVorList.size());
+        Log.d(TAG, "onCreate: mVorList.size(): " + mVorList.size());
     }
-
-
-
 
 
     /*
@@ -244,8 +240,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         }
 
 
-
-        if (mMap!=null) {
+        if (mMap != null) {
 
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, getZoomLevel()));
 
@@ -261,20 +256,54 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             plotObstacles(mObstacleMarkers, mObstacleList, mMap);
             plotAreas(mPolygons, mAreaList, mMap);
 
-            mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener(){
+            mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
 
                 @Override
                 public void onPolygonClick(Polygon polygon) {
-                    Log.d(TAG, "onPolygonClick: polygon clicked, id: "+polygon.getId());
-                    for(int i=0;i<mPolygons.size();i++) {
-                        Log.d(TAG, "check polygon with id: "+polygon.getId());
-                        Log.d(TAG, "mPolygons.get(i).getId(): "+mPolygons.get(i).getId());
+                    Log.d(TAG, "onPolygonClick: polygon clicked, id: " + polygon.getId());
+                    for (int i = 0; i < mPolygons.size(); i++) {
+                        Log.d(TAG, "check polygon with id: " + polygon.getId());
+                        Log.d(TAG, "mPolygons.get(i).getId(): " + mPolygons.get(i).getId());
                         if (mPolygons.get(i).getId().equals(polygon.getId().toString())) {
-                            // Then we know what to show, just now how...
-                            Log.d(TAG, "that is "+mAreaList.get(i).getAreaName()+" "+mAreaList.get(i).getAreaIdent());
-                            Snackbar.make(getCurrentFocus(), "that is "+mAreaList.get(i).getAreaName()+" "+mAreaList.get(i).getAreaIdent()+
-                                    String.format("\nFrom: %d to %d ft", mAreaList.get(i).getAreaFromAlt(),mAreaList.get(i).getAreaToAlt()), Snackbar.LENGTH_LONG).show();
 
+                            AreaItem area=mAreaList.get(i);
+                            String areaType="";
+                            switch (area.getAreaType()) {
+                                case AreaItem.CTR:
+                                    areaType="Control Zone";
+                                    break;
+                                case AreaItem.TMA:
+                                    areaType="TMA";
+                                    break;
+                                case AreaItem.TIZ:
+                                    areaType="TIZ";
+                                    break;
+                                case AreaItem.TIA:
+                                    areaType="TIA";
+                                    break;
+                                case AreaItem.LTA:
+                                    areaType="Local ATS Area";
+                                    break;
+                                case AreaItem.PROHIBITED:
+                                    areaType="Prohibited";
+                                    break;
+                                case AreaItem.RESTRICTED:
+                                    areaType="Restricted";
+                                    break;
+                                case AreaItem.SENSITIVE:
+                                    areaType="Sensitive";
+                                    break;
+                                case AreaItem.DANGER:
+                                    areaType="Danger";
+                                    break;
+                            }
+                            Snackbar.make(getCurrentFocus(),
+                                    String.format(Locale.ENGLISH, "that is %s %s %s\nFrom: %d to %d ft",
+                                            area.getAreaName(),
+                                            areaType,
+                                            area.getAreaIdent(),
+                                            area.getAreaFromAlt(),
+                                            area.getAreaToAlt()), Snackbar.LENGTH_LONG).show();
                             break;
                         }
                     }
@@ -288,7 +317,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     setZoomLevel(cameraPosition.zoom);
                     writePreferenceChanges();
 
-                    if(getZoomLevel()> ZOOM_CHANGE_MAP_TYPE) {
+                    if (getZoomLevel() > ZOOM_CHANGE_MAP_TYPE) {
                         Log.d(TAG, "onCameraIdle: Changing to hybrid map");
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                         setMapTypeChangedByZoom(true);
@@ -327,7 +356,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     // check if a NavAid has been clicked
                     for (Marker m : mNavAidMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d(TAG,"NavAid marker clicked");
+                            Log.d(TAG, "NavAid marker clicked");
                             return null;
                         }
                     }
@@ -335,7 +364,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     // check if an Aerodrome has been clicked
                     for (Marker m : mADMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d(TAG,"Aerodrome marker clicked");
+                            Log.d(TAG, "Aerodrome marker clicked");
                             return null;
                         }
                     }
@@ -343,7 +372,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     // check if a Reporting Point has been clicked
                     for (Marker m : mRPMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d(TAG,"Reporting Point marker clicked");
+                            Log.d(TAG, "Reporting Point marker clicked");
                             return null;
                         }
                     }
@@ -351,7 +380,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     // check if an obstacle has been clicked
                     for (Marker m : mObstacleMarkers) {
                         if (marker.getId().equals(m.getId())) {
-                            Log.d(TAG,"Obstacle marker clicked");
+                            Log.d(TAG, "Obstacle marker clicked");
                             return null;
                         }
                     }
@@ -362,7 +391,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     TextView tvLocality = (TextView) v.findViewById(R.id.tvLocality);
                     tvLocality.setText(marker.getTitle());
 
-                    int markerIndex=getIndexById(marker.getId(), markerList);
+                    int markerIndex = getIndexById(marker.getId(), markerList);
 
                     return v;
 
@@ -372,7 +401,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
 
         // Long clicking on the map adds a way point
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 mVib.vibrate(50);
@@ -384,10 +413,10 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                currentMarkerIndex=getIndexById(marker.getId(), markerList);
+                currentMarkerIndex = getIndexById(marker.getId(), markerList);
 
                 if (isMidPoint(marker)) {
-                    int pp=getMidpointIndex(marker);
+                    int pp = getMidpointIndex(marker);
                     addMarker(marker.getPosition(), pp);
 
                     // exit without showing info window
@@ -415,7 +444,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
-                
+
                 mPlanUpdated = true;
 
                 mVib.vibrate(50);
@@ -426,7 +455,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         });
 
 
-
         // We will always have a trip ID because at this point a trip will exist in the database
         // double check to be sure though.
 
@@ -434,7 +462,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             loadTripFromDb(mTripId);
         }
     }
-
 
 
     @Override
@@ -456,31 +483,31 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         if (requestCode == REQUEST_M_ID) {
 
             // This is for handling results after showing the Waypoint Info Screen
-            
-            if (data!=null) {
+
+            if (data != null) {
                 int markerIndex = (int) data.getSerializableExtra(InfoEditFragment.EXTRA_MARKER_ID);
-                Log.d(TAG, "onActivityResult: Received markerIndex:"+markerIndex);
-                
-                Marker m=null;
+                Log.d(TAG, "onActivityResult: Received markerIndex:" + markerIndex);
+
+                Marker m = null;
                 switch (resultCode) {
                     case InfoEditFragment.ACTION_CANCEL:
-                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_CANCEL");
-                        m=markerList.get(markerIndex).getMarker();
-                        gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+                        Log.d(TAG, "OnActivityResult, resultCode: ACTION_CANCEL");
+                        m = markerList.get(markerIndex).getMarker();
+                        gotoLocation(m.getPosition(), ZOOM_OVERVIEW);
                         break;
 
                     case NavPagerActivity.ACTION_UPDATE:
-                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_UPDATE");
-                        m=markerList.get(markerIndex).getMarker();
-                        gotoLocation(m.getPosition(),ZOOM_OVERVIEW);
+                        Log.d(TAG, "OnActivityResult, resultCode: ACTION_UPDATE");
+                        m = markerList.get(markerIndex).getMarker();
+                        gotoLocation(m.getPosition(), ZOOM_OVERVIEW);
 
                         // We need to request save on exit unless we want to lose changes
-                        mPlanUpdated=true;
+                        mPlanUpdated = true;
                         break;
-                    
-                    
+
+
                     case InfoEditFragment.ACTION_DELETE:
-                        Log.d(TAG,"OnActivityResult, resultCode: ACTION_DELETE");
+                        Log.d(TAG, "OnActivityResult, resultCode: ACTION_DELETE");
 
                         // Prepare for undoing later by storing both marker and position in track
                         mUndoDeleteIndex = markerIndex;
@@ -497,23 +524,23 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                                 .setAction("Undo", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        int previousIndex = mUndoDeleteIndex-1;
-                                        if (previousIndex>=0) {
+                                        int previousIndex = mUndoDeleteIndex - 1;
+                                        if (previousIndex >= 0) {
                                             addMarker(mUndoDeleteMarker.getMarker().getPosition(), previousIndex);
                                         } else {
                                             addMarker(mUndoDeleteMarker.getMarker().getPosition());
                                         }
                                         // reset undo variables
-                                        mUndoDeleteMarker=null;
-                                        mUndoDeleteIndex=-1;
+                                        mUndoDeleteMarker = null;
+                                        mUndoDeleteIndex = -1;
                                     }
                                 })
                                 .setActionTextColor(Color.RED)
                                 .show();
 
                         // Set camera on previous WP if there is one
-                        if ((markerIndex-1)>=0) {
-                            gotoLocation(markerList.get(markerIndex-1).getMarker().getPosition(), ZOOM_OVERVIEW);
+                        if ((markerIndex - 1) >= 0) {
+                            gotoLocation(markerList.get(markerIndex - 1).getMarker().getPosition(), ZOOM_OVERVIEW);
                         } else {
                             // Otherwise use the preferred start location
                             gotoPreferredStartLocation();
@@ -521,22 +548,22 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
 
                         // We need to request save on exit unless we want to lose changes
-                        mPlanUpdated=true;
+                        mPlanUpdated = true;
                         break;
                 }
             }
         } else if (requestCode == REQUEST_GLOBAL_VARS) {
 
             // This is for handling results after getting global navigation variables
-            
+
             switch (resultCode) {
                 case Activity.RESULT_OK:
-                    Log.d(TAG,"Result OK received from GlobalNavValFragment");
+                    Log.d(TAG, "Result OK received from GlobalNavValFragment");
 
                     Intent intent = DetailPagerActivity.newIntent(this, currentMarkerIndex);
                     startActivity(intent);
                     break;
-                
+
                 case Activity.RESULT_CANCELED:
                     Log.d(TAG, "Result Cancelled from GlobalNavValFragment");
                     break;
@@ -568,21 +595,31 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private void updatePreferenceFlags() {
 
-        setHide_private_ad(! mSharedPrefs.getBoolean("show_private_ad", true));
-        setHide_public_ad(! mSharedPrefs.getBoolean("show_public_ad", true));
-        setHide_recreational_ad(! mSharedPrefs.getBoolean("show_recreational_ad", true));
-        setHide_reporting_points(! mSharedPrefs.getBoolean("show_reporting", true));
+        setHide_private_ad(!mSharedPrefs.getBoolean("show_private_ad", true));
+        setHide_public_ad(!mSharedPrefs.getBoolean("show_public_ad", true));
+        setHide_recreational_ad(!mSharedPrefs.getBoolean("show_recreational_ad", true));
+        setHide_reporting_points(!mSharedPrefs.getBoolean("show_reporting", true));
         setHide_obstacles(!mSharedPrefs.getBoolean("show_obstacles", true));
+
+        setMaxAirspaceAlt(mSharedPrefs.getString("show_TMA_MAXALT", "5000"));
         setHide_CTR(!mSharedPrefs.getBoolean("show_CTR", false));
         setHide_TMA(!mSharedPrefs.getBoolean("show_TMA", false));
+        setHide_TIZ(!mSharedPrefs.getBoolean("show_TIZ", false));
+        setHide_TIA(!mSharedPrefs.getBoolean("show_TIA", false));
+        setHide_LTA(!mSharedPrefs.getBoolean("show_LTA", false));
+        setHide_P(!mSharedPrefs.getBoolean("show_P", false));
+        setHide_R(!mSharedPrefs.getBoolean("show_R", false));
+        setHide_D(!mSharedPrefs.getBoolean("show_D", false));
+        setHide_ENV(!mSharedPrefs.getBoolean("show_ENV", false));
 
-        setHide_VOR(! mSharedPrefs.getBoolean("show_VOR", true));
-        setHide_DME(! mSharedPrefs.getBoolean("show_DME", true));
-        setHide_VORDME(! mSharedPrefs.getBoolean("show_VORDME", true));
-        setHide_NDB(! mSharedPrefs.getBoolean("show_NDB", true));
-        setHide_TACAN(! mSharedPrefs.getBoolean("show_TACAN", true));
-        setHide_VORTAC(! mSharedPrefs.getBoolean("show_VORTAC", true));
-        setHide_Locator(! mSharedPrefs.getBoolean("show_Locator", true));
+
+        setHide_VOR(!mSharedPrefs.getBoolean("show_VOR", true));
+        setHide_DME(!mSharedPrefs.getBoolean("show_DME", true));
+        setHide_VORDME(!mSharedPrefs.getBoolean("show_VORDME", true));
+        setHide_NDB(!mSharedPrefs.getBoolean("show_NDB", true));
+        setHide_TACAN(!mSharedPrefs.getBoolean("show_TACAN", true));
+        setHide_VORTAC(!mSharedPrefs.getBoolean("show_VORTAC", true));
+        setHide_Locator(!mSharedPrefs.getBoolean("show_Locator", true));
     }
 
 
@@ -613,19 +650,19 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
     private void hideSoftKeyboard(View v) {
         InputMethodManager imm =
-                (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
     /**
      * This function is called when the Search button is pressed.
-     *
+     * <p>
      * Look up a place name and find the coordinates, then pass the coordinates to
      * the normal appending addMarker.
-     *
+     * <p>
      * Based on normal Google Search, but includes support for NavAids, Airfields, Reporting points
      * and coordinates, for example:
-     *
+     * <p>
      * "KORSA", "EKOD", "RP Køge" and "55 12 64N 011 42 96E"
      */
     private void geoLocate(View v) throws IOException {
@@ -659,7 +696,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         // check if special command :navaids
         if (searched.matches(":NAVAIDS")) {
-            String miniHelp="Valid names:\n";
+            String miniHelp = "Valid names:\n";
             for (NavAid n : mNavAidList) {
                 miniHelp += n.getName() + "\n";
             }
@@ -670,7 +707,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         // check if special command aerodromes
         if (searched.matches(":AD")) {
-            String miniHelp="Installed Aerodromes:\n";
+            String miniHelp = "Installed Aerodromes:\n";
             for (Aerodrome n : mAerodromeList) {
                 miniHelp += n.getIcaoName() + "\n";
             }
@@ -703,7 +740,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         // Format for this is "RP name", for example "RP BORUP"
         for (ReportingPoint rp : mReportingPointList) {
             String rpString = String.format("RP %s", rp.getName().toUpperCase());
-            if (getSearchedFor().equals(String.format("RP %s",rp.getName().toUpperCase()))) {
+            if (getSearchedFor().equals(String.format("RP %s", rp.getName().toUpperCase()))) {
                 placeAndZoomOnMarker(rp.getPosition(), getZoomLevel());
                 return;
             }
@@ -720,8 +757,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
      * Find the location based on Google Maps Search and return the location.
      *
      * @param searchedFor String, for example "Slaglille"
-     * @return            LatLng  object with position
-     *
+     * @return LatLng  object with position
      * @throws IOException
      */
     private LatLng searchLocation(String searchedFor) throws IOException {
@@ -742,7 +778,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
     }
 
 
-
     private void placeAndZoomOnMarker(LatLng position, float zoom) {
         // In rare cases, searching for something will not return a position. Just ignore those
         if (position != null) {
@@ -760,7 +795,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
      */
     private void addMarker(LatLng loc) {
 
-        Marker marker =createMapMarker(loc);
+        Marker marker = createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
         pejlinger = nearestVORs(marker, mVorList);
@@ -781,14 +816,14 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
      */
     private void addMarker(LatLng loc, int afterThis) {
 
-        Marker marker =createMapMarker(loc);
+        Marker marker = createMapMarker(loc);
 
         ArrayList<Pejling> pejlinger = new ArrayList<>();
-        pejlinger=nearestVORs(marker, mVorList);
+        pejlinger = nearestVORs(marker, mVorList);
 
         MarkerObject mo = new MarkerObject(marker, marker.getTitle(), marker.getSnippet(), pejlinger);
 
-        markerList.add(afterThis+1, mo);
+        markerList.add(afterThis + 1, mo);
         updatePolyline(markerList, mMap);
         updateNavinfo(markerList);
     }
@@ -809,7 +844,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         MarkerOptions options = createMarkerOptions(loc);
         Marker marker = mMap.addMarker(options);
 
-        if (marker.getTitle()==null) {
+        if (marker.getTitle() == null) {
             // This happens sometimes when a location name cannot be found
             marker.setTitle("Unknown location");
         }
@@ -819,7 +854,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         return marker;
     }
-
 
 
     /*
@@ -833,7 +867,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         startActivityForResult(intent, REQUEST_M_ID);
         marker.hideInfoWindow();
     }
-
 
 
     private void writePreferenceChanges() {
@@ -885,7 +918,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
             mo.setDist(wp.getWpDistance()); // Dist
 
             // If a specific way point was selected - keep a reference when found
-            if (mWpId!=null) {
+            if (mWpId != null) {
                 if (mWpId.equals(wp.getWpId())) {
                     startPoint = location;
                 }
@@ -895,8 +928,8 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
 
         // Now if we did not get a starting point, we will just use the first one ... or the
         // preferred starting point if there are no points
-        if (startPoint==null) {
-            if (markerList.size()>0){
+        if (startPoint == null) {
+            if (markerList.size() > 0) {
                 gotoLocation(markerList.get(0).getMarker().getPosition(), ZOOM_OVERVIEW);
             } else {
                 // Otherwise use the preferred start location
@@ -910,8 +943,6 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         updateNavinfo(markerList);
 
     }
-
-
 
 
     @Override
@@ -943,10 +974,9 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         super.onResume();
     }
 
-    public static String getCurrentTripId(){
+    public static String getCurrentTripId() {
         return mTripId;
     }
-
 
 
     private void showSaveDataDialog() {
@@ -980,7 +1010,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         // get the trip name somehow, then remove existing trip
 
         String tripName = mDataSource.getTripName(mTripId);
-        Log.d(TAG, "MarkerDemoActivity, onBackPressed> TripName from DB: "+tripName);
+        Log.d(TAG, "MarkerDemoActivity, onBackPressed> TripName from DB: " + tripName);
 
         // mDataSource.DeleteTrip(id) and all the previous waypoints
         mDataSource.deleteTrip(mTripId);
@@ -992,7 +1022,7 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
         listForDB = new ArrayList<>();
         Log.d(TAG, "Creating WpItems from markerList");
         for (int i = 0; i < markerList.size(); i++) {
-            MarkerObject mo=markerList.get(i);
+            MarkerObject mo = markerList.get(i);
             WpItem wp = new WpItem(
                     mo.getMyId(),
                     mo.getText(),
@@ -1004,13 +1034,13 @@ public class MarkerDemoActivity extends MarkerDemoUtils implements
                     i);
 
 
-            Log.d(TAG, "Building listForDB #"+i+" wp.getWpName: "+wp.getWpName());
+            Log.d(TAG, "Building listForDB #" + i + " wp.getWpName: " + wp.getWpName());
             listForDB.add(wp);
         }
 
 
         // then createTrip like this
-        TripItem ti =  mDataSource.addFullTrip(tripName, listForDB);
+        TripItem ti = mDataSource.addFullTrip(tripName, listForDB);
         mDataSource.close();
         Log.d(TAG, "Data updated in DB");
 

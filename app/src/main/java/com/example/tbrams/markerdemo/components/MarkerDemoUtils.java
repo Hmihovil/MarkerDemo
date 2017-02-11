@@ -64,24 +64,33 @@ public class MarkerDemoUtils extends AppCompatActivity {
     private static Polyline polyline;
     private float mZoomLevel;
     private String mSearchedFor;
-    private boolean mMapTypeChangedByZoom=false;
+    private boolean mMapTypeChangedByZoom = false;
 
-    private boolean mHide_public_ad=false;
-    private boolean mHide_private_ad=false;
-    private boolean mHide_recreational_ad=false;
+    private boolean mHide_public_ad = false;
+    private boolean mHide_private_ad = false;
+    private boolean mHide_recreational_ad = false;
 
-    private boolean mHide_reporting_points=false;
-    private boolean mHide_obstacles=false;
-    private boolean mHide_TMA=false;
-    private boolean mHide_CTR=false;
+    private boolean mHide_reporting_points = false;
+    private boolean mHide_obstacles = false;
 
-    private boolean mHide_VOR=false;
-    private boolean mHide_VORDME=false;
-    private boolean mHide_NDB=false;
-    private boolean mHide_TACAN=false;
-    private boolean mHide_VORTAC=false;
-    private boolean mHide_DME=false;
-    private boolean mHide_Locator=false;
+    private int mMaxAirspaceAlt = 0;
+    private boolean mHide_TMA = false;
+    private boolean mHide_CTR = false;
+    private boolean mHide_TIZ = false;
+    private boolean mHide_TIA = false;
+    private boolean mHide_LTA = false;
+    private boolean mHide_P = false;
+    private boolean mHide_R = false;
+    private boolean mHide_D = false;
+    private boolean mHide_ENV = false;
+
+    private boolean mHide_VOR = false;
+    private boolean mHide_VORDME = false;
+    private boolean mHide_NDB = false;
+    private boolean mHide_TACAN = false;
+    private boolean mHide_VORTAC = false;
+    private boolean mHide_DME = false;
+    private boolean mHide_Locator = false;
 
 
     // MidPoint related
@@ -93,20 +102,20 @@ public class MarkerDemoUtils extends AppCompatActivity {
      *  to our midPointList
      */
     public void updateMidpoints(List<MarkerObject> markerList, GoogleMap gMap) {
-        if (markerList.size()<2) return;
+        if (markerList.size() < 2) return;
 
         // remove old markers from map and clear the storage
-        for (int i=0;i<midpointList.size();i++){
+        for (int i = 0; i < midpointList.size(); i++) {
             midpointList.get(i).remove();
         }
         midpointList.clear();
 
         // Go through all markers and add new non draggable midpoint markers
-        for (int i=0; i<markerList.size()-1;i++) {
-            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i+1).getMarker().getPosition(), 0.5);
+        for (int i = 0; i < markerList.size() - 1; i++) {
+            LatLng midPt = interpolate(markerList.get(i).getMarker().getPosition(), markerList.get(i + 1).getMarker().getPosition(), 0.5);
             Marker marker = gMap.addMarker(new MarkerOptions()
                     .position(midPt)
-                    .anchor((float)0.5, (float)0.5)
+                    .anchor((float) 0.5, (float) 0.5)
                     .alpha(.6f)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_circle)));
 
@@ -118,7 +127,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
      * Determine if the marker argument is a midpoint marker
      */
     public boolean isMidPoint(Marker marker) {
-        return (getMidpointIndex(marker)>=0);
+        return (getMidpointIndex(marker) >= 0);
     }
 
 
@@ -127,7 +136,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
      * minus one.
      */
     public static int getMidpointIndex(Marker marker) {
-        for (int i=0;i<midpointList.size();i++){
+        for (int i = 0; i < midpointList.size(); i++) {
             if (midpointList.get(i).getPosition().equals(marker.getPosition()))
                 return i;
         }
@@ -135,12 +144,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     public static void clearMidpoints() {
         midpointList.clear();
     }
-
-
 
 
     // Navigation related
@@ -150,16 +156,16 @@ public class MarkerDemoUtils extends AppCompatActivity {
      * After this is done all markers will have the distance to next marker and
      * the initial heading needed to reach next marker
      */
-    public void updateNavinfo(List<MarkerObject> markerList){
-        if (markerList.size()<2) {
+    public void updateNavinfo(List<MarkerObject> markerList) {
+        if (markerList.size() < 2) {
             return;
         }
 
-        for (int i=0;i<markerList.size()-1;i++){
-            MarkerObject mFrom =markerList.get(i);
-            MarkerObject mTo = markerList.get(i+1);
+        for (int i = 0; i < markerList.size() - 1; i++) {
+            MarkerObject mFrom = markerList.get(i);
+            MarkerObject mTo = markerList.get(i + 1);
 
-            double dist=computeDistanceBetween(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
+            double dist = computeDistanceBetween(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
             double heading = computeHeading(mFrom.getMarker().getPosition(), mTo.getMarker().getPosition());
 
             // Set these values on the to point, that way we will have all we need in the WP
@@ -171,20 +177,19 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     /*
      * Find the three nearest VORs for the marker in question and return a list
      * with the sorted results
      */
     public ArrayList<Pejling> nearestVORs(Marker m, List<NavAid> vorList) {
 
-        ArrayList<Pejling> plist= new ArrayList<>();
+        ArrayList<Pejling> plist = new ArrayList<>();
 
-        for (int i=0;i<vorList.size();i++) {
+        for (int i = 0; i < vorList.size(); i++) {
             LatLng position = vorList.get(i).getPosition();
-            double dist=computeDistanceBetween(position, m.getPosition());
+            double dist = computeDistanceBetween(position, m.getPosition());
             double heading = computeHeading(position, m.getPosition());
-            int original_id=vorList.get(i).getSeq_id();
+            int original_id = vorList.get(i).getSeq_id();
             plist.add(new Pejling(original_id, dist, heading));
         }
 
@@ -192,7 +197,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
         Collections.sort(plist);
 
         ArrayList<Pejling> result = new ArrayList<>();
-        for (int i=0; i<3;i++) {
+        for (int i = 0; i < 3; i++) {
             result.add(plist.get(i));
         }
 
@@ -200,24 +205,23 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     // Bitmap related
 
     private Dimension getDimensions(String iconName) {
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(iconName, "drawable", getPackageName()));
         Dimension d = new Dimension();
-        d.w=imageBitmap.getWidth();
-        d.h=imageBitmap.getHeight();
+        d.w = imageBitmap.getWidth();
+        d.h = imageBitmap.getHeight();
 
         return d;
     }
 
 
     private static class Dimension {
-        int w,h;
+        int w, h;
     }
 
-    public Bitmap resizeMapIcons(String iconName, double zoomLevel){
+    public Bitmap resizeMapIcons(String iconName, double zoomLevel) {
 
         // Try to get the sizing right
         // At ZoomLevel 12 60px
@@ -227,16 +231,16 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
         double pixelSizeAtZoom14 = 500; //the size of the icon at zoom level 0
         int maxPixelSize = 150;       //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
-        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14*Math.pow(2,(zoomLevel-14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
+        int relativePixelSize = (int) Math.round(pixelSizeAtZoom14 * Math.pow(2, (zoomLevel - 14))); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
 
-        if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
+        if (relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
             relativePixelSize = maxPixelSize;
 
-        Log.d(TAG, "Rel pixel size: "+relativePixelSize);
+        Log.d(TAG, "Rel pixel size: " + relativePixelSize);
 
         // Create bitmap from drawable and size it.. if it makes sense
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
-        if (relativePixelSize>0) {
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        if (relativePixelSize > 0) {
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, relativePixelSize, relativePixelSize, false);
             return resizedBitmap;
         } else {
@@ -255,19 +259,17 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     // Map and Zoom related
 
     public void updateZoom(SharedPreferences sharedPrefs, GoogleMap gMap) {
-        float zoomLevel = (float) Double.parseDouble(sharedPrefs.getString("zoomLevel","10."));
+        float zoomLevel = (float) Double.parseDouble(sharedPrefs.getString("zoomLevel", "10."));
         setZoomLevel(zoomLevel);
         gMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel), 1000, null);
     }
 
 
-
     public void updateMapType(SharedPreferences sharedPrefs, GoogleMap gMap) {
-        switch (sharedPrefs.getString("mapType","1")) {
+        switch (sharedPrefs.getString("mapType", "1")) {
             case "1":
                 gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
@@ -284,7 +286,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     // Marker Related
 
     /*
@@ -292,16 +293,13 @@ public class MarkerDemoUtils extends AppCompatActivity {
      * otherwise return minus one
      */
     public int getIndexById(String mid, List<MarkerObject> markerList) {
-        for (int i=0; i<markerList.size();i++) {
+        for (int i = 0; i < markerList.size(); i++) {
             if (markerList.get(i).getMarker().getId().equals(mid)) {
                 return i;
             }
         }
         return -1;
     }
-
-
-
 
 
     /*
@@ -315,7 +313,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     /*
      * Used for all add marker functions
      * Create the options needed for a new marker
@@ -323,9 +320,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
     public MarkerOptions createMarkerOptions(LatLng loc) {
         Address adr = findAddress(loc);
 
-        String text="";
+        String text = "";
         String country = "";
-        if (adr!=null) {
+        if (adr != null) {
             text = adr.getLocality();
             adr.getCountryName();
 
@@ -354,7 +351,6 @@ public class MarkerDemoUtils extends AppCompatActivity {
     }
 
 
-
     // Polyline related
 
     /*
@@ -365,14 +361,14 @@ public class MarkerDemoUtils extends AppCompatActivity {
      */
 
     public void updatePolyline(List<MarkerObject> markerList, GoogleMap gMap) {
-        if (polyline==null) {
+        if (polyline == null) {
             Log.d(TAG, "UpdatePolyLine: ==null");
             PolylineOptions lineOptions = new PolylineOptions().geodesic(true);
             polyline = gMap.addPolyline(lineOptions);
         }
 
         List<LatLng> points = new ArrayList<>();
-        for (int i=0;i<markerList.size();i++){
+        for (int i = 0; i < markerList.size(); i++) {
             points.add(markerList.get(i).getMarker().getPosition());
         }
         polyline.setPoints(points);
@@ -384,9 +380,8 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public void clearPolyline() {
         polyline.remove();
-        polyline=null;
+        polyline = null;
     }
-
 
 
     // Address related
@@ -407,16 +402,15 @@ public class MarkerDemoUtils extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Address adr=null;
-        if (list!=null && list.size()!=0) {
+        Address adr = null;
+        if (list != null && list.size() != 0) {
             adr = list.get(0);
-            Log.d(TAG, "findAddress: Got adr from lookup: "+adr);
+            Log.d(TAG, "findAddress: Got adr from lookup: " + adr);
         } else {
             Log.d(TAG, "findAddress: Got a null from address lookup");
         }
         return adr;
     }
-
 
 
     // Member Variables
@@ -425,27 +419,30 @@ public class MarkerDemoUtils extends AppCompatActivity {
     public String getSearchedFor() {
         return mSearchedFor;
     }
+
     public void setSearchedFor(String searchedFor) {
         mSearchedFor = searchedFor;
     }
 
-    public float getZoomLevel() { return mZoomLevel; }
+    public float getZoomLevel() {
+        return mZoomLevel;
+    }
+
     public void setZoomLevel(float zoomLevel) {
-        if (getZoomLevel()!=zoomLevel) {
+        if (getZoomLevel() != zoomLevel) {
             Log.d(TAG, "setZoomLevel: " + zoomLevel);
 
-            String msg = String.format(Locale.ENGLISH,"Zoom level: %.1f", zoomLevel);
+            String msg = String.format(Locale.ENGLISH, "Zoom level: %.1f", zoomLevel);
             SpannableStringBuilder ssb = new SpannableStringBuilder().append(msg);
             ssb.setSpan(new ForegroundColorSpan(Color.parseColor("#ff333333")), 0, msg.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            Snackbar snackbar=Snackbar.make(getCurrentFocus(), ssb, Snackbar.LENGTH_SHORT);
+            Snackbar snackbar = Snackbar.make(getCurrentFocus(), ssb, Snackbar.LENGTH_SHORT);
             snackbar.getView().setBackgroundColor(0xdddddddd);
             snackbar.show();
 
             mZoomLevel = zoomLevel;
         }
     }
-
 
 
     // These are for showing/hiding specific components. Used after restoring preferences
@@ -481,6 +478,18 @@ public class MarkerDemoUtils extends AppCompatActivity {
         mHide_recreational_ad = hide_recreational_ad;
     }
 
+    public int getMaxAirspaceAlt() {
+        return mMaxAirspaceAlt;
+    }
+
+    public void setMaxAirspaceAlt(int maxAirspaceAlt) {
+        mMaxAirspaceAlt = maxAirspaceAlt;
+    }
+
+    public void setMaxAirspaceAlt(String maxAirspaceAlt) {
+        mMaxAirspaceAlt = (int) Double.parseDouble(maxAirspaceAlt);
+    }
+
     public boolean isHide_TMA() {
         return mHide_TMA;
     }
@@ -495,6 +504,62 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public void setHide_CTR(boolean hide_CTR) {
         mHide_CTR = hide_CTR;
+    }
+
+    public boolean isHide_TIZ() {
+        return mHide_TIZ;
+    }
+
+    public void setHide_TIZ(boolean hide_TIZ) {
+        mHide_TIZ = hide_TIZ;
+    }
+
+    public boolean isHide_TIA() {
+        return mHide_TIA;
+    }
+
+    public void setHide_TIA(boolean hide_TIA) {
+        mHide_TIA = hide_TIA;
+    }
+
+    public boolean isHide_LTA() {
+        return mHide_LTA;
+    }
+
+    public void setHide_LTA(boolean hide_LTA) {
+        mHide_LTA = hide_LTA;
+    }
+
+    public boolean isHide_P() {
+        return mHide_P;
+    }
+
+    public void setHide_P(boolean hide_P) {
+        mHide_P = hide_P;
+    }
+
+    public boolean isHide_R() {
+        return mHide_R;
+    }
+
+    public void setHide_R(boolean hide_R) {
+        mHide_R = hide_R;
+    }
+
+    public boolean isHide_D() {
+        return mHide_D;
+    }
+
+    public void setHide_D(boolean hide_D) {
+        mHide_D = hide_D;
+    }
+
+    public boolean isHide_ENV() {
+        return mHide_ENV;
+    }
+
+    public void setHide_ENV(boolean hide_ENV) {
+        mHide_ENV = hide_ENV;
     }
 
     public boolean isHide_VOR() {
@@ -562,7 +627,10 @@ public class MarkerDemoUtils extends AppCompatActivity {
         mHide_reporting_points = hide_reporting_points;
     }
 
-    public boolean isMapTypeChangedByZoom() { return mMapTypeChangedByZoom; }
+    public boolean isMapTypeChangedByZoom() {
+        return mMapTypeChangedByZoom;
+    }
+
     public void setMapTypeChangedByZoom(boolean mapTypeChangedByZoom) {
         mMapTypeChangedByZoom = mapTypeChangedByZoom;
     }
@@ -585,50 +653,49 @@ public class MarkerDemoUtils extends AppCompatActivity {
      */
     public void plotNavAids(List<Marker> navAidMarkers, List<NavAid> navAidList, GoogleMap gMap) {
 
-        Log.d(TAG, "plotNavAids: navAidList.size(): "+navAidList.size());
-        Log.d(TAG, "plotNavAids: navAidMarkers.size(): "+navAidMarkers.size());
+        Log.d(TAG, "plotNavAids: navAidList.size(): " + navAidList.size());
+        Log.d(TAG, "plotNavAids: navAidMarkers.size(): " + navAidMarkers.size());
 
-        String snippetText="invalid";
-        int iconInt=R.drawable.ic_device_gps_blue;
+        String snippetText = "invalid";
+        int iconInt = R.drawable.ic_device_gps_blue;
         if (navAidMarkers.size() == 0) {
             // Create all Nav Aids markers and keep record in an ArrayList
             for (int i = 0; i < navAidList.size(); i++) {
-                switch (navAidList.get(i).getType()){
+                switch (navAidList.get(i).getType()) {
                     case NavAid.VOR:
-                        iconInt=R.drawable.ic_device_gps_blue;
+                        iconInt = R.drawable.ic_device_gps_blue;
                         snippetText = "VOR";
                         break;
                     case NavAid.VORDME:
-                        iconInt=R.drawable.ic_device_gps_green;
+                        iconInt = R.drawable.ic_device_gps_green;
                         snippetText = "VOR/DME";
                         break;
                     case NavAid.DME:
-                        iconInt=R.drawable.ic_device_gps_purple;
+                        iconInt = R.drawable.ic_device_gps_purple;
                         snippetText = "DME";
                         break;
                     case NavAid.NDB:
-                        iconInt=R.drawable.ic_device_gps_black;
+                        iconInt = R.drawable.ic_device_gps_black;
                         snippetText = "NDB";
                         break;
                     case NavAid.TACAN:
-                        iconInt=R.drawable.ic_device_gps_red;
+                        iconInt = R.drawable.ic_device_gps_red;
                         snippetText = "TACAN";
                         break;
                     case NavAid.VORTAC:
-                        iconInt=R.drawable.ic_device_gps_orange;
+                        iconInt = R.drawable.ic_device_gps_orange;
                         snippetText = "VORTAC";
                         break;
                     case NavAid.LOCATOR:
-                        iconInt=R.drawable.ic_device_gps_grey;
+                        iconInt = R.drawable.ic_device_gps_grey;
                         snippetText = "Locator";
                         break;
                 }
 
 
-
                 Marker m = gMap.addMarker(new MarkerOptions()
                         .title(navAidList.get(i).getIdent())
-                        .snippet(snippetText+" "+navAidList.get(i).getFreq())
+                        .snippet(snippetText + " " + navAidList.get(i).getFreq())
                         .position(navAidList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconInt)));
 
                 m.setAnchor(.5f, .5f);
@@ -731,9 +798,9 @@ public class MarkerDemoUtils extends AppCompatActivity {
      * are hidden at these levels as well
      *
      */
-    public void plotAerodromes(List<Marker> adMarkers, List<Aerodrome> adList, GoogleMap gMap ) {
+    public void plotAerodromes(List<Marker> adMarkers, List<Aerodrome> adList, GoogleMap gMap) {
 
-        Log.d(TAG, "plotAerodromes: Entering, adList.size(): "+adList.size());
+        Log.d(TAG, "plotAerodromes: Entering, adList.size(): " + adList.size());
 
         // Create the markers if not already there
         int iconPublicAirfield = R.drawable.ic_public_airfield;
@@ -743,47 +810,49 @@ public class MarkerDemoUtils extends AppCompatActivity {
             // Create all AD markers and keep record in an ArrayList
             for (int i = 0; i < adList.size(); i++) {
                 int iconAD = 0;
-                String title="";
-                String note="";
+                String title = "";
+                String note = "";
                 switch (adList.get(i).getType()) {
                     case Aerodrome.PUBLIC:
-                        iconAD=iconPublicAirfield;
-                        title=adList.get(i).getIcaoName();
-                        note=adList.get(i).getName();
+                        iconAD = iconPublicAirfield;
+                        title = adList.get(i).getIcaoName();
+                        note = adList.get(i).getName();
                         break;
 
                     case Aerodrome.PRIVATE:
-                        iconAD=iconPrivateAirfield;
-                        title=adList.get(i).getName();
-                        if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
-                        note="Private airfield ";
-                        if (adList.get(i).getRemarks()!=null) note+=adList.get(i).getRemarks();
+                        iconAD = iconPrivateAirfield;
+                        title = adList.get(i).getName();
+                        if (!adList.get(i).getIcaoName().equals(""))
+                            title += " (" + adList.get(i).getIcaoName() + ")";
+                        note = "Private airfield ";
+                        if (adList.get(i).getRemarks() != null) note += adList.get(i).getRemarks();
                         break;
 
                     case Aerodrome.RECREATIONAL:
-                        iconAD=iconRecreationalAirfield;
-                        title=adList.get(i).getName();
-                        if (!adList.get(i).getIcaoName().equals("")) title+=" ("+adList.get(i).getIcaoName()+")";
-                        note=adList.get(i).getRemarks();
-                        String activity=adList.get(i).getActivity().toUpperCase();
-                        String extraNote="";
+                        iconAD = iconRecreationalAirfield;
+                        title = adList.get(i).getName();
+                        if (!adList.get(i).getIcaoName().equals(""))
+                            title += " (" + adList.get(i).getIcaoName() + ")";
+                        note = adList.get(i).getRemarks();
+                        String activity = adList.get(i).getActivity().toUpperCase();
+                        String extraNote = "";
                         if (activity.contains("HG")) {
-                            extraNote+="Hang Gliders";
-                            activity.replace("HG","");
+                            extraNote += "Hang Gliders";
+                            activity.replace("HG", "");
                         }
-                        if(activity.contains("G")) {
-                            extraNote+=" Gliders";
-                            activity.replace("G","");
+                        if (activity.contains("G")) {
+                            extraNote += " Gliders";
+                            activity.replace("G", "");
                         }
-                        if(activity.contains("CL")) {
-                            extraNote+=" Cable Launch";
-                            activity.replace("CL","");
+                        if (activity.contains("CL")) {
+                            extraNote += " Cable Launch";
+                            activity.replace("CL", "");
                         }
-                        if(activity.contains("P")) {
-                            extraNote+=" Parachutes";
+                        if (activity.contains("P")) {
+                            extraNote += " Parachutes";
                         }
                         if (note.equals("")) {
-                            note=extraNote;
+                            note = extraNote;
                         }
                         break;
                 }
@@ -847,18 +916,17 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     /**
      * Plot Reporting Point icons on the map with customized markers.
-     *
+     * <p>
      * All markers are initially created and filed away in the mRPMarkers list. Everything is
      * Offset in both directions, so they will center on the position of the RP.
-     *
+     * <p>
      * param rpMarkers  A list of Reporting Point Markers
      * param rpList     A list of Reporting Point Objects
      * param gMap       A handle to the map object
-     *
      */
-    public void plotReportingPoints(List<Marker> rpMarkers, List<ReportingPoint> rpList, GoogleMap gMap ) {
+    public void plotReportingPoints(List<Marker> rpMarkers, List<ReportingPoint> rpList, GoogleMap gMap) {
 
-        Log.d(TAG, "plotReportingPoints: Entering, rpList.size(): "+rpList.size());
+        Log.d(TAG, "plotReportingPoints: Entering, rpList.size(): " + rpList.size());
 
         // Create the markers if not alrady there
         int iconReportingPoint = R.drawable.ic_reporting_point;
@@ -867,7 +935,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             for (int i = 0; i < rpList.size(); i++) {
                 Marker m = gMap.addMarker(new MarkerOptions()
                         .title(rpList.get(i).getName())
-                        .snippet(rpList.get(i).getAerodrome()+" Reporting Point")
+                        .snippet(rpList.get(i).getAerodrome() + " Reporting Point")
                         .position(rpList.get(i).getPosition()).icon(BitmapDescriptorFactory.fromResource(iconReportingPoint)));
 
                 m.setAnchor(0.5f, .6f);
@@ -875,7 +943,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
 
-        if (isHide_reporting_points() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel()< AERODROME_MIN_ZOOM) {
+        if (isHide_reporting_points() || getZoomLevel() > AERODROME_MAX_ZOOM || getZoomLevel() < AERODROME_MIN_ZOOM) {
             for (Marker m : rpMarkers) {
                 m.setVisible(false);
             }
@@ -891,18 +959,17 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     /**
      * Plot Reporting Point icons on the map with customized markers.
-     *
+     * <p>
      * All markers are initially created and filed away in the mRPMarkers list. Everything is
      * Offset in both directions, so they will center on the position of the RP.
-     *
+     * <p>
      * param rpMarkers  A list of Reporting Point Markers
      * param rpList     A list of Reporting Point Objects
      * param gMap       A handle to the map object
-     *
      */
-    public void plotObstacles(List<Marker> oMarkers, List<Obstacle> oList, GoogleMap gMap ) {
+    public void plotObstacles(List<Marker> oMarkers, List<Obstacle> oList, GoogleMap gMap) {
 
-        Log.d(TAG, "plotObstacles: Entering, oList.size(): "+oList.size());
+        Log.d(TAG, "plotObstacles: Entering, oList.size(): " + oList.size());
 
         // Create the markers if not already there
         int iconObstacle = R.drawable.ic_obstacle;
@@ -920,7 +987,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             }
         }
 
-        if (isHide_obstacles() || getZoomLevel() > OBSTACLE_MAX_ZOOM || getZoomLevel()< OBSTACLE_MIN_ZOOM) {
+        if (isHide_obstacles() || getZoomLevel() > OBSTACLE_MAX_ZOOM || getZoomLevel() < OBSTACLE_MIN_ZOOM) {
             for (Marker m : oMarkers) {
                 m.setVisible(false);
             }
@@ -934,30 +1001,31 @@ public class MarkerDemoUtils extends AppCompatActivity {
 
     public void plotAreas(List<Polygon> polygonList, List<AreaItem> areaItemList, GoogleMap gMap) {
 
-        Log.d(TAG, "plotAreas: ...");
         String color;
 
         if (polygonList.size() == 0) {
             // Create all area Polygons and keep record in an ArrayList
 
-             for (AreaItem areaItem : areaItemList) {
+            for (AreaItem areaItem : areaItemList) {
                 List<LatLng> coords = areaItem.getCoordinates();
                 String name = areaItem.getAreaName();
 
-                if (areaItem.getAreaType()==Area.CTR) {
+                if (areaItem.getAreaType() == Area.CTR) {
                     color = CONTROL_AREA_COLOR;
                 } else {
                     color = TERMINAL_AREA_COLOR;
                 }
 
+                float zLevel = areaItem.getAreaToAlt();
+
                 Polygon polygon = gMap.addPolygon(new PolygonOptions()
                         .addAll(coords)
-                      //  .strokeColor(Color.LTGRAY)
+                        //  .strokeColor(Color.LTGRAY)
                         .strokeColor(Color.BLACK)
-                     //   .strokeWidth(.5f)
+                        .strokeWidth(1.f)
                         .fillColor(Color.parseColor(color)));
 
-                polygon.setClickable(true);
+                polygon.setZIndex(zLevel);
                 polygonList.add(polygon);
             }
         }
@@ -967,26 +1035,58 @@ public class MarkerDemoUtils extends AppCompatActivity {
         for (int i = 0; i < areaItemList.size(); i++) {
             switch (areaItemList.get(i).getAreaType()) {
                 case AreaItem.CTR:
-                    if (isHide_CTR()) {
-                        polygonList.get(i).setVisible(false);
-                    } else {
-                        polygonList.get(i).setVisible(true);
-                    }
+                    updateVisibility(polygonList.get(i), isHide_CTR(), areaItemList.get(i).getAreaFromAlt());
                     break;
 
                 case AreaItem.TMA:
-                    if (isHide_TMA()) {
-                        polygonList.get(i).setVisible(false);
-                    } else {
-                        polygonList.get(i).setVisible(true);
-                    }
+                    updateVisibility(polygonList.get(i), isHide_TMA(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.TIZ:
+                    updateVisibility(polygonList.get(i), isHide_TIZ(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.TIA:
+                    updateVisibility(polygonList.get(i), isHide_TIA(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.LTA:
+                    updateVisibility(polygonList.get(i), isHide_LTA(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.PROHIBITED:
+                    updateVisibility(polygonList.get(i), isHide_P(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.RESTRICTED:
+                    updateVisibility(polygonList.get(i), isHide_R(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.DANGER:
+                    updateVisibility(polygonList.get(i), isHide_D(), areaItemList.get(i).getAreaFromAlt());
+                    break;
+
+                case AreaItem.SENSITIVE:
+                    updateVisibility(polygonList.get(i), isHide_ENV(), areaItemList.get(i).getAreaFromAlt());
                     break;
 
                 default:
-                    polygonList.get(i).setVisible(true);
+                    updateVisibility(polygonList.get(i), true, 20000);
             }
         }
 
+    }
+
+
+    private void updateVisibility(Polygon polygon, boolean mustHide, int fromAlt) {
+        if (mustHide || (fromAlt > mMaxAirspaceAlt)) {
+            polygon.setVisible(false);
+            polygon.setClickable(false);
+        } else {
+            polygon.setVisible(true);
+            polygon.setClickable(true);
+
+        }
     }
 
 }

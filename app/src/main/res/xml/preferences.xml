@@ -18,6 +18,12 @@
          android:entries="@array/listArrayMapType"
          android:entryValues="@array/listValuesMapType" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="show_obstacles"
+        android:summary="Select to show obstacles on the map"
+        android:title="Obstacles"/>
+
     <PreferenceScreen
         android:title="@string/navaids_title"
         android:key="pref_key_navaids_settings"
@@ -83,19 +89,61 @@
             android:summary="Select to show reporting points on the map"
             android:title="Reporting Points"/>
     </PreferenceScreen>
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="show_obstacles"
-        android:summary="Select to show obstacles on the map"
-        android:title="Obstacles"/>
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="show_CTR"
-        android:summary="Select to show CTRs on the map"
-        android:title="CTR"/>
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="show_TMA"
-        android:summary="Select to show TMAs on the map"
-        android:title="TMA" />
+
+
+    <PreferenceScreen
+        android:key="pref_key_Area_settings"
+        android:title="Air Space">
+        <EditTextPreference
+            android:key="show_TMA_MAXALT"
+            android:title="Max Altitude"
+            android:defaultValue="5000.0"
+            android:summary="Do not show airspace starting above this altitude" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_CTR"
+            android:summary="Select to show CTRs on the map"
+            android:title="CTR"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_TMA"
+            android:summary="Select to show TMAs on the map"
+            android:title="TMA" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_TIZ"
+            android:summary="Select to show TIZs on the map"
+            android:title="TIZ" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_TIA"
+            android:summary="Select to show TIAs on the map"
+            android:title="TIA" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_LTA"
+            android:summary="Select to show LTAs on the map"
+            android:title="LTA" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_P"
+            android:summary="Select to show prohibited areas"
+            android:title="Prohibited" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_R"
+            android:summary="Select to show restricted areas"
+            android:title="Restricted" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_D"
+            android:summary="Select to show danger areas"
+            android:title="Danger" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_ENV"
+            android:summary="Select to show sensitive areas"
+            android:title="Sensitive" />
+    </PreferenceScreen>
+
 </PreferenceScreen>

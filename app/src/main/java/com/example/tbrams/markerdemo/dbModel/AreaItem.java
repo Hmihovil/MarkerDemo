@@ -21,94 +21,94 @@ public class AreaItem {
     public static final int DANGER = 12;
     public static final int SENSITIVE = 13;
 
-    private String AreaId;
-    private String AreaName;
-    private int AreaType;
-    private String AreaIdent;
-    private String AreaClass;
-    private int AreaFromAlt;
-    private int AreaToAlt;
+    private String mAreaId;
+    private String mAreaName;
+    private int mAreaType;
+    private String mAreaIdent;
+    private String mAreaClass;
+    private int mAreaFromAlt;
+    private int mAreaToAlt;
     private List<CoordItem> mCoordItemList;
 
     public AreaItem() {
-        this.AreaId = UUID.randomUUID().toString();
-        this.AreaName = "";
-        this.AreaType = 0;
-        this.AreaFromAlt = 0;
-        this.AreaToAlt = 0;
-        this.AreaClass = "";
-        this.AreaIdent = "";
+        this.mAreaId = UUID.randomUUID().toString();
+        this.mAreaName = "";
+        this.mAreaType = 0;
+        this.mAreaFromAlt = 0;
+        this.mAreaToAlt = 0;
+        this.mAreaClass = "";
+        this.mAreaIdent = "";
     }
 
 
     public AreaItem(String areaId, String areaName, int areaType, String areaIdent, String areaClass, int areaFromAlt, int areaToAlt) {
         if (areaId != null) {
-            this.AreaId = areaId;
+            this.mAreaId = areaId;
         } else {
-            this.AreaId = UUID.randomUUID().toString();
+            this.mAreaId = UUID.randomUUID().toString();
         }
-        AreaName = areaName;
-        AreaType = areaType;
-        AreaIdent = areaIdent;
-        AreaClass = areaClass;
-        AreaFromAlt = areaFromAlt;
-        AreaToAlt = areaToAlt;
+        mAreaName = areaName;
+        mAreaType = areaType;
+        mAreaIdent = areaIdent;
+        mAreaClass = areaClass;
+        mAreaFromAlt = areaFromAlt;
+        mAreaToAlt = areaToAlt;
     }
 
     public String getAreaId() {
-        return AreaId;
+        return mAreaId;
     }
 
     public void setAreaId(String areaId) {
-        AreaId = areaId;
+        mAreaId = areaId;
     }
 
     public String getAreaName() {
-        return AreaName;
+        return mAreaName;
     }
 
     public void setAreaName(String areaName) {
-        AreaName = areaName;
+        mAreaName = areaName;
     }
 
     public int getAreaType() {
-        return AreaType;
+        return mAreaType;
     }
 
     public void setAreaType(int areaType) {
-        AreaType = areaType;
+        mAreaType = areaType;
     }
 
     public String getAreaIdent() {
-        return AreaIdent;
+        return mAreaIdent;
     }
 
     public void setAreaIdent(String areaIdent) {
-        AreaIdent = areaIdent;
+        mAreaIdent = areaIdent;
     }
 
     public String getAreaClass() {
-        return AreaClass;
+        return mAreaClass;
     }
 
     public void setAreaClass(String areaClass) {
-        AreaClass = areaClass;
+        mAreaClass = areaClass;
     }
 
     public int getAreaFromAlt() {
-        return AreaFromAlt;
+        return mAreaFromAlt;
     }
 
     public void setAreaFromAlt(int areaFromAlt) {
-        AreaFromAlt = areaFromAlt;
+        mAreaFromAlt = areaFromAlt;
     }
 
     public int getAreaToAlt() {
-        return AreaToAlt;
+        return mAreaToAlt;
     }
 
     public void setAreaToAlt(int areaToAlt) {
-        AreaToAlt = areaToAlt;
+        mAreaToAlt = areaToAlt;
     }
 
     public List<CoordItem> getCoordItemList() {return mCoordItemList;}
@@ -129,13 +129,13 @@ public class AreaItem {
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues(4);
 
-        values.put(AreaTable.COLUMN_ID, AreaId);
-        values.put(AreaTable.COLUMN_NAME, AreaName);
-        values.put(AreaTable.COLUMN_IDENT, AreaIdent);
-        values.put(AreaTable.COLUMN_TYPE, AreaType);
-        values.put(AreaTable.COLUMN_CLASS, AreaClass);
-        values.put(AreaTable.COLUMN_FROM_ALT, AreaFromAlt);
-        values.put(AreaTable.COLUMN_TO_ALT, AreaToAlt);
+        values.put(AreaTable.COLUMN_ID, mAreaId);
+        values.put(AreaTable.COLUMN_NAME, mAreaName);
+        values.put(AreaTable.COLUMN_IDENT, mAreaIdent);
+        values.put(AreaTable.COLUMN_TYPE, mAreaType);
+        values.put(AreaTable.COLUMN_CLASS, mAreaClass);
+        values.put(AreaTable.COLUMN_FROM_ALT, mAreaFromAlt);
+        values.put(AreaTable.COLUMN_TO_ALT, mAreaToAlt);
 
         return values;
     }
