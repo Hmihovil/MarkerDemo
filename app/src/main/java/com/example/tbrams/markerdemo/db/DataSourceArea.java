@@ -181,6 +181,7 @@ public class DataSourceArea extends DataSource {
                 coordList.add(coordItem);
             }
             areaItem.setCoordItemList(coordList);
+            coordList = new ArrayList<>();
         }
 
         return areaList;

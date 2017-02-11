@@ -569,13 +569,13 @@ public class GoogleSheetActivity extends Activity implements EasyPermissions.Per
 
                         nextCoordList = new ArrayList<>();
 
-                    } else {
-
-                        // New coordinate - we do not have a name in column 0
-                        // need to create a new coordinate and add it to the vList
-                        LatLng pos = Util.convertVFG(row.get(3).toString());
-                        nextCoordList.add(pos);
                     }
+
+                    // New coordinate - we do not have a name in column 0
+                    // need to create a new coordinate and add it to the vList
+                    LatLng pos = Util.convertVFG(row.get(3).toString());
+                    nextCoordList.add(pos);
+
 
                 }
 

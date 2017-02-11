@@ -26,7 +26,7 @@ public class CoordItem {
         if (coordId != null) {
             this.coordId = coordId;
         } else {
-            coordId = UUID.randomUUID().toString();
+            this.coordId = UUID.randomUUID().toString();
         }
         this.areaId = areaId;
         this.coordPosistion = coordPosistion;

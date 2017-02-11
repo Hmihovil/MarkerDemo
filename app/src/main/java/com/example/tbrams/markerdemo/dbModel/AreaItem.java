@@ -40,7 +40,7 @@ public class AreaItem {
 
     public AreaItem(String areaId, String areaName, int areaType, String areaIdent, String areaClass, int areaFromAlt, int areaToAlt) {
         if (areaId != null) {
-            AreaId = areaId;
+            this.AreaId = areaId;
         } else {
             this.AreaId = UUID.randomUUID().toString();
         }
