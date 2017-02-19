@@ -50,12 +50,12 @@ public class AreaItem {
         } else {
             this.mAreaId = UUID.randomUUID().toString();
         }
-        mAreaName = areaName;
-        mAreaType = areaType;
-        mAreaIdent = areaIdent;
-        mAreaClass = areaClass;
-        mAreaFromAlt = areaFromAlt;
-        mAreaToAlt = areaToAlt;
+        this.mAreaName = areaName;
+        this.mAreaType = areaType;
+        this.mAreaIdent = areaIdent;
+        this.mAreaClass = areaClass;
+        this.mAreaFromAlt = areaFromAlt;
+        this.mAreaToAlt = areaToAlt;
     }
 
     public String getAreaId() {

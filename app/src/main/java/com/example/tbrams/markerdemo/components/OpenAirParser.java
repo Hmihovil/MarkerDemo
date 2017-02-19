@@ -178,7 +178,7 @@ public class OpenAirParser {
     public void parseCommand(String cmd) {
 
         // First pattern matches two groups - the main command and the rest of the line
-        String pattern = "(AN|AC|AL|AH|DC|DA|DP|DB|V|\\*) ([\\w\\d\\s\\:\\.\\=\\+\\-\\,]*)";
+        String pattern = "(AN|AC|AL|AH|AT|DC|DA|DP|DB|V|\\*) ([\\w\\d\\s\\:\\.\\=\\+\\-\\,]*)";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(cmd);
 
@@ -199,37 +199,31 @@ public class OpenAirParser {
 
                 case "AT":
                     // OpenAir Language extension: Airspace Type
-                    switch (rest) {
-                        case "CTR":
+                    Log.d(TAG, "parseCommand AT "+rest);
+                    if (rest.equals("CTR")) {
                             mAirSpaceType = AreaItem.CTR;
-                            break;
-                        case "TMA":
+                    } else if (rest.equals("CTR")) {
                             mAirSpaceType = AreaItem.TMA;
-                            break;
-                        case "LTA":
+                    } else if (rest.equals("LTA")) {
                             mAirSpaceType = AreaItem.LTA;
-                            break;
-                        case "TIZ":
+                    } else if (rest.equals("TIZ")) {
                             mAirSpaceType = AreaItem.TIZ;
-                            break;
-                        case "TIA":
+                    } else if (rest.equals("TIA")) {
                             mAirSpaceType = AreaItem.TIA;
-                            break;
-                        case "D":
+                    } else if (rest.equals("D")) {
                             mAirSpaceType=AreaItem.DANGER;
-                            break;
-                        case "R":
+                    } else if (rest.equals("R")) {
                             mAirSpaceType=AreaItem.RESTRICTED;
-                            break;
-                        case "P":
+                    } else if (rest.equals("P")) {
                             mAirSpaceType=AreaItem.PROHIBITED;
-                            break;
-                        case "GLIDER":
+                    } else if (rest.equals("GLIDER")) {
                             mAirSpaceType=AreaItem.GLIDER;
-                            break;
-                        case "PARACHUTE":
+                    } else if (rest.equals("PARACHUTE")) {
                             mAirSpaceType=AreaItem.PARACHUTE;
-                            break;
+                    } else if (rest.equals("ENV")) {
+                            mAirSpaceType=AreaItem.SENSITIVE;
+                    } else {
+                        Log.e(TAG, "parseCommand: unknown Airspace type - "+ rest);
                     }
                     break;
 
