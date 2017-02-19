@@ -1010,7 +1010,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
                 List<LatLng> coords = areaItem.getCoordinates();
                 String name = areaItem.getAreaName();
 
-                if (areaItem.getAreaType() == Area.CTR) {
+                if (areaItem.getAreaType() == AreaItem.CTR) {
                     color = CONTROL_AREA_COLOR;
                 } else {
                     color = TERMINAL_AREA_COLOR;

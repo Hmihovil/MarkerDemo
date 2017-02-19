@@ -136,29 +136,47 @@ public class Util {
 
 
     /**
-     * Parse the different variation of altitude notations.
+     * Parse the different variation of altitude notations. Will process all altitude strings
+     * haveing the format like these:
      *
-     * @param input String  For example "FL 500", "GND" or "2300"
-     * @return      int     The altitude
+     * "FL 500", "GND", "UNL, "2300" or "2300 ft"
      *
+     * Any other format will yield a negative altitude to indicate the error condition.
+     *
+     * @param input String
+     * @return int     The altitude in feet
      */
     public static int parseAltitude(String input) {
-        int result=0;
+        input = input.trim().toUpperCase();
+        int result = -9999;
+        boolean flightLevelUnits = false;
+
         if (input != null) {
-            if (input.toUpperCase().equals("GND")) {
-                result=0;
+            if (input.equals("GND") || input.equals("SFC")) {
+                result = 0;
+            } else if (input.equals("UNL")) {
+                result = 19999;
             } else {
-                if (input.indexOf("FL")>=0) {
-                    result = Integer.parseInt(input.replace("FL",""))*100;
-                } else  {
+                // First get rid of Feet unit if there at all
+                input=input.replace("FT", "").trim();
+                if (input.indexOf("FL") >= 0) {
+                    flightLevelUnits = true;
+                    input = input.replace("FL", "");
+                }
+
+                try {
                     result = Integer.parseInt(input);
+                    if (flightLevelUnits) result*=100;
+
+                } catch (NumberFormatException e) {
+                    result = 0;
+                    e.printStackTrace();
                 }
             }
         }
 
         return result;
     }
-
 
 
 

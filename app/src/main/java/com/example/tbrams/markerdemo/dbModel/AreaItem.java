@@ -21,6 +21,9 @@ public class AreaItem {
     public static final int DANGER = 12;
     public static final int SENSITIVE = 13;
 
+    public static final int GLIDER = 20;
+    public static final int PARACHUTE=21;
+
     private String mAreaId;
     private String mAreaName;
     private int mAreaType;

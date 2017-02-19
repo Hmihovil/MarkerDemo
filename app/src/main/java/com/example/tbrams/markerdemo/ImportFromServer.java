@@ -4,6 +4,7 @@ package com.example.tbrams.markerdemo;
 import android.app.Activity;
 import android.util.Log;
 
+import com.example.tbrams.markerdemo.components.OpenAirParser;
 import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
@@ -35,6 +36,7 @@ public class ImportFromServer {
 
     public String getItAll() throws IOException {
         String result="";
+        /*
         result+= getNavAids("NavAids!A2:H");
         result+=getPublicAerodromes("PublicAerodromes!A2:J");
         result+=getRecreationalAerodromes("Recreational!A2:E");
@@ -42,6 +44,10 @@ public class ImportFromServer {
         result+=getReportingPoints("ReportingPoints!A2:C");
         result+=getObstacles("Obstacles!A2:E");
         result+=getAreas("TMA!A2:H");
+
+        */
+
+        result+=getOpenAirAreas("TMA2!A3:B");
 
         return result;
     }
@@ -588,6 +594,52 @@ public class ImportFromServer {
         }
 
         return "Areas parsed\n";
+    }
+
+
+    /**
+     * Fetch a list of OpenAir Area definitions from a sample spreadsheet:
+     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+     *
+     * @return Status message
+     * @throws IOException
+     */
+    private String getOpenAirAreas(String range) throws IOException {
+        List<String> results = new ArrayList<String>();
+        ValueRange response = this.mService.spreadsheets().values()
+                .get(SPREADSHEET_ID, range)
+                .execute();
+
+
+        OpenAirParser  openAirParser = new OpenAirParser(mActivity);
+
+        List<List<Object>> values = response.getValues();
+        // Now we have an array packed with Strings from the spreadsheet
+        // column 0: OpenAir Command [STRING]
+        // column 1: Additional Comments [STRING] (optional)
+
+
+        // Convert input objects to a list of OpenAir String commands
+        List<String> openAircommands=new ArrayList<>();
+        for (int i = 0; i < values.size(); i++) {
+            List row = values.get(i);
+            String tempCommand;
+            if (row.size()==0) {
+                tempCommand="DONE";
+            } else {
+                tempCommand = row.get(0).toString();
+            }
+            openAircommands.add(tempCommand);
+        }
+
+        // Parse the OpenAir commands and build a list of AreaItem Objects including all coordinates
+        List<AreaItem> areaList = openAirParser.parseCommands(openAircommands);
+
+        // inserting these into the database with a cleanup operation
+        DbAdmin dbAdmin = new DbAdmin(mActivity);
+        dbAdmin.updateAreasFromMaster(areaList, true);
+
+        return "OpenAir Areas parsed\n";
     }
 
 
