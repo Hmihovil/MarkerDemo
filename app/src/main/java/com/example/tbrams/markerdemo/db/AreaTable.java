@@ -10,9 +10,10 @@ public class AreaTable {
     public static final String COLUMN_TYPE = "AreaType";
     public static final String COLUMN_FROM_ALT = "AreaFrom";
     public static final String COLUMN_TO_ALT = "AreaTo";
+    public static final String COLUMN_OAC = "Definition";
 
 
-    public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_NAME, COLUMN_IDENT, COLUMN_TYPE, COLUMN_CLASS, COLUMN_FROM_ALT, COLUMN_TO_ALT};
+    public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_NAME, COLUMN_IDENT, COLUMN_TYPE, COLUMN_CLASS, COLUMN_FROM_ALT, COLUMN_TO_ALT, COLUMN_OAC};
 
     public static final String SQL_CREATE =
             "CREATE TABLE  IF NOT EXISTS " + TABLE_NAME + "(" +
@@ -22,7 +23,8 @@ public class AreaTable {
                     COLUMN_TYPE + " INT," +
                     COLUMN_CLASS + " TEXT," +
                     COLUMN_FROM_ALT + " INT," +
-                    COLUMN_TO_ALT + " INT" +
+                    COLUMN_TO_ALT + " INT," +
+                    COLUMN_OAC + " TEXT" +
                     ");";
 
     public static final String SQL_DELETE =

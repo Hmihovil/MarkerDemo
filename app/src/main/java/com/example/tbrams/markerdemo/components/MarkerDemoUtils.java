@@ -1022,7 +1022,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
                         .addAll(coords)
                         //  .strokeColor(Color.LTGRAY)
                         .strokeColor(Color.BLACK)
-                        .strokeWidth(1.f)
+                        .strokeWidth(3.f)
                         .fillColor(Color.parseColor(color)));
 
                 polygon.setZIndex(zLevel);

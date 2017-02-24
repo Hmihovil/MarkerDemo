@@ -5,15 +5,12 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.example.tbrams.markerdemo.components.OpenAirParser;
-import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.data.Aerodrome;
 import com.example.tbrams.markerdemo.data.NavAid;
 import com.example.tbrams.markerdemo.data.Obstacle;
 import com.example.tbrams.markerdemo.data.ReportingPoint;
 import com.example.tbrams.markerdemo.db.DbAdmin;
 import com.example.tbrams.markerdemo.dbModel.AreaItem;
-import com.example.tbrams.markerdemo.dbModel.CoordItem;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
@@ -47,7 +44,7 @@ public class ImportFromServer {
 
         */
 
-        result+=getOpenAirAreas("TMA2!A3:B");
+        result+=getOpenAirAreas("TEST!A3:B");
 
         return result;
     }
@@ -489,114 +486,6 @@ public class ImportFromServer {
     }
 
 
-
-    /**
-     * Fetch a list of Area definitions from a sample spreadsheet:
-     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-     *
-     * @return Status message
-     * @throws IOException
-     */
-    private String getAreas(String range) throws IOException {
-        List<String> results = new ArrayList<String>();
-        ValueRange response = this.mService.spreadsheets().values()
-                .get(SPREADSHEET_ID, range)
-                .execute();
-
-
-        List<List<Object>> values = response.getValues();
-        // Now we have an array packed with Strings from the spreadsheet
-        // column 0: AREA NAME  [STRING]
-        // column 1: AREA TYPE [STRING] (CTR or TMA for now)
-        // Column 2: IDENT [STRING] [OPT] for example RK TMA "E"
-        // column 3: LOCATION [STRING], format "55 13 44N 009 12 50E" or "55:13:44 N 009:12:50 E"]
-        // Column 4: SEQUENCE [INT] Sequence# in the polygon for sorting
-        // Column 5: FROM [INT] [OPT] ("GND" or xx or "FLxx", where xx is a number)
-        // Column 6: TO [INT]   (xx or FLXX, where xx is a number)
-        // Column 7: CLASS      ("C", "D", "E", "G", "G/E")
-
-
-        List<AreaItem> areaList = new ArrayList<>();
-
-        int nType = 0;
-
-        if (values != null) {
-
-            String name = "";
-            String nextName = "";
-            String nextIdent = "";
-            String nextCategory = "";
-            String nextClass = "";
-            String nextFrom = "";
-            String nextTo = "";
-
-            int category = 0;
-            int from = 0;
-            int to = 0;
-            AreaItem areaItem = null;
-
-            boolean create_in_progress = false;
-
-            List<LatLng> nextCoordList = new ArrayList<>();
-
-            for (int i = 0; i < values.size(); i++) {
-                List row = values.get(i);
-                String tempName = row.get(0).toString();
-
-                if (!tempName.equals("")) {
-
-                    if (create_in_progress) {
-                        // create object
-
-                        areaItem = constructAreaItem(nextName, nextCategory, nextIdent, nextClass, nextFrom, nextTo, nextCoordList);
-                        areaList.add(areaItem);
-
-                        Log.d(TAG, "Created new area: " + areaItem.getAreaName() + " " + areaItem.getAreaIdent());
-
-                        create_in_progress = false;
-                    }
-
-                    // Prepare new object
-                    create_in_progress = true;
-
-                    nextName = tempName;
-                    nextIdent = row.get(2).toString();
-                    nextCategory = row.get(1).toString().toUpperCase();
-                    nextClass = row.get(7).toString();
-                    nextFrom = row.get(5).toString();
-                    nextTo = row.get(6).toString();
-
-                    nextCoordList = new ArrayList<>();
-
-                }
-
-
-                // New coordinate - we do not have a name in column 0
-                // need to create a new coordinate and add it to the vList
-                LatLng pos = Util.convertVFG(row.get(3).toString());
-                nextCoordList.add(pos);
-
-            }
-
-            // This is for the last AreaItem, still need to be constructed and added to the list
-            areaItem = constructAreaItem(nextName, nextCategory, nextIdent, nextClass, nextFrom, nextTo, nextCoordList);
-            areaList.add(areaItem);
-
-            Log.d(TAG, "Created last new area: " + areaItem.getAreaName() + " " + areaItem.getAreaIdent());
-
-
-            // update database
-            // This is a clean up operation, meaning the Nav Aids table will be wiped before
-            // inserting these data again.
-            DbAdmin dbAdmin = new DbAdmin(mActivity);
-            dbAdmin.updateAreasFromMaster(areaList, true);
-
-        }
-
-        return "Areas parsed\n";
-    }
-
-
     /**
      * Fetch a list of OpenAir Area definitions from a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -611,7 +500,7 @@ public class ImportFromServer {
                 .execute();
 
 
-        OpenAirParser  openAirParser = new OpenAirParser(mActivity);
+        OpenAirParser  openAirParser = new OpenAirParser();
 
         List<List<Object>> values = response.getValues();
         // Now we have an array packed with Strings from the spreadsheet
@@ -624,7 +513,7 @@ public class ImportFromServer {
         for (int i = 0; i < values.size(); i++) {
             List row = values.get(i);
             String tempCommand;
-            if (row.size()==0) {
+            if (row.size()==0 || row.get(0).toString().charAt(0)=='*') {
                 tempCommand="DONE";
             } else {
                 tempCommand = row.get(0).toString();
@@ -632,8 +521,7 @@ public class ImportFromServer {
             openAircommands.add(tempCommand);
         }
 
-        // Parse the OpenAir commands and build a list of AreaItem Objects including all coordinates
-        List<AreaItem> areaList = openAirParser.parseCommands(openAircommands);
+        List<AreaItem> areaList = openAirParser.parseInitialCommands(openAircommands);
 
         // inserting these into the database with a cleanup operation
         DbAdmin dbAdmin = new DbAdmin(mActivity);
@@ -641,46 +529,5 @@ public class ImportFromServer {
 
         return "OpenAir Areas parsed\n";
     }
-
-
-
-    private AreaItem constructAreaItem(String nextName, String nextCategory, String nextIdent, String nextClass, String nextFrom, String nextTo, List<LatLng> nextCoordList) {
-
-        int category = getAirspaceCategory(nextCategory);
-        int from = Util.parseAltitude(nextFrom);
-        int to = Util.parseAltitude(nextTo);
-
-        AreaItem areaItem = new AreaItem(null, nextName, category, nextIdent, nextClass, from, to);
-
-        // Build a list of Coordinate Item Object from the LatLng list we already have
-        List<CoordItem> coordinateList = new ArrayList<>();
-        for (int j = 0; j < nextCoordList.size(); j++) {
-            coordinateList.add(new CoordItem(null, areaItem.getAreaId(), nextCoordList.get(j), j));
-        }
-        // Add them to the AreaItem object and then append the new object to the list
-        areaItem.setCoordItemList(coordinateList);
-
-        return areaItem;
-    }
-
-
-
-    private int getAirspaceCategory(String nextCategory) {
-        int category = 0;
-        if (nextCategory.equals("CTR")) {
-            category = AreaItem.CTR;
-        } else if (nextCategory.equals("TMA")) {
-            category = AreaItem.TMA;
-        } else if (nextCategory.equals("TIA")) {
-            category = AreaItem.TIA;
-        } else if (nextCategory.equals("TIZ")) {
-            category = AreaItem.TIZ;
-        } else if (nextCategory.equals("LTA")) {
-            category = AreaItem.LTA;
-        }
-        return category;
-    }
-
-
 
 }

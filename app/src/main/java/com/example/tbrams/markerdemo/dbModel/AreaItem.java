@@ -31,7 +31,7 @@ public class AreaItem {
     private String mAreaClass;
     private int mAreaFromAlt;
     private int mAreaToAlt;
-    private List<CoordItem> mCoordItemList;
+    private String mOAC;
 
     public AreaItem() {
         this.mAreaId = UUID.randomUUID().toString();
@@ -41,10 +41,11 @@ public class AreaItem {
         this.mAreaToAlt = 0;
         this.mAreaClass = "";
         this.mAreaIdent = "";
+        this.mOAC="";
     }
 
 
-    public AreaItem(String areaId, String areaName, int areaType, String areaIdent, String areaClass, int areaFromAlt, int areaToAlt) {
+    public AreaItem(String areaId, String areaName, int areaType, String areaIdent, String areaClass, int areaFromAlt, int areaToAlt, String definition) {
         if (areaId != null) {
             this.mAreaId = areaId;
         } else {
@@ -56,6 +57,7 @@ public class AreaItem {
         this.mAreaClass = areaClass;
         this.mAreaFromAlt = areaFromAlt;
         this.mAreaToAlt = areaToAlt;
+        this.mOAC = definition;
     }
 
     public String getAreaId() {
@@ -114,20 +116,14 @@ public class AreaItem {
         mAreaToAlt = areaToAlt;
     }
 
-    public List<CoordItem> getCoordItemList() {return mCoordItemList;}
-
-
-    public List<LatLng> getCoordinates() {
-        List<LatLng> posList = new ArrayList<>();
-        for (CoordItem ci: mCoordItemList) {
-            posList.add(ci.getCoordPosistion());
-        }
-        return posList;
+    public String getDefinition() {
+        return mOAC;
     }
 
-    public void setCoordItemList(List<CoordItem> coordItemList) {
-        this.mCoordItemList = coordItemList;
+    public void setDefinition(String OAC) {
+        mOAC = OAC;
     }
+
 
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues(4);
@@ -139,6 +135,7 @@ public class AreaItem {
         values.put(AreaTable.COLUMN_CLASS, mAreaClass);
         values.put(AreaTable.COLUMN_FROM_ALT, mAreaFromAlt);
         values.put(AreaTable.COLUMN_TO_ALT, mAreaToAlt);
+        values.put(AreaTable.COLUMN_OAC, mOAC);
 
         return values;
     }

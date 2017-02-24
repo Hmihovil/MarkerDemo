@@ -2,15 +2,10 @@ package com.example.tbrams.markerdemo.components;
 
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 
 import com.example.tbrams.markerdemo.dbModel.AreaItem;
-import com.example.tbrams.markerdemo.dbModel.CoordItem;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
@@ -23,116 +18,422 @@ import static com.example.tbrams.markerdemo.components.Util.parseAltitude;
 public class OpenAirParser {
     private static final String TAG = "TBR:OpenAirParser";
     private static final int STEP_SIZE = 1;
-    private static final float DEFAULT_LINE_WIDTH = 10f;
-    private static final float SPECIAL_LINE_WIDTH = 25f;
-
-    private static final String COLOR_UNDEFINED = "#FFFF00";
-    private static final String COLOR_G = "#B0C4DE";   // LightSteelBlue
-    private static final String COLOR_E = "#BA55D3";   // MediumOrchid
-    private static final String COLOR_D = "#7B68EE";   // MediumSlateBlue
-    private static final String COLOR_C = "#C71585";   // MediumVioletRed
-    private static final String COLOR_B = "#1E90FF";   // DodgerBlue
-    private static final String COLOR_R = "#CD853F";   // Peru
-    private static final String COLOR_W = "#CD5C5C";   // IndianRed
-    private static final String COLOR_P = "#B22222";   // Firebrick
-
-    private LatLng mCenter = null;
-    private int mStep_direction = 1;
-    private ArrayList<LatLng> mCoordList = new ArrayList<>();
-    private String mOutlineColor;
-    private float mOutlineWidth;
-    private Context mContext;
-    private String mAirspaceClass = "";
-    private String mAirspaceName = "";
-    private int mAirspaceFrom = 0;
-    private int mAirspaceTo = 0;
-    private int mAirSpaceType = 0;
+    private ArrayList<LatLng> mCoordList;
+    private String mDefList;
+    private LatLng mCenter;
+    private int mStep_direction;
+    private String mAirspaceClass;
+    private String mAirspaceName;
+    private int mAirspaceFrom;
+    private int mAirspaceTo;
+    private int mAirSpaceType;
 
 
-    public OpenAirParser(Context context) {
-        mContext = context;
-    }
+    public OpenAirParser() {
 
-
-    /**
-     * Go through the lines of OpenAir commands and process accordingly.
-     * <p>
-     * Will create a list of AreaItems, one for each OpenAir polygon specification. All specifications
-     * are specated by empty cells, or cells with an Asterix in first position as per convention
-     *
-     * @param openAirCommands list of openAirCommand Strings
-     * @return List of AreaItem objects
-     */
-    public List<AreaItem> parseCommands(List<String> openAirCommands) {
-
-        List<AreaItem> areaItemList = new ArrayList<>();
-        for (String cmd : openAirCommands) {
-            cmd = cmd.trim();
-            if (cmd.equals("DONE") || cmd.charAt(0) == '*') {
-                // If we have accumulted some coordinates so far, create an area - otherwise skip the comment
-                if (mCoordList.size() > 0) {
-                    areaItemList.add(createAreaAndReset());
-                }
-            } else {
-                parseCommand(cmd);
-            }
-        }
-        areaItemList.add(createAreaAndReset());
-
-        return areaItemList;
-    }
-
-    /**
-     * Utility function making it easy to dump data and reset internal storage.
-
-     private void plotAndReset() {
-
-     // Create a Google Maps Polygon and populate it with coordinates interpreted form the OpenAir spec.
-     PolygonOptions polyOptions = new PolygonOptions();
-     for (LatLng pos : mCoordList) {
-     polyOptions.add(pos);
-     }
-
-     // Use outline only to keep cluttering at a minimum, color of outline is defined by Airspace
-     polyOptions.strokeColor(Color.parseColor(mOutlineColor));
-     polyOptions.strokeWidth(mOutlineWidth);
-
-     // Display polygon
-     Polygon polygon = mMap.addPolygon(polyOptions);
-
-     // Reset internal storage
-     mCoordList = new ArrayList<>();
-     mOutlineColor = COLOR_UNDEFINED;
-     mOutlineWidth=DEFAULT_LINE_WIDTH;
-     }
-     */
-
-
-    /**
-     * Utility function making it easy to create AreaItems and reset internal storage.
-     *
-     * @return AreaItem
-     */
-    private AreaItem createAreaAndReset() {
-
-        // Create an Area Item and populate it with coordinates interpreted form the OpenAir spec.
-        AreaItem areaItem = new AreaItem(null, mAirspaceName, mAirSpaceType, null, mAirspaceClass, mAirspaceFrom, mAirspaceTo);
-
-        List<CoordItem> coordItemList = new ArrayList<>();
-        for (int i = 0; i < mCoordList.size(); i++) {
-            coordItemList.add(new CoordItem(null, areaItem.getAreaId(), mCoordList.get(i), i));
-        }
-        areaItem.setCoordItemList(coordItemList);
-
-        // Reset internal storage
-        mCoordList = new ArrayList<>();
+        mDefList ="";
         mAirspaceClass = "";
         mAirspaceName = "";
         mAirspaceFrom = -8888;
         mAirspaceTo = -8888;
+        mAirSpaceType = 0;
+
+        mStep_direction = 1;
+        mCenter = null;
+        mCoordList = new ArrayList<>();
+        mDefList="";
+
+    }
+
+    /**
+     * Go through the lines of OpenAir commands and populate a list of AreaItems.
+     * <p>
+     * Will create a list of AreaItems, one for each OpenAir polygon specification. All specifications
+     * are separated by the string "DONE".
+     *
+     * @param openAirCommands list of openAirCommand Strings
+     * @return List of AreaItem objects
+     */
+    public List<AreaItem> parseInitialCommands(List<String> openAirCommands) {
+
+        List<AreaItem> areaItemList = new ArrayList<>();
+        for (String cmd : openAirCommands) {
+            cmd = cmd.trim();
+            if (cmd.equals("DONE")) {
+                // If we have accumulated some definition commands by now, create an areaItem - otherwise just skip the comment
+                if (mDefList.length() > 0) {
+                    areaItemList.add(createAreaItem());
+                }
+            } else {
+                // We are still not done, keep parsing until we have all the initial info we need for the AreaItem
+                parseInitialCommand(cmd);
+            }
+        }
+
+        // We might not have a final "DONE" statement, so we need this one
+        AreaItem lastItem = createAreaItem();
+        if (lastItem != null) {
+            areaItemList.add(lastItem);
+        }
+
+        return areaItemList;
+    }
+
+
+
+
+    /**
+     * Create AreaItem and reset internal variables used for this.
+     *
+     * @return AreaItem
+     */
+    private AreaItem createAreaItem() {
+
+        AreaItem areaItem=null;
+        if (mAirspaceName!="" && mAirSpaceType!=0 && mAirspaceFrom!=-8888 && mAirspaceTo!=-8888 && mAirspaceClass!="" && mDefList.length()>0) {
+
+            areaItem = new AreaItem(null, mAirspaceName, mAirSpaceType, null, mAirspaceClass, mAirspaceFrom, mAirspaceTo, mDefList);
+
+            // Reset internal storage
+            mDefList = "";
+            mAirspaceClass = "";
+            mAirspaceName = "";
+            mAirspaceFrom = -8888;
+            mAirspaceTo = -8888;
+            mAirSpaceType = 0;
+        }
 
         return areaItem;
     }
+
+
+
+
+
+    /**
+     * Interpret the OpenAir commands and return a list of LatLng coordinates.
+     *
+     * @param cmd String with "\n" separated list of OpenAir Commands
+     * @return List of LatLng coordinates
+     */
+    public ArrayList<LatLng> generatePolygon(String cmd) {
+        String[] cmds = cmd.split("\n");
+
+        mCoordList = new ArrayList<>();
+        mCenter=null;
+        mStep_direction=1;
+
+        for (String oac : cmds) {
+            InterpretCommand(oac);
+        }
+
+        return mCoordList;
+    }
+
+
+    /**
+     * Interpret OpenAir Definition Command and generate a list of coordinates in the field
+     * variable mCoordList as well as internal storage for center point and direction if needed.
+     *
+     * @param cmd A line from an OpenAir formatted file, for example "DP 39:29.9 N 119:46.1W"
+     */
+
+    public void InterpretCommand(String cmd) {
+
+        // First pattern matches two groups - the main command and the rest of the line
+        String pattern = "(AN|AC|AL|AH|AT|DC|DA|DP|DB|V|\\*) ([\\w\\d\\s\\:\\.\\=\\+\\-\\,]*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(cmd);
+
+        if (m.find()) {
+            String command = m.group(1).toUpperCase();
+            String rest = m.group(2).trim().toUpperCase();
+
+            LatLng pos = null;
+            int radius;
+            int fromDeg;
+            int toDeg;
+
+            switch (command) {
+                case "V":
+                    // Variable Assignment Command
+                    String assignPattern = "([\\w]+)\\s*=([\\s\\w\\d\\:\\.\\+\\-]*)";
+                    r = Pattern.compile(assignPattern);
+                    m = r.matcher(rest);
+
+                    if (m.find()) {
+                        if (m.group(1).equals("D")) {
+                            // Variable name D means this is a Direction assignment
+                            if (m.group(2).equals("+")) {
+                                mStep_direction = 1;
+                            } else {
+                                mStep_direction = -1;
+                            }
+
+                        } else {
+                            // A position variable assignment, any variable name us supported although I have only seen X used
+                            pos = parseCoordinateString(rest);
+                            if (pos != null) {
+                                mCenter = pos;
+                            } else {
+                                // If we cannot parse this as a position, we need to look into this later
+                                Log.e(TAG, "interpretCommand: Unsupported assignment...");
+                            }
+                        }
+
+                    } else {
+                        // We did not find anything useful in the argument string after the name
+                        Log.e(TAG, "interpretCommand: Variable argument parsing error");
+                    }
+
+                    break;
+
+
+                case "DC":
+                    // Draw Circle command - expect an decimal argument and ignore unless we have
+                    // a center point on file at this point.
+                    radius = (int) (Double.parseDouble(rest) * 1852);
+                    pos = null;
+                    if (mCenter != null) {
+                        for (int deg = 0; deg < 360; deg++) {
+                            pos = SphericalUtil.computeOffset(mCenter, radius, deg);
+                            addPosToCoordList(pos);
+                        }
+                    }
+                    break;
+
+
+                case "DA":
+                    // Draw Arc Command
+                    // Pattern matches three comma separated integer aruments
+                    String threeArgsPattern = "([\\d]+)\\s*\\,\\s*([\\d]+)\\s*\\,\\s*([\\d]+)";
+                    r = Pattern.compile(threeArgsPattern);
+                    m = r.matcher(rest);
+
+                    if (m.find()) {
+                        radius = Integer.parseInt(m.group(1)) * 1852;
+                        fromDeg = Integer.parseInt(m.group(2));
+                        toDeg = Integer.parseInt(m.group(3));
+                        drawArcFromTo(radius, fromDeg, toDeg);
+                    } else {
+                        // We did not find the expected three integers in the argument string
+                        Log.e(TAG, "interpretCommand: Draw arc parameters not recognized");
+                    }
+                    break;
+
+                case "DP":
+                    // Define Point Command
+                    // Pattern matches a potential coordinate string
+
+                    String coordPattern = "([\\d\\:\\. \\w]+)";
+                    r = Pattern.compile(coordPattern);
+                    m = r.matcher(rest);
+                    if (m.find()) {
+                        pos = parseCoordinateString(m.group(1));
+                        addPosToCoordList(pos);
+                    } else {
+                        Log.e(TAG, "interpretCommand: Problem parsing DP argument");
+                    }
+                    break;
+
+
+                case "DB":
+                    // Draw Between Command
+                    // Pattern matches two possible coordinates separated by a comma
+                    String betweenPattern = "([\\d\\:\\. \\w]+) *, *([\\d\\:\\. \\w]+)";
+                    r = Pattern.compile(betweenPattern);
+                    m = r.matcher(rest);
+
+                    if (m.find()) {
+                        LatLng pos1, pos2;
+                        pos1 = parseCoordinateString(m.group(1));
+                        pos2 = parseCoordinateString(m.group(2));
+
+                        if (pos1 != null && pos2 != null) {
+                            fromDeg = ((int) SphericalUtil.computeHeading(mCenter, pos1) + 360) % 360;
+                            toDeg = ((int) SphericalUtil.computeHeading(mCenter, pos2) + 360) % 360;
+                            radius = (int) SphericalUtil.computeDistanceBetween(mCenter, pos1);
+                            drawArcFromTo(radius, fromDeg, toDeg);
+                        }
+                    } else {
+                        Log.e(TAG, "interpretCommand: Problem parsing draw between arguments");
+                    }
+                    break;
+
+                default:
+                    Log.e(TAG, "interpretCommand:  Cannot recognize command: " + cmd);
+                    break;
+            }
+
+
+        } else {
+            Log.e(TAG, "interpretCommand: Unexpected input: " + cmd);
+        }
+    }
+
+
+    /**
+     * Append OpenAir Command to string of commands separated by newline.
+     *
+     * Utility function used in first command parsing phase.
+     * Will append to field variable mDefList.
+     *
+     * @param oac String, Open Air Command
+     */
+
+    private void appendDefinition(String oac) {
+        mDefList+="\n"+oac;
+    }
+
+
+    /**
+     * Parse Initial OpenAir Commands - but just append new area definition commands to the mDefList String.
+     *
+     * This function is used to avoid having to perform thousands of database inserts when
+     * working with complex polygons. We simply postpone the coordinate calculation until
+     * import time when the definitions will be interpreted.
+     *
+     * @param cmd A line from an OpenAir formatted file, for example "DP 39:29.9 N 119:46.1W"
+     */
+    public void parseInitialCommand(String cmd) {
+
+        // First pattern matches two groups - the main command and the rest of the line
+        String pattern = "(AN|AC|AL|AH|AT|DC|DA|DP|DB|V|\\*) ([\\w\\d\\s\\:\\.\\=\\+\\-\\,]*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(cmd);
+
+        if (m.find()) {
+            String command = m.group(1).toUpperCase();
+            String rest = m.group(2).trim().toUpperCase();
+
+            LatLng pos = null;
+            int radius;
+            int fromDeg;
+            int toDeg;
+
+            switch (command) {
+                case "*":
+                    // Comment - do nothing
+                    break;
+
+                case "AT":
+                    // OpenAir Language extension: Airspace Type
+                    if (rest.equals("CTR")) {
+                        mAirSpaceType = AreaItem.CTR;
+                    } else if (rest.equals("TMA")) {
+                        mAirSpaceType = AreaItem.TMA;
+                    } else if (rest.equals("LTA")) {
+                        mAirSpaceType = AreaItem.LTA;
+                    } else if (rest.equals("TIZ")) {
+                        mAirSpaceType = AreaItem.TIZ;
+                    } else if (rest.equals("TIA")) {
+                        mAirSpaceType = AreaItem.TIA;
+                    } else if (rest.equals("D")) {
+                        mAirSpaceType=AreaItem.DANGER;
+                    } else if (rest.equals("R")) {
+                        mAirSpaceType=AreaItem.RESTRICTED;
+                    } else if (rest.equals("P")) {
+                        mAirSpaceType=AreaItem.PROHIBITED;
+                    } else if (rest.equals("GLIDER")) {
+                        mAirSpaceType=AreaItem.GLIDER;
+                    } else if (rest.equals("PARACHUTE")) {
+                        mAirSpaceType=AreaItem.PARACHUTE;
+                    } else if (rest.equals("ENV")) {
+                        mAirSpaceType=AreaItem.SENSITIVE;
+                    } else {
+                        Log.e(TAG, "parseInitialCommand: unknown Airspace type - "+ rest);
+                    }
+
+                    break;
+
+                case "AC":
+                    mAirspaceClass = rest;
+                    break;
+
+
+                case "AN":
+                    mAirspaceName = rest;
+                    break;
+
+                case "AL":
+                    mAirspaceFrom = parseAltitude(rest);
+                    break;
+
+                case "AH":
+                    mAirspaceTo = parseAltitude(rest);
+                    break;
+
+                case "DC":   // These commands are all postponed
+                case "V":
+                case "DA":
+                case "DP":
+                case "DB":
+                    appendDefinition(cmd);
+                    break;
+
+                default:
+                    Log.e(TAG, "parseInitialCommand: Cannot parse command: " + cmd);
+                    break;
+            }
+
+
+        } else {
+            Log.e(TAG, "parseInitialCommand: Unrecognized input: " + cmd);
+        }
+    }
+
+
+
+    /**
+     * Utility function producing Arc coordinates with a given radius between to headings.
+     * <p>
+     * Requires a center point to be in place - will ignore command if not defined.
+     *
+     * @param radius
+     * @param fromDeg
+     * @param toDeg
+     */
+    private void drawArcFromTo(int radius, int fromDeg, int toDeg) {
+        if (mCenter != null) {
+            double x, y;
+            LatLng newPos;
+            int degrees = fromDeg;
+            int step = mStep_direction * STEP_SIZE;
+            do {
+                newPos = SphericalUtil.computeOffset(mCenter, radius, degrees);
+                addPosToCoordList(newPos);
+                degrees += step;
+                if (Math.abs(((degrees + 360) % 360) - toDeg) < STEP_SIZE)
+                    break;
+            } while (true);
+
+        }
+    }
+
+
+
+    private void addPosToCoordList(LatLng newPos) {
+        mCoordList.add(newPos);
+    }
+
+
+
+    /**
+     * Utility function converting navigation headings to normal math angle notation.
+     * <p>
+     * For example in Navigation 270 degrees is West, but in a coordinate system this is more like south.
+     * Though i would need this, but will just leave it here anyway...
+     *
+     * @param compass navigational degrees
+     * @return corodinate system degrees
+     */
+    public double compasToMathDegrees(double compass) {
+        return (double) (((90 - compass) + 360) % 360);
+    }
+
+
+
+
 
     /**
      * Parse coordinates in the String 'openAir format.
@@ -166,263 +467,6 @@ public class OpenAirParser {
             Log.e(TAG, "parseCoordinateString: Cannot parse coordinate String: " + coordString);
             return null;
         }
-    }
-
-
-    /**
-     * Parse OpenAir Commands.
-     * Currently only supports a subset of the many available commands - feel free to extend at your own discretion.
-     *
-     * @param cmd A line from an OpenAir formatted file, for example "DP 39:29.9 N 119:46.1W"
-     */
-    public void parseCommand(String cmd) {
-
-        // First pattern matches two groups - the main command and the rest of the line
-        String pattern = "(AN|AC|AL|AH|AT|DC|DA|DP|DB|V|\\*) ([\\w\\d\\s\\:\\.\\=\\+\\-\\,]*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(cmd);
-
-        if (m.find()) {
-            String command = m.group(1).toUpperCase();
-            String rest = m.group(2).trim().toUpperCase();
-
-            LatLng pos = null;
-            int radius;
-            int fromDeg;
-            int toDeg;
-
-            switch (command) {
-                case "*":
-                    // Comment - do nothing
-                    Log.d(TAG, "parseCommand, comment : " + rest);
-                    break;
-
-                case "AT":
-                    // OpenAir Language extension: Airspace Type
-                    Log.d(TAG, "parseCommand AT "+rest);
-                    if (rest.equals("CTR")) {
-                            mAirSpaceType = AreaItem.CTR;
-                    } else if (rest.equals("CTR")) {
-                            mAirSpaceType = AreaItem.TMA;
-                    } else if (rest.equals("LTA")) {
-                            mAirSpaceType = AreaItem.LTA;
-                    } else if (rest.equals("TIZ")) {
-                            mAirSpaceType = AreaItem.TIZ;
-                    } else if (rest.equals("TIA")) {
-                            mAirSpaceType = AreaItem.TIA;
-                    } else if (rest.equals("D")) {
-                            mAirSpaceType=AreaItem.DANGER;
-                    } else if (rest.equals("R")) {
-                            mAirSpaceType=AreaItem.RESTRICTED;
-                    } else if (rest.equals("P")) {
-                            mAirSpaceType=AreaItem.PROHIBITED;
-                    } else if (rest.equals("GLIDER")) {
-                            mAirSpaceType=AreaItem.GLIDER;
-                    } else if (rest.equals("PARACHUTE")) {
-                            mAirSpaceType=AreaItem.PARACHUTE;
-                    } else if (rest.equals("ENV")) {
-                            mAirSpaceType=AreaItem.SENSITIVE;
-                    } else {
-                        Log.e(TAG, "parseCommand: unknown Airspace type - "+ rest);
-                    }
-                    break;
-
-                case "AC":
-                    mAirspaceClass = rest;
-                    break;
-
-
-                case "AN":
-                    mAirspaceName = rest;
-                    break;
-
-                case "AL":
-                    mAirspaceFrom = parseAltitude(rest);
-                    break;
-
-                case "AH":
-                    mAirspaceTo = parseAltitude(rest);
-                    break;
-
-                case "DC":
-                    Log.d(TAG, "parseCommand: Draw Circle");
-
-                    // Draw Circle command - expect an decimal argument
-                    radius = (int) (Double.parseDouble(rest) * 1852);
-                    pos = null;
-                    if (mCenter != null) {
-                        for (int deg = 0; deg < 360; deg++) {
-                            pos = SphericalUtil.computeOffset(mCenter, radius, deg);
-                            addPosToCoordList(pos);
-                        }
-                    }
-                    break;
-
-                case "V":
-                    // Variable Assignment Command
-                    // The pattern matches a variable name and the value argument from the rest of the line above
-
-                    Log.d(TAG, "parseCommand: Variable assignment");
-
-                    String assignPattern = "([\\w]+)\\s*=([\\s\\w\\d\\:\\.\\+\\-]*)";
-                    r = Pattern.compile(assignPattern);
-                    m = r.matcher(rest);
-
-                    if (m.find()) {
-                        if (m.group(1).equals("D")) {
-                            // Variable name D means this is a Direction assignment
-                            Log.d(TAG, String.format("Direction command, sign: %s", m.group(2)));
-                            if (m.group(2).equals("+")) {
-                                mStep_direction = 1;
-                            } else {
-                                mStep_direction = -1;
-                            }
-
-                        } else {
-                            // A position variable assignment, any variable name us supported although I have only seen X used
-                            Log.d(TAG, String.format("Variable assignment: %s identified, remaining arguments: %s", m.group(1), m.group(2)));
-
-                            pos = parseCoordinateString(rest);
-                            if (pos != null) {
-                                Log.d(TAG, "Setting mCenter to: " + pos);
-                                mCenter = pos;
-
-                            } else {
-                                // If we cannot parse this as a position, we need to look into this later
-                                Log.e(TAG, "parseCommand: Unsupported assignment...");
-                            }
-                        }
-
-                    } else {
-                        // We did not find anything useful in the argument string after the name
-
-                        Log.d(TAG, "parseCommand: Variable argument parsing error");
-                    }
-
-                    break;
-
-
-                case "DA":
-                    // Draw Arc Command
-                    // Pattern matches three comma separated integer aruments
-
-                    Log.d(TAG, "parseCommand: Draw Arc command");
-
-                    String threeArgsPattern = "([\\d]+)\\s*\\,\\s*([\\d]+)\\s*\\,\\s*([\\d]+)";
-                    r = Pattern.compile(threeArgsPattern);
-                    m = r.matcher(rest);
-
-                    if (m.find()) {
-                        radius = Integer.parseInt(m.group(1)) * 1852;
-                        fromDeg = Integer.parseInt(m.group(2));
-                        toDeg = Integer.parseInt(m.group(3));
-                        drawArcFromTo(radius, fromDeg, toDeg);
-                    } else {
-                        // We did not find the expected three integers in the argument string
-                        Log.e(TAG, "parseCommand: Draw arc parameters not recognized");
-                    }
-                    break;
-
-                case "DP":
-                    // Define Point Command
-                    // Pattern matches a potential coordinate string
-
-                    Log.d(TAG, "parseCommand: Draw Point Commannd");
-
-                    String coordPattern = "([\\d\\:\\. \\w]+)";
-                    r = Pattern.compile(coordPattern);
-                    m = r.matcher(rest);
-                    if (m.find()) {
-                        pos = parseCoordinateString(m.group(1));
-                        addPosToCoordList(pos);
-
-                        Log.d(TAG, "Got a coordinate : " + pos);
-
-                    } else {
-                        Log.e(TAG, "parseCommand: Problem parsing DP argument");
-                    }
-                    break;
-
-
-                case "DB":
-                    // Draw Between Command
-                    Log.d(TAG, "parseCommand: Draw between command");
-
-                    // Pattern matches two possible coordinates separated by a comma
-                    String betweenPattern = "([\\d\\:\\. \\w]+) *, *([\\d\\:\\. \\w]+)";
-                    r = Pattern.compile(betweenPattern);
-                    m = r.matcher(rest);
-
-                    if (m.find()) {
-                        LatLng pos1, pos2;
-                        pos1 = parseCoordinateString(m.group(1));
-                        pos2 = parseCoordinateString(m.group(2));
-                        Log.d(TAG, "parseCommand: Got two coordinates : " + pos1 + " and " + pos2);
-
-                        if (pos1 != null && pos2 != null) {
-                            fromDeg = ((int) SphericalUtil.computeHeading(mCenter, pos1) + 360) % 360;
-                            toDeg = ((int) SphericalUtil.computeHeading(mCenter, pos2) + 360) % 360;
-                            radius = (int) SphericalUtil.computeDistanceBetween(mCenter, pos1);
-                            drawArcFromTo(radius, fromDeg, toDeg);
-                        }
-                    } else {
-                        Log.e(TAG, "parseCommand: Problem parsing draw between arguments");
-                    }
-                    break;
-
-                default:
-                    Log.d(TAG, "parseCommand: not recognized");
-                    break;
-            }
-
-
-        } else {
-            Log.e(TAG, "parseCommand: Cannot parse command: " + cmd);
-        }
-    }
-
-    /**
-     * Utility function producing Arc coodinates with a given radius between to headings.
-     * <p>
-     * Requires a center point to be in place - will ignore command if not defined.
-     *
-     * @param radius
-     * @param fromDeg
-     * @param toDeg
-     */
-    private void drawArcFromTo(int radius, int fromDeg, int toDeg) {
-        if (mCenter != null) {
-            double x, y;
-            LatLng newPos;
-            int degrees = fromDeg;
-            int step = mStep_direction * STEP_SIZE;
-            do {
-                newPos = SphericalUtil.computeOffset(mCenter, radius, degrees);
-                addPosToCoordList(newPos);
-                degrees += step;
-                if (Math.abs(((degrees + 360) % 360) - toDeg) < STEP_SIZE)
-                    break;
-            } while (true);
-
-        }
-    }
-
-    /**
-     * Utility function converting navigation headings to normal math angle notation.
-     * <p>
-     * For example in Navigation 270 degrees is West, but in a coordinate system this is more like south.
-     * Though i would need this, but will just leave it here anyway...
-     *
-     * @param compass navigational degrees
-     * @return corodinate system degrees
-     */
-    public double compasToMathDegrees(double compass) {
-        return (double) (((90 - compass) + 360) % 360);
-    }
-
-
-    private void addPosToCoordList(LatLng pos) {
-        mCoordList.add(pos);
     }
 
 }

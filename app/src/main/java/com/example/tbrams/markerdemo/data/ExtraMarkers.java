@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.example.tbrams.markerdemo.components.Util;
 import com.example.tbrams.markerdemo.dbModel.AreaItem;
-import com.example.tbrams.markerdemo.dbModel.CoordItem;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
