@@ -1007,7 +1007,7 @@ public class MarkerDemoUtils extends AppCompatActivity {
             // Create all area Polygons and keep record in an ArrayList
 
             for (AreaItem areaItem : areaItemList) {
-                List<LatLng> coords = areaItem.getCoordinates();
+                List<LatLng> coords = areaItem.getCoordList();
                 String name = areaItem.getAreaName();
 
                 if (areaItem.getAreaType() == AreaItem.CTR) {

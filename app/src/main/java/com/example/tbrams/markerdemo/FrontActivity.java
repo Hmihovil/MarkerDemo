@@ -203,7 +203,6 @@ public class FrontActivity extends AppCompatActivity {
         if (areaList==null||areaList.size()==0) {
             // use the build in sample area items as backup
             Log.d(TAG, "Could not get area data from db, using samples");
-            sExtraMarkers.setAreaItemList(sExtraMarkers.getSampleAreaItemList());
         } else {
             // use the area list from the database
             sExtraMarkers.setAreaItemList(areaList);

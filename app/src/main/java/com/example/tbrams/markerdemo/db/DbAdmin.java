@@ -87,10 +87,6 @@ public class DbAdmin extends DataSource {
 
         // Then update the Aerodromes table
         updateAerodromesFromMaster(adSampleList, true);
-
-        // Fetch the Area samples we will use for resetting both the Area and the Coords table
-        List<AreaItem> areaSampleList = sExtraMarkers.getSampleAreaItemList();
-        updateAreasFromMaster(areaSampleList, true);
     }
 
 

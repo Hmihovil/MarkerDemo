@@ -2,6 +2,7 @@ package com.example.tbrams.markerdemo.dbModel;
 
 import android.content.ContentValues;
 
+import com.example.tbrams.markerdemo.components.OpenAirInterpreter;
 import com.example.tbrams.markerdemo.db.AreaTable;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -33,6 +34,10 @@ public class AreaItem {
     private int mAreaToAlt;
     private String mOAC;
 
+    // Not used in database
+    private ArrayList<LatLng> mCoordList;
+
+
     public AreaItem() {
         this.mAreaId = UUID.randomUUID().toString();
         this.mAreaName = "";
@@ -42,6 +47,9 @@ public class AreaItem {
         this.mAreaClass = "";
         this.mAreaIdent = "";
         this.mOAC="";
+
+        this.mCoordList = new ArrayList<>();
+
     }
 
 
@@ -58,6 +66,10 @@ public class AreaItem {
         this.mAreaFromAlt = areaFromAlt;
         this.mAreaToAlt = areaToAlt;
         this.mOAC = definition;
+
+        OpenAirInterpreter interpreter = new OpenAirInterpreter();
+        this.mCoordList = interpreter.generatePolygon(definition);
+
     }
 
     public String getAreaId() {
@@ -122,6 +134,11 @@ public class AreaItem {
 
     public void setDefinition(String OAC) {
         mOAC = OAC;
+    }
+
+    // This one is not used in db context - coordinates only exist at runtime
+    public ArrayList<LatLng> getCoordList() {
+        return mCoordList;
     }
 
 

@@ -38,109 +38,6 @@ public class ExtraMarkers {
 
 
 
-    public List<AreaItem> getSampleAreaItemList() {
-
-
-        // Roskilde CTR
-
-        // Create an area object without polygon
-        AreaItem areaItem = new AreaItem(null, "RK CTR", AreaItem.CTR, "", "D", 0, 1500);
-
-        // then parse the coordinates, create a list of LatLng objects and use that for the area
-        String[] input = {"55 39 00N 011 58 30E", "55 40 30N 012 04 30E", "55 41 00N 012 11 30E",
-                "55 39 40N 012 15 00E", "55:36:30 N 012:17:00 E", "55:34:00 N 012:18:00 E", "55:31:00 N 012:16:00 E",
-                "55:29:30 N 012:10:00 E", "55:29:00 N 012:04:00 E", "55:31:00 N 011:58:00 E", "55:36:30 N 011:56:30 E"};
-        areaItem.setCoordItemList(getCoords(input, areaItem.getAreaId()));
-
-        // Add this area to the list of areas
-        sAreaItemList.add(areaItem);
-
-
-        // Roskilde TMA E
-
-        areaItem = new AreaItem(null, "RK TMA", AreaItem.TMA, "E", "C", 1500, 2500);
-
-        String[] input2 = {"55 51 44N 012 30 16E", "55 27 23N 012 08 06E", "55 43 38N 012 08 26E",
-        "55 50 47N 012 17 02E", "55 51 44N 012 30 16E"};
-        areaItem.setCoordItemList(getCoords(input2, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-        // CPH TMA A
-        areaItem = new AreaItem(null, "CPH TMA", AreaItem.TMA, "A", "C", 5500, 19500);
-        String[] input3 = {
-                "55 59 06N 011 49 33E",
-                "55 42 58N 011 40 56E",
-                "55 22 14N 011 56 17E",
-                "55 11 43N 011 58 46E",
-                "55 14 58N 011 40 51E",
-                "55 25 38N 011 24 36 ",
-                "55 50 48N 011 21 46E",
-                "55 59 06N 011 49 33E"
-        };
-        areaItem.setCoordItemList(getCoords(input3, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-
-        // RK TMA D
-        areaItem = new AreaItem(null, "RK TMA", AreaItem.TMA, "D", "C", 1500, 3500);
-        String[] input4 = {
-                "55 50 47N 012 17 02E",
-                "55 43 38N 012 08 26E",
-                "55 27 23N 012 08 06E",
-                "55 22 14N 011 56 17E",
-                "55 42 58N 011 40 56E",
-                "55 45 38N 011 42 21E",
-                "55 48 39N 011 49 01E",
-                "55 50 47N 012 17 02E"
-        };
-        areaItem.setCoordItemList(getCoords(input4, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-        // RK TMA C
-        areaItem = new AreaItem(null, "RK TMA", AreaItem.TMA, "C", "C", 2500, 3500);
-        String[] input5 = {
-                "55 57 18N 012 24 56E",
-                "55 50 47N 012 17 02E",
-                "55 48 39N 011 49 01E",
-                "55 54 38N 012 02 16E",
-                "55 57 18N 012 24 56E"
-        };
-        areaItem.setCoordItemList(getCoords(input5, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-        // RK TMA B
-        areaItem = new AreaItem(null, "RK TMA", AreaItem.TMA, "B", "C", 2500, 4500);
-        String[] input6 = {
-                "56 09 23N 012 24 46E",
-                "55 57 18N 012 24 56E",
-                "55 54 38N 012 02 16E",
-                "55 45 38N 011 42 21E",
-                "55 59 06N 011 49 33E",
-                "56 09 23N 012 24 46E"
-        };
-        areaItem.setCoordItemList(getCoords(input6, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-        // RK TMA A
-        areaItem = new AreaItem(null, "RK TMA", AreaItem.TMA, "A", "C", 2500, 5500);
-        String[] input7 = {
-                "55 59 06N 011 49 33E",
-                "55 42 58N 011 40 56E",
-                "55 22 14N 011 56 17E",
-                "55 11 43N 011 58 46E",
-                "55 14 58N 011 40 51E",
-                "55 25 38N 011 24 36E",
-                "55 50 48N 011 21 46E",
-                "55 59 06N 011 49 33E"
-        };
-        areaItem.setCoordItemList(getCoords(input7, areaItem.getAreaId()));
-        sAreaItemList.add(areaItem);
-
-
-        return sAreaItemList;
-    }
-
-
 
     public static List<AreaItem> getAreaItemList() {
         return sAreaItemList;
@@ -161,21 +58,6 @@ public class ExtraMarkers {
         return vList;
     }
 
-
-    /**
-     * Utility used to convert a list of String coordinates to real CoordItem objects.
-     * @param input String[] with coordinates
-     * @return List of CoordItem objects
-     */
-    @NonNull
-    private List<CoordItem> getCoords(String[] input, String areaId) {
-        List<CoordItem> coordList = new ArrayList<>();
-        for (int i=0; i< input.length; i++) {
-            CoordItem coordItem = new CoordItem(null, areaId, Util.convertVFG(input[i]), i);
-            coordList.add(coordItem);
-        }
-        return coordList;
-    }
 
 
     public static void setAreaItemList(List<AreaItem> areaItemList) {
