@@ -42,6 +42,10 @@ public class ExtraMarkers {
     public static List<AreaItem> getAreaItemList() {
         return sAreaItemList;
     }
+    public static void setAreaItemList(List<AreaItem> areaItemList) {
+        sAreaItemList = areaItemList;
+    }
+
 
 
     /**
@@ -56,12 +60,6 @@ public class ExtraMarkers {
             vList.add(Util.convertVFG(s));
         }
         return vList;
-    }
-
-
-
-    public static void setAreaItemList(List<AreaItem> areaItemList) {
-        sAreaItemList = areaItemList;
     }
 
 

@@ -201,8 +201,7 @@ public class FrontActivity extends AppCompatActivity {
         List<AreaItem> areaList = mDataSourceArea.getAllAreas(null);
         Log.d(TAG, "onCreate: Areas from DB - areaList.size(): "+areaList.size());
         if (areaList==null||areaList.size()==0) {
-            // use the build in sample area items as backup
-            Log.d(TAG, "Could not get area data from db, using samples");
+            Log.d(TAG, "No area data in database");
         } else {
             // use the area list from the database
             sExtraMarkers.setAreaItemList(areaList);

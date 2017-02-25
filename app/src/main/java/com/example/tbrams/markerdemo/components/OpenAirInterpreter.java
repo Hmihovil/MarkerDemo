@@ -32,7 +32,7 @@ public class OpenAirInterpreter {
      * @return List of LatLng coordinates
      */
     public ArrayList<LatLng> generatePolygon(String cmd) {
-        String[] cmds = cmd.split("\n");
+        String[] cmds = cmd.trim().split("\n");   // trim() will remove a leading "\n" if any
 
         mCoordList = new ArrayList<>();
         mCenter=null;

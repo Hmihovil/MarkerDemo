@@ -165,7 +165,7 @@ public class Util {
                 }
 
                 try {
-                    result = Integer.parseInt(input);
+                    result = (int) Double.parseDouble(input.trim());
                     if (flightLevelUnits) result*=100;
 
                 } catch (NumberFormatException e) {

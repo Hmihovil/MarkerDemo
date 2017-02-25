@@ -33,18 +33,14 @@ public class ImportFromServer {
 
     public String getItAll() throws IOException {
         String result="";
-        /*
+
         result+= getNavAids("NavAids!A2:H");
         result+=getPublicAerodromes("PublicAerodromes!A2:J");
         result+=getRecreationalAerodromes("Recreational!A2:E");
         result+=getPrivateAerodromes("PrivateAerodromes!A2:I");
         result+=getReportingPoints("ReportingPoints!A2:C");
         result+=getObstacles("Obstacles!A2:E");
-        result+=getAreas("TMA!A2:H");
-
-        */
-
-        result+=getOpenAirAreas("TEST!A3:B");
+        result+=getOpenAirAreas("TMA2!A3:B");
 
         return result;
     }

@@ -94,6 +94,14 @@ public class OpenAirParser {
             mAirspaceFrom = -8888;
             mAirspaceTo = -8888;
             mAirSpaceType = 0;
+        } else {
+            Log.e(TAG, "createAreaItem: Need complete arguments for areaItem creation");
+            if (mAirspaceName=="") Log.e(TAG, "Airspace Name not found");
+            if (mAirSpaceType==0) Log.e(TAG, "Airspace Type not found");
+            if (mAirspaceFrom==-8888) Log.e(TAG, "Airspace From Altitude not found");
+            if (mAirspaceTo==-8888) Log.e(TAG, "Airspace To Altitude not found");
+            if (mAirspaceClass=="") Log.e(TAG, "Airspace Class not found");
+            if (mDefList=="") Log.e(TAG, "Airspace Topology Definition not found");
         }
 
         return areaItem;
@@ -114,7 +122,7 @@ public class OpenAirParser {
      */
 
     private void appendDefinition(String oac) {
-        mDefList+="\n"+oac;
+        mDefList=(mDefList.length()==0?oac:mDefList+"\n"+oac);
     }
 
 

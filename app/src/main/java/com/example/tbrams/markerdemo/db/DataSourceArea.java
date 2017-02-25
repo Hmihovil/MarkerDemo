@@ -135,14 +135,17 @@ public class DataSourceArea extends DataSource {
 
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-                AreaItem areaItem = new AreaItem();
-                areaItem.setAreaId(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_ID)));
-                areaItem.setAreaName(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_NAME)));
-                areaItem.setAreaClass(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_CLASS)));
-                areaItem.setAreaIdent(cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_IDENT)));
-                areaItem.setAreaType(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TYPE)));
-                areaItem.setAreaFromAlt(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_FROM_ALT)));
-                areaItem.setAreaToAlt(cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TO_ALT)));
+
+                String aId = cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_ID));
+                String aName = cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_NAME));
+                int aType = cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TYPE));
+                String aIdent = cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_IDENT));
+                String aClass = cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_CLASS));
+                int aFrom = cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_FROM_ALT));
+                int aTo = cursor.getInt(cursor.getColumnIndex(AreaTable.COLUMN_TO_ALT));
+                String aDefinition = cursor.getString(cursor.getColumnIndex(AreaTable.COLUMN_OAC));
+
+                AreaItem areaItem = new AreaItem(aId, aName, aType, aIdent, aClass, aFrom, aTo, aDefinition);
                 areaList.add(areaItem);
             }
         }

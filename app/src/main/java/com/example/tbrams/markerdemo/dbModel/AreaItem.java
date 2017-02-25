@@ -136,11 +136,13 @@ public class AreaItem {
         mOAC = OAC;
     }
 
-    // This one is not used in db context - coordinates only exist at runtime
+    public String getOAC() { return mOAC; }
+    public void setOAC(String OAC) {mOAC = OAC;}
+
+    // This one can be called as soon as the item has been created
     public ArrayList<LatLng> getCoordList() {
         return mCoordList;
     }
-
 
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues(4);
