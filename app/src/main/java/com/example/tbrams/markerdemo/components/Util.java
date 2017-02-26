@@ -2,54 +2,56 @@ package com.example.tbrams.markerdemo.components;
 
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class Util {
 
-    /** Convert location format used in VFG Denmark to a Latlon object.
-     *  Support formats like these:
-     *  "570613N 0095944E",
-     *  "55 01 59N 009 14 55E",
-     *  "55 45 22.55N 009 15 22.64E" and
-     *  "57 05 34 04N 009 50 56 99E"
+    /**
+     * Convert location format used in VFG Denmark to a Latlon object.
+     * Support formats like these:
+     * "570613N 0095944E",
+     * "55 01 59N 009 14 55E",
+     * "55 45 22.55N 009 15 22.64E" and
+     * "57 05 34 04N 009 50 56 99E"
+     * <p>
+     * AND Because the site soaringweb.org is using a different format yet again, I have added
+     * the following format in the list of supported formats
+     * <p>
+     * "57:05:34 N 009:50:56 E"
      *
-     *  AND Because the site soaringweb.org is using a different format yet again, I have added
-     *  the following format in the list of supported formats
-     *
-     *  "57:05:34 N 009:50:56 E"
-     *
-     * @params String in a format from the list above
      * @return a LatLng object
-     *
+     * @params String in a format from the list above
      */
     public static LatLng convertVFG(String input) {
-        double nHrs=0, eHrs=0;
-        double nMin=0, eMin=0;
-        double nSec=0, eSec=0;
+        double nHrs = 0, eHrs = 0;
+        double nMin = 0, eMin = 0;
+        double nSec = 0, eSec = 0;
 
         String[] parts = input.split(" ");
 
-        if (parts.length==8) {
+        if (parts.length == 8) {
             // For example "57 05 34 04N 009 50 56 99E"
-            nHrs=Double.parseDouble(parts[0]);
-            nMin=Double.parseDouble(parts[1]);
-            nSec=Double.parseDouble(parts[2]+"."+removeLastChar(parts[3]));
-            eHrs=Double.parseDouble(parts[4]);
-            eMin=Double.parseDouble(parts[5]);
-            eSec=Double.parseDouble(parts[6]+"."+removeLastChar(parts[7]));
-        }
-        else if (parts.length==2) {
+            nHrs = Double.parseDouble(parts[0]);
+            nMin = Double.parseDouble(parts[1]);
+            nSec = Double.parseDouble(parts[2] + "." + removeLastChar(parts[3]));
+            eHrs = Double.parseDouble(parts[4]);
+            eMin = Double.parseDouble(parts[5]);
+            eSec = Double.parseDouble(parts[6] + "." + removeLastChar(parts[7]));
+        } else if (parts.length == 2) {
             // For example "570613N 0095944E"
-            nHrs = Double.parseDouble(parts[0].substring(0,2));
-            nMin = Double.parseDouble(parts[0].substring(2,4));
-            nSec = Double.parseDouble(parts[0].substring(4,6));
+            nHrs = Double.parseDouble(parts[0].substring(0, 2));
+            nMin = Double.parseDouble(parts[0].substring(2, 4));
+            nSec = Double.parseDouble(parts[0].substring(4, 6));
 
-            eHrs = Double.parseDouble(parts[1].substring(0,3));
-            eMin = Double.parseDouble(parts[1].substring(3,5));
-            eSec = Double.parseDouble(parts[1].substring(5,7));
+            eHrs = Double.parseDouble(parts[1].substring(0, 3));
+            eMin = Double.parseDouble(parts[1].substring(3, 5));
+            eSec = Double.parseDouble(parts[1].substring(5, 7));
 
         } else if (parts.length == 4) {
             // soaringweb.org format "57:05:34 N 009:50:56 E"
@@ -64,19 +66,19 @@ public class Util {
             eMin = Double.parseDouble(eParts[1]);
             eSec = Double.parseDouble(eParts[2]);
 
-        }  else {
+        } else {
             // Length 6, for example "55 58 06.00N 009 59 40.00E" or "55 58 06N 009 59 40E"
-            nHrs=Double.parseDouble(parts[0]);
-            nMin=Double.parseDouble(parts[1]);
-            nSec=Double.parseDouble(removeLastChar(parts[2]));
+            nHrs = Double.parseDouble(parts[0]);
+            nMin = Double.parseDouble(parts[1]);
+            nSec = Double.parseDouble(removeLastChar(parts[2]));
 
-            eHrs=Double.parseDouble(parts[3]);
-            eMin=Double.parseDouble(parts[4]);
-            eSec=Double.parseDouble(removeLastChar(parts[5]));
+            eHrs = Double.parseDouble(parts[3]);
+            eMin = Double.parseDouble(parts[4]);
+            eSec = Double.parseDouble(removeLastChar(parts[5]));
         }
 
-        Double lat = nHrs+nMin/60+nSec/3600;
-        Double lon = eHrs+eMin/60+eSec/3600;
+        Double lat = nHrs + nMin / 60 + nSec / 3600;
+        Double lon = eHrs + eMin / 60 + eSec / 3600;
 
         return new LatLng(lat, lon);
     }
@@ -101,31 +103,29 @@ public class Util {
     /**
      * A utility for chopping off the last character of a string
      *
-     * @param str   Typically a location string like " "55 01 59N
-     * @return      String without the last character.
+     * @param str Typically a location string like " "55 01 59N
+     * @return String without the last character.
      */
     public static String removeLastChar(String str) {
-        return str.substring(0,str.length()-1);
+        return str.substring(0, str.length() - 1);
     }
-
 
 
     /**
      * Parse the different variation of radio limitations in VFG Denmark.
      *
      * @param input String  For example "FL 500/60 NM", "20NM", "FL 500/200NM"
-     * @return      int[]   Two components, [0] is the altitude, [1] is the distance
-     *
+     * @return int[]   Two components, [0] is the altitude, [1] is the distance
      */
     public static int[] parseLimitations(String input) {
-        int[] result = {0,0};
+        int[] result = {0, 0};
         if (input != null) {
-            String[] parts=input.trim().replace(" ","").split("/");
+            String[] parts = input.trim().replace(" ", "").split("/");
             for (String s : parts) {
-                if (s.indexOf("NM")>=0) {
-                    result[1]= Integer.parseInt(s.replace("NM",""));
-                } else if (s.indexOf("FL")>=0) {
-                    result[0]=Integer.parseInt(s.replace("FL",""));
+                if (s.indexOf("NM") >= 0) {
+                    result[1] = Integer.parseInt(s.replace("NM", ""));
+                } else if (s.indexOf("FL") >= 0) {
+                    result[0] = Integer.parseInt(s.replace("FL", ""));
                 }
             }
         }
@@ -134,13 +134,12 @@ public class Util {
     }
 
 
-
     /**
      * Parse the different variation of altitude notations. Will process all altitude strings
      * haveing the format like these:
-     *
+     * <p>
      * "FL 500", "GND", "UNL, "2300" or "2300 ft"
-     *
+     * <p>
      * Any other format will yield a negative altitude to indicate the error condition.
      *
      * @param input String
@@ -158,7 +157,7 @@ public class Util {
                 result = 19999;
             } else {
                 // First get rid of Feet unit if there at all
-                input=input.replace("FT", "").trim();
+                input = input.replace("FT", "").trim();
                 if (input.indexOf("FL") >= 0) {
                     flightLevelUnits = true;
                     input = input.replace("FL", "");
@@ -166,7 +165,7 @@ public class Util {
 
                 try {
                     result = (int) Double.parseDouble(input.trim());
-                    if (flightLevelUnits) result*=100;
+                    if (flightLevelUnits) result *= 100;
 
                 } catch (NumberFormatException e) {
                     result = 0;
@@ -179,16 +178,79 @@ public class Util {
     }
 
 
-
     /**
      * Get current date.
      *
      * @return String  Current Date formatted as "dd-MM-yyyy"
-     *
      */
     public static String getDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);
     }
+
+    /**
+     * Utility function used to determine if a coordinate is within the boundaries of a given
+     * polygon.
+     *
+     * @param coordinate Google Maps LatLng Object
+     * @param polygon    Google Maps API Polygon object
+     * @return
+     */
+    public static boolean isPointInside(LatLng coordinate, Polygon polygon) {
+        return isPointInside(coordinate, polygon.getPoints());
+    }
+
+
+    /**
+     * Utility function used to determine if a coordinate is within the boundaries of a given
+     * polygon.
+     *
+     * @param coordinate Google Maps LatLng Object
+     * @param polygon    List of LatLng objects defining the polygon
+     * @return
+     */
+    public static boolean isPointInside(LatLng coordinate, List<LatLng> polygon) {
+        List<Double> lonPoints = new ArrayList<Double>();
+        List<Double> latPoints = new ArrayList<Double>();
+
+        for (LatLng coord : polygon) {
+            latPoints.add(coord.latitude);
+            lonPoints.add(coord.longitude);
+        }
+
+        double maxLat = latPoints.get(0);
+        double maxLon = lonPoints.get(0);
+        double minLat = latPoints.get(0);
+        double minLon = lonPoints.get(0);
+        for (int i = 0; i < latPoints.size(); i++) {
+            maxLat = Math.max(latPoints.get(i), maxLat);
+            maxLon = Math.max(lonPoints.get(i), maxLon);
+            minLat = Math.min(latPoints.get(i), minLat);
+            minLon = Math.min(lonPoints.get(i), minLon);
+        }
+
+
+        double lat = coordinate.latitude;
+        double lon = coordinate.longitude;
+        if (lat < minLat || lat > maxLat || lon < minLon || lon > maxLon) {
+            return false;
+        }
+
+
+        boolean ok = false;
+        int i = 0;
+        int j = lonPoints.size() - 1;
+        while (i < lonPoints.size()) {
+            if (((lonPoints.get(i) > lon) != (lonPoints.get(j) > lon)) &&
+                    (lat < (latPoints.get(j) - latPoints.get(i)) * (lon - lonPoints.get(i)) /
+                            (lonPoints.get(j) - lonPoints.get(i)) + latPoints.get(i))) {
+                ok = !ok;
+            }
+            j = i;
+            i++;
+        }
+        return ok;
+    }
+
 }
