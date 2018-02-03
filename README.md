@@ -1,5 +1,10 @@
 # MarkerDemo
 This has grown a lot since inception and is now a working prototype of a flight planning app based on Google Maps, publicly available airspace data, aeroports, navigational aids and obstacles. 
+
+<p align="center">
+<img width="600" alt="EKRK-EKOD Overview" src="https://user-images.githubusercontent.com/3058746/35767945-404e9b70-08f5-11e8-9a10-5045feaac228.jpg">
+</p>
+
 My goal of building this app was to avoid a couple of things that I found took too much time and had too many inherent error sources when planning a 
 VFR flight during the Private Pilot training program.
 
@@ -20,10 +25,6 @@ is needed later on.
 
 ## Documentation
 I will need to write proper documentation at some point, for now I will limit this to sharing a few screenshots.
-
-<p align="center">
-<img width="745" alt="EKRK-EKOD Overview" src="https://user-images.githubusercontent.com/3058746/35767945-404e9b70-08f5-11e8-9a10-5045feaac228.jpg">
-</p>
 
 <p align="center">
 <img width="200" alt="screenshot" src="https://user-images.githubusercontent.com/3058746/35767949-502f5c32-08f5-11e8-9ce5-8f9e8219f4b1.jpg">
